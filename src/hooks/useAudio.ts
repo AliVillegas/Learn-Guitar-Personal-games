@@ -90,11 +90,10 @@ export function useAudio(): UseAudioReturn {
   }, [])
 
   const playNote = useCallback(
-    (note: NoteDefinition) => {
+    async (note: NoteDefinition) => {
       const ctx = getContext()
-      ensureContextResumed(ctx).then(() => {
-        scheduleNote(ctx, note, ctx.currentTime, instrument)
-      })
+      await ensureContextResumed(ctx)
+      await scheduleNote(ctx, note, ctx.currentTime, instrument)
     },
     [getContext, instrument]
   )

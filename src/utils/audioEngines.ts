@@ -108,13 +108,18 @@ const guitarEngine: AudioEngine = {
     await initializeGuitarSampler()
 
     if (!guitarSampler) {
+      console.warn('Guitar sampler not ready')
       return
     }
 
     const delay = Math.max(0, startTime - ctx.currentTime)
-    const toneTime = delay > 0 ? Tone.now() + delay : Tone.now()
+    const toneTime = delay > 0 ? `+${delay}` : undefined
 
-    guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+    try {
+      guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+    } catch (error) {
+      console.error('Error triggering guitar note:', error, { noteName: note.noteName, toneTime })
+    }
   },
   createEnvelope: createGuitarEnvelope,
 }
