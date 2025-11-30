@@ -55,18 +55,22 @@ async function scheduleSequence(
 ): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
+  const minDelay = 0.01
 
   if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
     await initializeGuitarSynth()
   }
 
   const promises = notes.map((note, index) => {
-    const startTime = now + index * noteDuration
-    const delayMs = (startTime - now) * 1000
+    const startTime = now + minDelay + index * noteDuration
+    const delayMs = Math.max(0, (startTime - now) * 1000)
 
-    const timeoutId = setTimeout(() => {
-      onNoteStart(index)
-    }, delayMs)
+    const timeoutId = setTimeout(
+      () => {
+        onNoteStart(index)
+      },
+      Math.max(10, delayMs)
+    )
     timeoutIds.push(timeoutId)
 
     return scheduleNote(ctx, note, startTime, instrument)
@@ -74,7 +78,7 @@ async function scheduleSequence(
 
   await Promise.all(promises)
 
-  return notes.length * noteDuration * 1000
+  return notes.length * noteDuration * 1000 + minDelay * 1000
 }
 
 function createErrorSound(ctx: AudioContext): void {
@@ -105,7 +109,8 @@ async function ensureToneStarted(instrument: InstrumentType): Promise<void> {
 
 function clearAllTimeouts(
   noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
-  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void
 ): void {
   noteTimeoutRefs.current.forEach((id) => clearTimeout(id))
   noteTimeoutRefs.current = []
@@ -114,6 +119,8 @@ function clearAllTimeouts(
     clearTimeout(timeoutRef.current)
     timeoutRef.current = null
   }
+
+  setPlayingIndex(null)
 }
 
 function handleSequenceEnd(
@@ -173,7 +180,7 @@ export function useAudio(): UseAudioReturn {
       bpm: number = DEFAULT_BPM,
       startIndex: number = 0
     ): Promise<void> => {
-      clearAllTimeouts(noteTimeoutRefs, timeoutRef)
+      clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
       const ctx = getContext()
       await prepareSequencePlayback(ctx, instrument, setIsPlaying, setPlayingIndex, startIndex)
       const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
