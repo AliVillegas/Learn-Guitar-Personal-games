@@ -47,9 +47,7 @@ function generateSequence(stringNotes: StringNoteConfig[], measureCount: number)
     })
   }
 
-  if (sequence.length > 0) {
-    sequence[0].status = 'active'
-  }
+  sequence[0].status = 'active'
 
   return sequence
 }
