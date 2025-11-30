@@ -1,17 +1,20 @@
 import type { SolfegeNote } from '../types/music'
 import type { ReturnType } from 'react'
-import { useGameState } from './useGameState'
+import { useGameStore } from '../store/gameStore'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
 
-type GameStateHook = ReturnType<typeof useGameState>
 type AudioHook = ReturnType<typeof useAudio>
 type FeedbackHook = ReturnType<typeof useAnswerFeedback>
 
-export function createAnswerHandler(game: GameStateHook, audio: AudioHook, feedback: FeedbackHook) {
+export function createAnswerHandler(
+  game: ReturnType<typeof useGameStore>,
+  audio: AudioHook,
+  feedback: FeedbackHook
+) {
   return (selectedNote: SolfegeNote) => {
-    const currentNote = game.state.sequence[game.state.currentIndex]
-    if (!currentNote || game.state.phase !== 'playing') {
+    const currentNote = game.sequence[game.currentIndex]
+    if (!currentNote || game.phase !== 'playing') {
       return
     }
 

@@ -1,12 +1,12 @@
 import type { SolfegeNote, MeasureCount, GuitarString } from '../types/music'
-import { useGameState } from './useGameState'
+import { useGameStore } from '../store/gameStore'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
 import { createAnswerHandler } from './useAnswerHandler'
 
-function createToggleStringNoteHandler(game: ReturnType<typeof useGameState>) {
+function createToggleStringNoteHandler() {
   return (guitarString: GuitarString, note: SolfegeNote) => {
-    const currentStringNotes = game.state.config.stringNotes
+    const currentStringNotes = useGameStore.getState().config.stringNotes
     const stringConfig = currentStringNotes.find((sn) => sn.string === guitarString)
 
     if (!stringConfig) {
@@ -22,69 +22,62 @@ function createToggleStringNoteHandler(game: ReturnType<typeof useGameState>) {
       sn.string === guitarString ? { ...sn, notes: newNotes } : sn
     )
 
-    game.setConfig({ stringNotes: updatedStringNotes })
+    useGameStore.getState().setConfig({ stringNotes: updatedStringNotes })
   }
 }
 
-function createChangeMeasureHandler(game: ReturnType<typeof useGameState>) {
+function createChangeMeasureHandler() {
   return (count: MeasureCount) => {
-    game.setConfig({ measureCount: count })
+    useGameStore.getState().setConfig({ measureCount: count })
   }
 }
 
-function createGenerateHandler(
-  feedback: ReturnType<typeof useAnswerFeedback>,
-  game: ReturnType<typeof useGameState>
-) {
+function createGenerateHandler(feedback: ReturnType<typeof useAnswerFeedback>) {
   return () => {
     feedback.reset()
-    game.generateSequence()
+    useGameStore.getState().generateSequence()
   }
 }
 
-function createPlayAllHandler(
-  game: ReturnType<typeof useGameState>,
-  audio: ReturnType<typeof useAudio>
-) {
+function createPlayAllHandler(audio: ReturnType<typeof useAudio>) {
   return () => {
-    const noteDefinitions = game.state.sequence.map((gn) => gn.note)
+    const sequence = useGameStore.getState().sequence
+    const noteDefinitions = sequence.map((gn) => gn.note)
     audio.playSequence(noteDefinitions)
   }
 }
 
-function createPlayCurrentNoteHandler(
-  game: ReturnType<typeof useGameState>,
-  audio: ReturnType<typeof useAudio>
-) {
+function createPlayCurrentNoteHandler(audio: ReturnType<typeof useAudio>) {
   return () => {
-    const currentNote = game.state.sequence[game.state.currentIndex]
+    const state = useGameStore.getState()
+    const currentNote = state.sequence[state.currentIndex]
     if (currentNote) {
       audio.playNote(currentNote.note)
     }
   }
 }
 
-function createPlayAgainHandler(game: ReturnType<typeof useGameState>) {
+function createPlayAgainHandler() {
   return () => {
-    game.reset()
+    useGameStore.getState().reset()
   }
 }
 
 export function useAppHandlers() {
-  const game = useGameState()
+  const game = useGameStore()
   const audio = useAudio()
   const feedback = useAnswerFeedback()
 
   return {
-    game,
+    game: { state: game },
     audio,
     feedback,
-    handleToggleStringNote: createToggleStringNoteHandler(game),
-    handleChangeMeasure: createChangeMeasureHandler(game),
-    handleGenerate: createGenerateHandler(feedback, game),
-    handlePlayAll: createPlayAllHandler(game, audio),
-    handlePlayCurrentNote: createPlayCurrentNoteHandler(game, audio),
+    handleToggleStringNote: createToggleStringNoteHandler(),
+    handleChangeMeasure: createChangeMeasureHandler(),
+    handleGenerate: createGenerateHandler(feedback),
+    handlePlayAll: createPlayAllHandler(audio),
+    handlePlayCurrentNote: createPlayCurrentNoteHandler(audio),
     handleAnswerSelect: createAnswerHandler(game, audio, feedback),
-    handlePlayAgain: createPlayAgainHandler(game),
+    handlePlayAgain: createPlayAgainHandler(),
   }
 }

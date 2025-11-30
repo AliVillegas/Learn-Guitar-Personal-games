@@ -12,9 +12,9 @@ export function ResultPanel({ correct, total, onPlayAgain }: ResultPanelProps) {
 
   return (
     <div className="bg-card border border-border rounded-lg p-8 space-y-6 text-center">
-      <h2 className="text-3xl font-semibold text-foreground">{t('result.complete')}</h2>
+      <h2 className="text-3xl font-semibold text-[#0d6efd]">{t('result.complete')}</h2>
       <p className="text-lg text-muted-foreground">{t('result.finalScore', { correct, total })}</p>
-      <Button onClick={onPlayAgain} size="lg">
+      <Button onClick={onPlayAgain} size="lg" variant="default">
         {t('result.playAgain')}
       </Button>
     </div>

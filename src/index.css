@@ -10,19 +10,19 @@
     --card-foreground: 40 35 30;
     --popover: 255 253 249;
     --popover-foreground: 40 35 30;
-    --primary: 180 160 140;
-    --primary-foreground: 40 35 30;
-    --secondary: 248 245 240;
-    --secondary-foreground: 40 35 30;
+    --primary: 13 110 253;
+    --primary-foreground: 255 255 255;
+    --secondary: 108 117 125;
+    --secondary-foreground: 255 255 255;
     --muted: 245 242 237;
     --muted-foreground: 100 90 80;
-    --accent: 200 170 140;
-    --accent-foreground: 40 35 30;
-    --destructive: 200 120 120;
-    --destructive-foreground: 40 35 30;
+    --accent: 13 110 253;
+    --accent-foreground: 255 255 255;
+    --destructive: 220 53 69;
+    --destructive-foreground: 255 255 255;
     --border: 230 225 220;
     --input: 230 225 220;
-    --ring: 180 160 140;
+    --ring: 13 110 253;
     --radius: 0.5rem;
     --chart-1: 200 220 255;
     --chart-2: 220 240 255;
@@ -38,19 +38,19 @@
     --card-foreground: 40 35 30;
     --popover: 255 253 249;
     --popover-foreground: 40 35 30;
-    --primary: 180 160 140;
-    --primary-foreground: 40 35 30;
-    --secondary: 248 245 240;
-    --secondary-foreground: 40 35 30;
+    --primary: 13 110 253;
+    --primary-foreground: 255 255 255;
+    --secondary: 108 117 125;
+    --secondary-foreground: 255 255 255;
     --muted: 245 242 237;
     --muted-foreground: 100 90 80;
-    --accent: 200 170 140;
-    --accent-foreground: 40 35 30;
-    --destructive: 200 120 120;
-    --destructive-foreground: 40 35 30;
+    --accent: 13 110 253;
+    --accent-foreground: 255 255 255;
+    --destructive: 220 53 69;
+    --destructive-foreground: 255 255 255;
     --border: 230 225 220;
     --input: 230 225 220;
-    --ring: 180 160 140;
+    --ring: 13 110 253;
   }
 }
 
@@ -70,16 +70,39 @@
   @keyframes shake {
     0%,
     100% {
-      transform: translateX(0);
+      transform: translateX(0) rotate(0deg);
     }
-    25% {
-      transform: translateX(-4px);
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-8px) rotate(-2deg);
     }
-    75% {
-      transform: translateX(4px);
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(8px) rotate(2deg);
     }
   }
   .animate-shake {
-    animation: shake 0.2s ease-in-out;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+    }
+    50% {
+      box-shadow:
+        0 0 20px rgba(13, 110, 253, 0.8),
+        0 0 30px rgba(13, 110, 253, 0.6);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
   }
 }

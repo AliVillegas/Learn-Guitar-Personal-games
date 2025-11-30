@@ -17,9 +17,7 @@ export function AnswerSection({
 
   return (
     <div className="space-y-4">
-      <p className="text-center text-muted-foreground text-lg font-medium">
-        {t('game.identifyNote')}
-      </p>
+      <p className="text-center text-blue-600 text-lg font-medium">{t('game.identifyNote')}</p>
       <NoteButtons
         onSelect={onAnswerSelect}
         disabled={isPlayingAudio}

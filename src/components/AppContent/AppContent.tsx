@@ -1,17 +1,13 @@
 import { ConfigSection } from '../ConfigSection/ConfigSection'
 import { PlayPanel } from '../PlayPanel/PlayPanel'
 import { ResultPanel } from '../ResultPanel/ResultPanel'
-import type { ReturnType } from 'react'
+import { useGameStore } from '../../store/gameStore'
 import { useAppHandlers } from '../../hooks/useAppHandlers'
 
-type Handlers = ReturnType<typeof useAppHandlers>
-
-interface AppContentProps {
-  handlers: Handlers
-}
-
-function renderConfigPhase(handlers: Handlers) {
-  const config = handlers.game.state.config
+function renderConfig(
+  config: ReturnType<typeof useGameStore>['config'],
+  handlers: ReturnType<typeof useAppHandlers>
+) {
   return (
     <ConfigSection
       stringNotes={config.stringNotes}
@@ -23,29 +19,34 @@ function renderConfigPhase(handlers: Handlers) {
   )
 }
 
-function renderCompletePhase(handlers: Handlers) {
-  const { game } = handlers
+function renderComplete(
+  score: ReturnType<typeof useGameStore>['score'],
+  sequenceLength: number,
+  handlers: ReturnType<typeof useAppHandlers>
+) {
   return (
     <ResultPanel
-      correct={game.state.score.correct}
-      total={game.state.sequence.length}
+      correct={score.correct}
+      total={sequenceLength}
       onPlayAgain={handlers.handlePlayAgain}
     />
   )
 }
 
-function renderPlayingPhase(handlers: Handlers) {
-  const { game, audio, feedback } = handlers
-  const noteDefinitions = game.state.sequence.map((gn) => gn.note)
+function renderPlaying(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>
+) {
+  const noteDefinitions = game.sequence.map((gn) => gn.note)
   return (
     <PlayPanel
-      notes={game.state.sequence}
-      measureCount={game.state.config.measureCount}
-      currentIndex={game.state.currentIndex}
+      notes={game.sequence}
+      measureCount={game.config.measureCount}
+      currentIndex={game.currentIndex}
       noteDefinitions={noteDefinitions}
       isComplete={false}
-      isPlayingAudio={audio.isPlaying}
-      feedbackState={feedback.feedbackState}
+      isPlayingAudio={handlers.audio.isPlaying}
+      feedbackState={handlers.feedback.feedbackState}
       onPlayAll={handlers.handlePlayAll}
       onPlayCurrentNote={handlers.handlePlayCurrentNote}
       onAnswerSelect={handlers.handleAnswerSelect}
@@ -53,10 +54,16 @@ function renderPlayingPhase(handlers: Handlers) {
   )
 }
 
-export function AppContent({ handlers }: AppContentProps) {
-  const phase = handlers.game.state.phase
-  if (phase === 'config') return renderConfigPhase(handlers)
-  if (phase === 'complete') return renderCompletePhase(handlers)
-  if (phase === 'playing') return renderPlayingPhase(handlers)
+export function AppContent() {
+  const phase = useGameStore((state) => state.phase)
+  const config = useGameStore((state) => state.config)
+  const score = useGameStore((state) => state.score)
+  const sequence = useGameStore((state) => state.sequence)
+  const game = useGameStore()
+  const handlers = useAppHandlers()
+
+  if (phase === 'config') return renderConfig(config, handlers)
+  if (phase === 'complete') return renderComplete(score, sequence.length, handlers)
+  if (phase === 'playing') return renderPlaying(game, handlers)
   return null
 }
