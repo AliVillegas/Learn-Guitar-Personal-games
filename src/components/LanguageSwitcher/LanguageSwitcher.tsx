@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Button } from '../ui/button'
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation()
@@ -11,13 +12,8 @@ export function LanguageSwitcher() {
   const buttonText = i18n.language === 'en' ? 'Español' : 'English'
 
   return (
-    <button
-      type="button"
-      onClick={toggleLanguage}
-      className="language-switcher"
-    >
+    <Button type="button" onClick={toggleLanguage} variant="outline" size="sm">
       {buttonText}
-    </button>
+    </Button>
   )
 }
-

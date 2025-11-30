@@ -18,10 +18,6 @@ interface PlayPanelProps {
   onAnswerSelect: (note: SolfegeNote) => void
 }
 
-function calculateCorrectCount(notes: GameNote[]): number {
-  return notes.filter((n) => n.status === 'correct').length
-}
-
 export function PlayPanel({
   notes,
   measureCount,
@@ -33,20 +29,12 @@ export function PlayPanel({
   onPlayAll,
   onAnswerSelect,
 }: PlayPanelProps) {
+  const correctCount = notes.filter((n) => n.status === 'correct').length
+
   return (
-    <div className="play-panel">
-      <Staff
-        notes={notes}
-        measureCount={measureCount}
-        currentIndex={currentIndex}
-      />
-
-      <PlaybackControls
-        notes={noteDefinitions}
-        onPlayAll={onPlayAll}
-        isPlaying={isPlayingAudio}
-      />
-
+    <div className="space-y-6">
+      <Staff notes={notes} measureCount={measureCount} currentIndex={currentIndex} />
+      <PlaybackControls notes={noteDefinitions} onPlayAll={onPlayAll} isPlaying={isPlayingAudio} />
       {!isComplete && (
         <AnswerSection
           isPlayingAudio={isPlayingAudio}
@@ -54,12 +42,7 @@ export function PlayPanel({
           onAnswerSelect={onAnswerSelect}
         />
       )}
-
-      <ScoreDisplay
-        correct={calculateCorrectCount(notes)}
-        total={notes.length}
-      />
+      <ScoreDisplay correct={correctCount} total={notes.length} />
     </div>
   )
 }
-

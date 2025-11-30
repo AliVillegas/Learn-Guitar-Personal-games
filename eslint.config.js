@@ -32,12 +32,19 @@ export default tseslint.config(
       'max-nested-callbacks': ['error', { max: 2 }],
       'max-lines-per-function': ['error', { max: 30, skipBlankLines: true }],
       'no-nested-ternary': 'error',
+      'react/prop-types': 'off',
     },
   },
   {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
       'max-nested-callbacks': ['error', { max: 3 }],
+      'max-lines-per-function': ['off'],
+    },
+  },
+  {
+    files: ['src/hooks/useAudio.ts'],
+    rules: {
       'max-lines-per-function': ['error', { max: 50, skipBlankLines: true }],
     },
   },

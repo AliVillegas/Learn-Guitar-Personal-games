@@ -13,9 +13,9 @@ export function NoteSelector({ selectedNotes, onToggle }: NoteSelectorProps) {
   const allNotes = getAllSolfegeNotes()
 
   return (
-    <div className="note-selector">
-      <h3>{t('config.selectNotes')}</h3>
-      <div className="note-checkboxes">
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-foreground">{t('config.selectNotes')}</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {allNotes.map((note) => (
           <NoteCheckbox
             key={note}
@@ -25,10 +25,6 @@ export function NoteSelector({ selectedNotes, onToggle }: NoteSelectorProps) {
           />
         ))}
       </div>
-      {selectedNotes.length < 2 && (
-        <p className="warning">{t('config.minNotesWarning')}</p>
-      )}
     </div>
   )
 }
-

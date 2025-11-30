@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { Checkbox } from '../ui/checkbox'
+import { cn } from '@/lib/utils'
 import type { SolfegeNote } from '../../types/music'
 
 interface NoteCheckboxProps {
@@ -15,14 +17,15 @@ export function NoteCheckbox({ note, checked, onToggle }: NoteCheckboxProps) {
   }
 
   return (
-    <label className="note-checkbox">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleChange}
-      />
-      <span>{t(`notes.${note}`)}</span>
+    <label
+      className={cn(
+        'flex items-center gap-2 px-4 py-2 rounded-lg border border-border',
+        'hover:bg-accent/50 cursor-pointer transition-colors',
+        checked && 'bg-primary/20 border-primary'
+      )}
+    >
+      <Checkbox checked={checked} onChange={handleChange} />
+      <span className="text-sm font-medium">{t(`notes.${note}`)}</span>
     </label>
   )
 }
-

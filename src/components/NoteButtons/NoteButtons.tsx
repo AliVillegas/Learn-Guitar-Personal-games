@@ -12,7 +12,7 @@ export function NoteButtons({ onSelect, disabled, feedbackState }: NoteButtonsPr
   const allNotes = getAllSolfegeNotes()
 
   return (
-    <div className="note-buttons">
+    <div className="flex justify-center flex-wrap gap-3">
       {allNotes.map((note) => (
         <SolfegeButton
           key={note}
@@ -25,4 +25,3 @@ export function NoteButtons({ onSelect, disabled, feedbackState }: NoteButtonsPr
     </div>
   )
 }
-

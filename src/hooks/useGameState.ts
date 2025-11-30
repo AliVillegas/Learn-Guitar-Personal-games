@@ -1,5 +1,5 @@
 import { useReducer } from 'react'
-import type { SolfegeNote, MeasureCount } from '../types/music'
+import type { SolfegeNote } from '../types/music'
 import type { GameConfig } from '../types/game'
 import { gameReducer } from './useGameReducer'
 
@@ -43,4 +43,3 @@ export function useGameState() {
     reset,
   }
 }
-

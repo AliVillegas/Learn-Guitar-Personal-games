@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Button } from '../ui/button'
 import type { NoteDefinition } from '../../types/music'
 
 interface PlaybackControlsProps {
@@ -17,16 +18,16 @@ export function PlaybackControls({ notes, onPlayAll, isPlaying }: PlaybackContro
   }
 
   return (
-    <div className="playback-controls">
-      <button
+    <div className="flex justify-center">
+      <Button
         type="button"
         onClick={handlePlayAll}
         disabled={isPlaying}
-        className="play-all-button"
+        size="lg"
+        className="bg-accent hover:bg-accent/90 text-accent-foreground"
       >
         {t('game.playAll')}
-      </button>
+      </Button>
     </div>
   )
 }
-

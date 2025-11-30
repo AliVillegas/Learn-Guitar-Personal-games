@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { Button } from '../ui/button'
+import { cn } from '@/lib/utils'
 import type { SolfegeNote } from '../../types/music'
 
 interface SolfegeButtonProps {
@@ -8,12 +10,13 @@ interface SolfegeButtonProps {
   feedbackState: 'idle' | 'correct' | 'incorrect'
 }
 
-export function SolfegeButton({
-  note,
-  onSelect,
-  disabled,
-  feedbackState,
-}: SolfegeButtonProps) {
+function getVariant(feedbackState: 'idle' | 'correct' | 'incorrect') {
+  if (feedbackState === 'correct') return 'default'
+  if (feedbackState === 'incorrect') return 'destructive'
+  return 'outline'
+}
+
+export function SolfegeButton({ note, onSelect, disabled, feedbackState }: SolfegeButtonProps) {
   const { t } = useTranslation()
 
   const handleClick = () => {
@@ -22,17 +25,21 @@ export function SolfegeButton({
     }
   }
 
-  const className = `solfege-button ${feedbackState} ${disabled ? 'disabled' : ''}`
+  const variant = getVariant(feedbackState)
 
   return (
-    <button
+    <Button
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className={className}
+      variant={variant}
+      className={cn(
+        'min-w-[80px] transition-all duration-200',
+        feedbackState === 'correct' && 'bg-green-300 hover:bg-green-400',
+        feedbackState === 'incorrect' && 'animate-shake'
+      )}
     >
       {t(`notes.${note}`)}
-    </button>
+    </Button>
   )
 }
-

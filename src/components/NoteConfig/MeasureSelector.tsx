@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Select } from '../ui/select'
 import type { MeasureCount } from '../../types/music'
 
 interface MeasureSelectorProps {
@@ -15,17 +16,14 @@ export function MeasureSelector({ measureCount, onChange }: MeasureSelectorProps
   }
 
   return (
-    <div className="measure-selector">
-      <label>
-        {t('config.measures')}:
-        <select value={measureCount} onChange={handleChange}>
-          <option value={1}>1</option>
-          <option value={2}>2</option>
-          <option value={3}>3</option>
-          <option value={4}>4</option>
-        </select>
-      </label>
+    <div className="flex items-center gap-3">
+      <label className="text-sm font-medium text-foreground">{t('config.measures')}:</label>
+      <Select value={measureCount} onChange={handleChange} className="w-24">
+        <option value={1}>1</option>
+        <option value={2}>2</option>
+        <option value={3}>3</option>
+        <option value={4}>4</option>
+      </Select>
     </div>
   )
 }
-

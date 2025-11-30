@@ -1,68 +1,26 @@
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher'
-import { ConfigSection } from './components/ConfigSection/ConfigSection'
-import { PlayPanel } from './components/PlayPanel/PlayPanel'
-import { ResultPanel } from './components/ResultPanel/ResultPanel'
+import { AppContent } from './components/AppContent/AppContent'
 import { useAppHandlers } from './hooks/useAppHandlers'
 import './App.css'
 
 function App() {
   const { t } = useTranslation()
-  const {
-    game,
-    audio,
-    feedback,
-    handleToggleNote,
-    handleChangeMeasure,
-    handleGenerate,
-    handlePlayAll,
-    handleAnswerSelect,
-    handlePlayAgain,
-  } = useAppHandlers()
-
-  const isPlaying = game.state.phase === 'playing' || game.state.phase === 'complete'
-  const isComplete = game.state.phase === 'complete'
-  const noteDefinitions = game.state.sequence.map((gn) => gn.note)
+  const handlers = useAppHandlers()
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>{t('app.title')}</h1>
-        <LanguageSwitcher />
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            {t('app.title')}
+          </h1>
+          <LanguageSwitcher />
+        </div>
       </header>
 
-      <main className="app-main">
-        {game.state.phase === 'config' && (
-          <ConfigSection
-            selectedNotes={game.state.config.selectedNotes}
-            measureCount={game.state.config.measureCount}
-            onToggleNote={handleToggleNote}
-            onChangeMeasure={handleChangeMeasure}
-            onGenerate={handleGenerate}
-          />
-        )}
-
-        {isPlaying && (
-          <PlayPanel
-            notes={game.state.sequence}
-            measureCount={game.state.config.measureCount}
-            currentIndex={game.state.currentIndex}
-            noteDefinitions={noteDefinitions}
-            isComplete={isComplete}
-            isPlayingAudio={audio.isPlaying}
-            feedbackState={feedback.feedbackState}
-            onPlayAll={handlePlayAll}
-            onAnswerSelect={handleAnswerSelect}
-          />
-        )}
-
-        {isComplete && (
-          <ResultPanel
-            correct={game.state.score.correct}
-            total={game.state.sequence.length}
-            onPlayAgain={handlePlayAgain}
-          />
-        )}
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+        <AppContent handlers={handlers} />
       </main>
     </div>
   )

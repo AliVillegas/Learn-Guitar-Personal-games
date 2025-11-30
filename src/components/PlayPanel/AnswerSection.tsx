@@ -16,14 +16,15 @@ export function AnswerSection({
   const { t } = useTranslation()
 
   return (
-    <>
-      <p className="instruction">{t('game.identifyNote')}</p>
+    <div className="space-y-4">
+      <p className="text-center text-muted-foreground text-lg font-medium">
+        {t('game.identifyNote')}
+      </p>
       <NoteButtons
         onSelect={onAnswerSelect}
         disabled={isPlayingAudio}
         feedbackState={feedbackState}
       />
-    </>
+    </div>
   )
 }
-

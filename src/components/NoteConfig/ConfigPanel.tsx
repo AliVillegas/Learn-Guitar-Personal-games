@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { NoteSelector } from './NoteSelector'
 import { MeasureSelector } from './MeasureSelector'
+import { Button } from '../ui/button'
 import type { SolfegeNote, MeasureCount } from '../../types/music'
 
 interface ConfigPanelProps {
@@ -22,18 +23,15 @@ export function ConfigPanel({
   const canGenerate = selectedNotes.length >= 2
 
   return (
-    <div className="config-panel">
+    <div className="bg-card border border-border rounded-lg p-6 space-y-6 shadow-sm">
       <NoteSelector selectedNotes={selectedNotes} onToggle={onToggleNote} />
       <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
-      <button
-        type="button"
-        onClick={onGenerate}
-        disabled={!canGenerate}
-        className="generate-button"
-      >
+      {selectedNotes.length < 2 && (
+        <p className="text-sm text-destructive">{t('config.minNotesWarning')}</p>
+      )}
+      <Button onClick={onGenerate} disabled={!canGenerate} className="w-full" size="lg">
         {t('config.generate')}
-      </button>
+      </Button>
     </div>
   )
 }
-
