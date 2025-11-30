@@ -17,6 +17,7 @@ interface PlayPanelProps {
   onPlayAll: () => void
   onPlayCurrentNote: () => void
   onAnswerSelect: (note: SolfegeNote) => void
+  playingIndex: number | null
 }
 
 function calculateCorrectCount(notes: GameNote[]): number {
@@ -43,6 +44,34 @@ function renderAnswerSection(
   )
 }
 
+function getHighlightIndex(
+  isPlayingAudio: boolean,
+  playingIndex: number | null,
+  currentIndex: number
+): number {
+  return isPlayingAudio && playingIndex !== null ? playingIndex : currentIndex
+}
+
+function renderPlaybackSection(
+  notes: GameNote[],
+  currentIndex: number,
+  noteDefinitions: NoteDefinition[],
+  isPlayingAudio: boolean,
+  onPlayAll: () => void,
+  onPlayCurrentNote: () => void
+) {
+  const currentNote = getCurrentNote(notes, currentIndex)
+  return (
+    <PlaybackControls
+      notes={noteDefinitions}
+      currentNote={currentNote}
+      onPlayAll={onPlayAll}
+      onPlayCurrentNote={onPlayCurrentNote}
+      isPlaying={isPlayingAudio}
+    />
+  )
+}
+
 export function PlayPanel({
   notes,
   measureCount,
@@ -54,20 +83,22 @@ export function PlayPanel({
   onPlayAll,
   onPlayCurrentNote,
   onAnswerSelect,
+  playingIndex,
 }: PlayPanelProps) {
   const correctCount = calculateCorrectCount(notes)
-  const currentNote = getCurrentNote(notes, currentIndex)
+  const highlightIndex = getHighlightIndex(isPlayingAudio, playingIndex, currentIndex)
 
   return (
     <div className="space-y-6">
-      <Staff notes={notes} measureCount={measureCount} currentIndex={currentIndex} />
-      <PlaybackControls
-        notes={noteDefinitions}
-        currentNote={currentNote}
-        onPlayAll={onPlayAll}
-        onPlayCurrentNote={onPlayCurrentNote}
-        isPlaying={isPlayingAudio}
-      />
+      <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
+      {renderPlaybackSection(
+        notes,
+        currentIndex,
+        noteDefinitions,
+        isPlayingAudio,
+        onPlayAll,
+        onPlayCurrentNote
+      )}
       {renderAnswerSection(isComplete, isPlayingAudio, feedbackState, onAnswerSelect)}
       <ScoreDisplay correct={correctCount} total={notes.length} />
     </div>

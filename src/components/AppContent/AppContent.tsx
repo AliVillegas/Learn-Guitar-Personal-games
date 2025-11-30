@@ -52,6 +52,7 @@ function renderPlaying(
       onPlayAll={handlers.handlePlayAll}
       onPlayCurrentNote={handlers.handlePlayCurrentNote}
       onAnswerSelect={handlers.handleAnswerSelect}
+      playingIndex={handlers.audio.playingIndex}
     />
   )
 }

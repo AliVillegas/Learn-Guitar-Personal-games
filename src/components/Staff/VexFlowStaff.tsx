@@ -59,7 +59,8 @@ function renderMeasure(
   staveWidth: number
 ): void {
   const xPosition = 50 + measureIndex * staveWidth
-  const stave = new Stave(xPosition, 40, staveWidth - 20)
+  const staveActualWidth = staveWidth - 20
+  const stave = new Stave(xPosition, 40, staveActualWidth)
 
   if (measureIndex === 0) {
     stave.addClef('treble')
@@ -71,7 +72,10 @@ function renderMeasure(
   const voice = new Voice({ num_beats: measureNotes.length, beat_value: 4 })
   voice.addTickables(measureNotes)
 
-  new Formatter().joinVoices([voice]).format([voice], staveWidth - 50)
+  const clefWidth = measureIndex === 0 ? 60 : 0
+  const formatWidth = staveActualWidth - clefWidth - 10
+
+  new Formatter().joinVoices([voice]).format([voice], formatWidth)
 
   voice.draw(context, stave)
 }
@@ -86,7 +90,13 @@ function renderStaff(
 
   const renderer = new Renderer(container, Renderer.Backends.SVG)
   const staveWidth = 200
-  const totalWidth = Math.max(800, measureCount * staveWidth)
+  const startOffset = 50
+  const staveActualWidth = staveWidth - 20
+  const padding = 20
+  const totalWidth = Math.max(
+    800,
+    startOffset + measureCount * staveWidth - (staveWidth - staveActualWidth) + padding
+  )
   renderer.resize(totalWidth, 200)
   const context = renderer.getContext()
 
