@@ -7,10 +7,13 @@ export interface StringNoteConfig {
   notes: SolfegeNote[]
 }
 
+import type { InstrumentType } from './audio'
+
 export interface GameConfig {
   selectedNotes: SolfegeNote[]
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
+  instrument: InstrumentType
 }
 
 export interface GameState {

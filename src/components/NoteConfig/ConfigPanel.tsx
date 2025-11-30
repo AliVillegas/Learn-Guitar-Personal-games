@@ -1,15 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import { StringSelector } from './StringSelector'
 import { MeasureSelector } from './MeasureSelector'
+import { InstrumentSelector } from './InstrumentSelector'
 import { Button } from '../ui/button'
 import type { MeasureCount, GuitarString, SolfegeNote } from '../../types/music'
 import type { StringNoteConfig } from '../../types/game'
+import type { InstrumentType } from '../../types/audio'
 
 interface ConfigPanelProps {
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
+  instrument: InstrumentType
   onToggleStringNote: (guitarString: GuitarString, note: SolfegeNote) => void
   onChangeMeasure: (count: MeasureCount) => void
+  onChangeInstrument: (instrument: InstrumentType) => void
   onGenerate: () => void
 }
 
@@ -20,8 +24,10 @@ function hasAtLeastOneNote(stringNotes: StringNoteConfig[]): boolean {
 export function ConfigPanel({
   stringNotes,
   measureCount,
+  instrument,
   onToggleStringNote,
   onChangeMeasure,
+  onChangeInstrument,
   onGenerate,
 }: ConfigPanelProps) {
   const { t } = useTranslation()
@@ -29,6 +35,7 @@ export function ConfigPanel({
 
   return (
     <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+      <InstrumentSelector instrument={instrument} onChange={onChangeInstrument} />
       <StringSelector stringNotes={stringNotes} onToggleNote={onToggleStringNote} />
       <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
       {!canGenerate && (

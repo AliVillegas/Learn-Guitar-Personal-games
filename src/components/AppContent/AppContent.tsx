@@ -12,8 +12,10 @@ function renderConfig(
     <ConfigSection
       stringNotes={config.stringNotes}
       measureCount={config.measureCount}
+      instrument={config.instrument}
       onToggleStringNote={handlers.handleToggleStringNote}
       onChangeMeasure={handlers.handleChangeMeasure}
+      onChangeInstrument={handlers.handleChangeInstrument}
       onGenerate={handlers.handleGenerate}
     />
   )

@@ -1,5 +1,8 @@
 import { useRef, useState, useCallback } from 'react'
 import type { NoteDefinition } from '../types/music'
+import type { InstrumentType } from '../types/audio'
+import { getAudioEngine } from '../utils/audioEngines'
+import { useGameStore } from '../store/gameStore'
 
 interface UseAudioReturn {
   playNote: (note: NoteDefinition) => void
@@ -9,28 +12,9 @@ interface UseAudioReturn {
 }
 
 const DEFAULT_BPM = 120
-const QUARTER_NOTE_DURATION = 0.4
 
 function createAudioContext(): AudioContext {
   return new AudioContext()
-}
-
-function createNoteOscillator(ctx: AudioContext, frequency: number): OscillatorNode {
-  const osc = ctx.createOscillator()
-  osc.type = 'triangle'
-  osc.frequency.value = frequency
-  return osc
-}
-
-function createEnvelope(ctx: AudioContext, duration: number): GainNode {
-  const gain = ctx.createGain()
-  const now = ctx.currentTime
-  gain.gain.setValueAtTime(0, now)
-  gain.gain.linearRampToValueAtTime(0.8, now + 0.01)
-  gain.gain.linearRampToValueAtTime(0.6, now + 0.1)
-  gain.gain.setValueAtTime(0.6, now + duration - 0.2)
-  gain.gain.linearRampToValueAtTime(0, now + duration)
-  return gain
 }
 
 function ensureContextResumed(ctx: AudioContext): Promise<void> {
@@ -40,24 +24,28 @@ function ensureContextResumed(ctx: AudioContext): Promise<void> {
   return Promise.resolve()
 }
 
-function scheduleNote(ctx: AudioContext, note: NoteDefinition, startTime: number): void {
-  const osc = createNoteOscillator(ctx, note.frequency)
-  const gain = createEnvelope(ctx, QUARTER_NOTE_DURATION)
-
-  osc.connect(gain)
-  gain.connect(ctx.destination)
-
-  osc.start(startTime)
-  osc.stop(startTime + QUARTER_NOTE_DURATION)
+function scheduleNote(
+  ctx: AudioContext,
+  note: NoteDefinition,
+  startTime: number,
+  instrument: InstrumentType
+): void {
+  const engine = getAudioEngine(instrument)
+  engine.playNote({ frequency: note.frequency }, startTime, ctx)
 }
 
-function scheduleSequence(ctx: AudioContext, notes: NoteDefinition[], bpm: number): number {
+function scheduleSequence(
+  ctx: AudioContext,
+  notes: NoteDefinition[],
+  bpm: number,
+  instrument: InstrumentType
+): number {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
 
   notes.forEach((note, index) => {
     const startTime = now + index * noteDuration
-    scheduleNote(ctx, note, startTime)
+    scheduleNote(ctx, note, startTime, instrument)
   })
 
   return notes.length * noteDuration * 1000
@@ -82,6 +70,7 @@ function createErrorSound(ctx: AudioContext): void {
 export function useAudio(): UseAudioReturn {
   const ctxRef = useRef<AudioContext | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const instrument = useGameStore((state) => state.config.instrument)
 
   const getContext = useCallback((): AudioContext => {
     if (!ctxRef.current) {
@@ -94,10 +83,10 @@ export function useAudio(): UseAudioReturn {
     (note: NoteDefinition) => {
       const ctx = getContext()
       ensureContextResumed(ctx).then(() => {
-        scheduleNote(ctx, note, ctx.currentTime)
+        scheduleNote(ctx, note, ctx.currentTime, instrument)
       })
     },
-    [getContext]
+    [getContext, instrument]
   )
 
   const playSequence = useCallback(
@@ -106,13 +95,13 @@ export function useAudio(): UseAudioReturn {
       await ensureContextResumed(ctx)
       setIsPlaying(true)
 
-      const duration = scheduleSequence(ctx, notes, bpm)
+      const duration = scheduleSequence(ctx, notes, bpm, instrument)
 
       setTimeout(() => {
         setIsPlaying(false)
       }, duration)
     },
-    [getContext]
+    [getContext, instrument]
   )
 
   const playErrorSound = useCallback(() => {

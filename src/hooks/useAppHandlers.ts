@@ -1,4 +1,5 @@
 import type { SolfegeNote, MeasureCount, GuitarString } from '../types/music'
+import type { InstrumentType } from '../types/audio'
 import { useGameStore } from '../store/gameStore'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
@@ -29,6 +30,12 @@ function createToggleStringNoteHandler() {
 function createChangeMeasureHandler() {
   return (count: MeasureCount) => {
     useGameStore.getState().setConfig({ measureCount: count })
+  }
+}
+
+function createChangeInstrumentHandler() {
+  return (instrument: InstrumentType) => {
+    useGameStore.getState().setConfig({ instrument })
   }
 }
 
@@ -74,6 +81,7 @@ export function useAppHandlers() {
     feedback,
     handleToggleStringNote: createToggleStringNoteHandler(),
     handleChangeMeasure: createChangeMeasureHandler(),
+    handleChangeInstrument: createChangeInstrumentHandler(),
     handleGenerate: createGenerateHandler(feedback),
     handlePlayAll: createPlayAllHandler(audio),
     handlePlayCurrentNote: createPlayCurrentNoteHandler(audio),

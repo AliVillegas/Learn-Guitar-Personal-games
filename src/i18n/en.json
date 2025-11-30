@@ -14,6 +14,11 @@
   "config": {
     "selectStringNotes": "Select notes for each string",
     "measures": "Measures",
+    "instrument": "Sound",
+    "instruments": {
+      "midi": "MIDI",
+      "guitar": "Guitar"
+    },
     "minStringNotesWarning": "Select at least one note from any string",
     "generate": "Generate"
   },

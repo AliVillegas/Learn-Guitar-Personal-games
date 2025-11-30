@@ -14,6 +14,11 @@
   "config": {
     "selectStringNotes": "Selecciona las notas para cada cuerda",
     "measures": "Compases",
+    "instrument": "Sonido",
+    "instruments": {
+      "midi": "MIDI",
+      "guitar": "Guitarra"
+    },
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
     "generate": "Generar"
   },
