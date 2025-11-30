@@ -34,22 +34,23 @@ describe('getNoteFrequency', () => {
     }
   })
 
-  it('returns default frequency when note/octave combination is not found', () => {
-    expect(getNoteFrequency('la', 4 as 3 | 4)).toBe(220.0)
-    expect(getNoteFrequency('si', 4 as 3 | 4)).toBe(220.0)
+  it('returns correct frequency for la4 and si4', () => {
+    expect(getNoteFrequency('la', 4 as 3 | 4 | 5)).toBe(440.0)
+    expect(getNoteFrequency('si', 4 as 3 | 4 | 5)).toBe(493.88)
   })
 })
 
 describe('getStaffPosition', () => {
-  const expectedPositions: Record<string, { octave3: number; octave4?: number }> = {
-    do: { octave3: -5, octave4: 2 },
-    re: { octave3: -4, octave4: 3 },
-    mi: { octave3: 0, octave4: -4 },
-    fa: { octave3: 1, octave4: 5 },
-    sol: { octave3: -1, octave4: 6 },
-    la: { octave3: -2 },
-    si: { octave3: -3 },
-  }
+  const expectedPositions: Record<string, { octave3: number; octave4?: number; octave5?: number }> =
+    {
+      do: { octave3: -5, octave4: 2, octave5: 9 },
+      re: { octave3: -4, octave4: 3, octave5: 10 },
+      mi: { octave3: 0, octave4: 4, octave5: 11 },
+      fa: { octave3: 1, octave4: 5, octave5: 12 },
+      sol: { octave3: -1, octave4: 6, octave5: 13 },
+      la: { octave3: -2, octave4: 7 },
+      si: { octave3: -3, octave4: 8 },
+    }
 
   Object.entries(expectedPositions).forEach(([solfege, positions]) => {
     it(`returns correct position for ${solfege.toUpperCase()}3`, () => {
@@ -64,8 +65,8 @@ describe('getStaffPosition', () => {
   })
 
   it('returns first position when octave match is not found', () => {
-    expect(getStaffPosition('la', 4 as 3 | 4)).toBe(-2)
-    expect(getStaffPosition('si', 4 as 3 | 4)).toBe(-3)
+    expect(getStaffPosition('la', 4 as 3 | 4 | 5)).toBe(7)
+    expect(getStaffPosition('si', 4 as 3 | 4 | 5)).toBe(8)
   })
 })
 
@@ -84,7 +85,7 @@ describe('createNoteDefinition', () => {
     expect(note.solfege).toBe('mi')
     expect(note.letter).toBe('E')
     expect(note.frequency).toBe(329.63)
-    expect(note.staffPosition).toBe(-4)
+    expect(note.staffPosition).toBe(4)
     expect(note.octave).toBe(4)
   })
 
@@ -129,10 +130,10 @@ describe('getOctaveFromString', () => {
   it('returns correct octave for each guitar string', () => {
     expect(getOctaveFromString(6)).toBe(3)
     expect(getOctaveFromString(5)).toBe(3)
-    expect(getOctaveFromString(4)).toBe(3)
-    expect(getOctaveFromString(3)).toBe(3)
-    expect(getOctaveFromString(2)).toBe(3)
-    expect(getOctaveFromString(1)).toBe(4)
+    expect(getOctaveFromString(4)).toBe(4)
+    expect(getOctaveFromString(3)).toBe(4)
+    expect(getOctaveFromString(2)).toBe(4)
+    expect(getOctaveFromString(1)).toBe(5)
   })
 })
 
@@ -168,14 +169,14 @@ describe('Note accuracy - string to note mapping', () => {
     const stringMappings: Array<{
       string: GuitarString
       expectedSolfege: SolfegeNote
-      expectedOctave: 3 | 4
+      expectedOctave: 3 | 4 | 5
     }> = [
       { string: 6, expectedSolfege: 'mi', expectedOctave: 3 },
       { string: 5, expectedSolfege: 'la', expectedOctave: 3 },
-      { string: 4, expectedSolfege: 're', expectedOctave: 3 },
-      { string: 3, expectedSolfege: 'sol', expectedOctave: 3 },
-      { string: 2, expectedSolfege: 'si', expectedOctave: 3 },
-      { string: 1, expectedSolfege: 'mi', expectedOctave: 4 },
+      { string: 4, expectedSolfege: 're', expectedOctave: 4 },
+      { string: 3, expectedSolfege: 'sol', expectedOctave: 4 },
+      { string: 2, expectedSolfege: 'si', expectedOctave: 4 },
+      { string: 1, expectedSolfege: 'mi', expectedOctave: 5 },
     ]
 
     stringMappings.forEach(({ string, expectedSolfege, expectedOctave }) => {

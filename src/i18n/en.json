@@ -53,5 +53,19 @@
       "5": "5th",
       "6": "6th"
     }
+  },
+  "debug": {
+    "title": "Debug - Note Testing",
+    "backToConfig": "Back to Config",
+    "staffDisplay": "All Notes on Staff",
+    "allNotesDisplay": "All Notes Combined",
+    "octaveDisplay": "Notes by Octave",
+    "octave": "Octave",
+    "written": "Written",
+    "noteTesting": "Test Individual Notes",
+    "instrument": "Current Instrument",
+    "play": "Play",
+    "frequency": "Frequency",
+    "sounding": "Sounding"
   }
 }

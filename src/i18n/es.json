@@ -53,5 +53,19 @@
       "5": "5ta",
       "6": "6ta"
     }
+  },
+  "debug": {
+    "title": "Depuración - Prueba de Notas",
+    "backToConfig": "Volver a Configuración",
+    "staffDisplay": "Todas las Notas en el Pentagrama",
+    "allNotesDisplay": "Todas las Notas Combinadas",
+    "octaveDisplay": "Notas por Octava",
+    "octave": "Octava",
+    "written": "Escrita",
+    "noteTesting": "Probar Notas Individuales",
+    "instrument": "Instrumento Actual",
+    "play": "Reproducir",
+    "frequency": "Frecuencia",
+    "sounding": "Sonando"
   }
 }

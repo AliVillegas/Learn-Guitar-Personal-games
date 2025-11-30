@@ -9,7 +9,7 @@ export interface NoteDefinition {
   letter: LetterNote
   frequency: number
   staffPosition: number
-  octave: 3 | 4
+  octave: 3 | 4 | 5
 }
 
 export type MeasureCount = 1 | 2 | 3 | 4

@@ -9,18 +9,25 @@ interface VexFlowStaffProps {
 }
 
 const NOTE_MAP: Record<string, string> = {
-  C3: 'c/4',
-  D3: 'd/4',
-  E3: 'e/4',
-  F3: 'f/4',
-  G3: 'g/4',
-  A3: 'a/4',
-  B3: 'b/4',
-  C4: 'c/5',
-  D4: 'd/5',
-  E4: 'e/5',
-  F4: 'f/5',
-  G4: 'g/5',
+  C3: 'c/3',
+  D3: 'd/3',
+  E3: 'e/3',
+  F3: 'f/3',
+  G3: 'g/3',
+  A3: 'a/3',
+  B3: 'b/3',
+  C4: 'c/4',
+  D4: 'd/4',
+  E4: 'e/4',
+  F4: 'f/4',
+  G4: 'g/4',
+  A4: 'a/4',
+  B4: 'b/4',
+  C5: 'c/5',
+  D5: 'd/5',
+  E5: 'e/5',
+  F5: 'f/5',
+  G5: 'g/5',
 }
 
 function getVexFlowNote(note: GameNote): string {
@@ -52,12 +59,46 @@ function createStaveNotes(notes: GameNote[], currentIndex: number): StaveNote[] 
   })
 }
 
+function createRestNote(): StaveNote {
+  return new StaveNote({
+    clef: 'treble',
+    keys: ['b/4'],
+    duration: 'qr',
+  })
+}
+
+function addRestsToVoice(voice: Voice, restsNeeded: number): void {
+  for (let i = 0; i < restsNeeded; i++) {
+    const rest = createRestNote()
+    rest.setStyle({ fillStyle: '#2a2a2a', strokeStyle: '#2a2a2a' })
+    voice.addTickable(rest)
+  }
+}
+
+function createVoiceWithNotes(measureNotes: StaveNote[]): Voice {
+  const requiredBeats = 4
+  const voice = new Voice({ num_beats: requiredBeats, beat_value: 4 })
+  voice.addTickables(measureNotes)
+
+  const actualBeats = measureNotes.length
+  if (actualBeats < requiredBeats) {
+    const restsNeeded = requiredBeats - actualBeats
+    addRestsToVoice(voice, restsNeeded)
+  }
+
+  return voice
+}
+
 function renderMeasure(
   context: ReturnType<Renderer['getContext']>,
   measureNotes: StaveNote[],
   measureIndex: number,
   staveWidth: number
 ): void {
+  if (measureNotes.length === 0) {
+    return
+  }
+
   const xPosition = 50 + measureIndex * staveWidth
   const staveActualWidth = staveWidth - 20
   const stave = new Stave(xPosition, 40, staveActualWidth)
@@ -69,14 +110,11 @@ function renderMeasure(
 
   stave.setContext(context).draw()
 
-  const voice = new Voice({ num_beats: measureNotes.length, beat_value: 4 })
-  voice.addTickables(measureNotes)
-
+  const voice = createVoiceWithNotes(measureNotes)
   const clefWidth = measureIndex === 0 ? 60 : 0
   const formatWidth = staveActualWidth - clefWidth - 10
 
   new Formatter().joinVoices([voice]).format([voice], formatWidth)
-
   voice.draw(context, stave)
 }
 

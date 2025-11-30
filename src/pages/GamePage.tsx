@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Staff } from '../components/Staff/Staff'
@@ -176,12 +177,17 @@ export function GamePage() {
     navigate('/config')
   }
 
+  useEffect(() => {
+    if (game.phase !== 'playing' && game.phase !== 'complete') {
+      navigate('/config')
+    }
+  }, [game.phase, navigate])
+
   if (game.phase === 'complete') {
     return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain)
   }
 
   if (game.phase !== 'playing') {
-    navigate('/config')
     return null
   }
 

@@ -7,6 +7,7 @@ import {
   preloadGuitarSampler as initializeGuitarSynth,
   releaseAllNotes,
 } from '../utils/audioEngines'
+import { getGuitarSoundingFrequency } from '../utils/notes'
 import { useGameStore } from '../store/gameStore'
 
 interface UseAudioReturn {
@@ -37,13 +38,18 @@ async function scheduleNote(
   instrument: InstrumentType
 ): Promise<void> {
   const engine = getAudioEngine(instrument)
-  const noteName = `${note.letter}${note.octave}`
+
+  let noteName = `${note.letter}${note.octave}`
+  let frequency = note.frequency
 
   if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
+    const soundingOctave = (note.octave - 1) as 2 | 3 | 4
+    noteName = `${note.letter}${soundingOctave}`
+    frequency = getGuitarSoundingFrequency(note.solfege, note.octave)
     await initializeGuitarSynth()
   }
 
-  await engine.playNote({ frequency: note.frequency, noteName }, startTime, ctx)
+  await engine.playNote({ frequency, noteName }, startTime, ctx)
 }
 
 async function scheduleSequence(

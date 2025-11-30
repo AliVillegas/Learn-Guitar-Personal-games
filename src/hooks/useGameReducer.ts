@@ -13,8 +13,8 @@ function pickRandomNote<T>(items: T[]): T {
 
 function getAvailableNotes(
   stringNotes: StringNoteConfig[]
-): Array<{ solfege: SolfegeNote; octave: 3 | 4 }> {
-  const available: Array<{ solfege: SolfegeNote; octave: 3 | 4 }> = []
+): Array<{ solfege: SolfegeNote; octave: 3 | 4 | 5 }> {
+  const available: Array<{ solfege: SolfegeNote; octave: 3 | 4 | 5 }> = []
 
   stringNotes.forEach((stringConfig) => {
     const stringNotesList = getNotesForString(stringConfig.string)

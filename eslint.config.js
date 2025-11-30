@@ -22,6 +22,11 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
@@ -38,8 +43,10 @@ export default tseslint.config(
   {
     files: ['**/*.test.{ts,tsx}'],
     rules: {
-      'max-nested-callbacks': ['error', { max: 3 }],
+      'max-nested-callbacks': ['error', { max: 4 }],
       'max-lines-per-function': ['off'],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
   {

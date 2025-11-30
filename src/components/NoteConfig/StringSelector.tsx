@@ -16,7 +16,7 @@ function getStringTitle(guitarString: GuitarString, t: (key: string) => string):
 
 function renderStringNoteCheckbox(
   guitarString: GuitarString,
-  noteDef: { solfege: SolfegeNote; octave: 3 | 4 },
+  noteDef: { solfege: SolfegeNote; octave: 3 | 4 | 5 },
   checked: boolean,
   onToggle: (guitarString: GuitarString, note: SolfegeNote) => void,
   t: (key: string) => string

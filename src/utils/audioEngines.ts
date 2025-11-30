@@ -22,6 +22,7 @@ async function initializeGuitarSynth(): Promise<void> {
 
   synthReadyPromise = (async () => {
     try {
+      await ensureToneContextRunning()
       guitarSynth = new Tone.PolySynth(Tone.Synth, {
         oscillator: {
           type: 'sawtooth',
@@ -98,13 +99,20 @@ function createClassicalGuitarUrls(): Record<string, string> {
     'D#4': 'Ds4.mp3',
     E3: 'E3.mp3',
     E4: 'E4.mp3',
+    E5: 'E5.mp3',
     'F#3': 'Fs3.mp3',
     'F#4': 'Fs4.mp3',
+    'F#5': 'Fs5.mp3',
     G3: 'G3.mp3',
     'G#4': 'Gs4.mp3',
+    G5: 'G5.mp3',
     A3: 'A3.mp3',
+    A4: 'A4.mp3',
     B3: 'B3.mp3',
+    B4: 'B4.mp3',
     'C#4': 'Cs4.mp3',
+    'C#5': 'Cs5.mp3',
+    D5: 'D5.mp3',
   }
 }
 
@@ -119,12 +127,16 @@ async function initializeGuitarClassicalSampler(): Promise<void> {
 
   samplerReadyPromise = (async () => {
     try {
+      await ensureToneContextRunning()
       const urls = createClassicalGuitarUrls()
       guitarClassicalSampler = new Tone.Sampler({
         urls,
         release: 1,
         baseUrl: GUITAR_CLASSICAL_SAMPLES_BASE_URL,
-      }).toDestination()
+        attack: 0.1,
+      })
+      guitarClassicalSampler.volume.value = -6
+      guitarClassicalSampler.toDestination()
       await Tone.loaded()
     } catch (error) {
       console.error('Failed to initialize classical guitar sampler:', error)
@@ -184,6 +196,40 @@ async function releaseAllGuitarClassicalNotes(): Promise<void> {
   }
 }
 
+function findClosestNote(noteName: string): string {
+  const noteMap: Record<string, string[]> = {
+    F3: ['F#3', 'Fs3', 'E3'],
+    F4: ['F#4', 'Fs4', 'E4'],
+    C3: ['C#3', 'Cs3', 'B3'],
+    C4: ['C#4', 'Cs4', 'B3'],
+    D4: ['D#4', 'Ds4', 'C#4', 'Cs4'],
+    G4: ['G#4', 'Gs4', 'F#4', 'Fs4'],
+    A4: ['G#4', 'Gs4', 'B3'],
+    B4: ['C#4', 'Cs4', 'A3'],
+  }
+
+  if (noteMap[noteName]) {
+    return noteMap[noteName][0]
+  }
+
+  return noteName
+}
+
+function triggerNoteWithDelay(sampler: Tone.Sampler, noteName: string, delay: number): void {
+  if (delay > 0) {
+    const toneTime = Tone.now() + delay
+    sampler.triggerAttackRelease(noteName, QUARTER_NOTE_DURATION, toneTime)
+  } else {
+    sampler.triggerAttackRelease(noteName, QUARTER_NOTE_DURATION)
+  }
+}
+
+function playFallbackNote(sampler: Tone.Sampler, originalNote: string, delay: number): void {
+  const fallbackNote = findClosestNote(originalNote)
+  console.warn(`Note ${originalNote} not available, using fallback ${fallbackNote}`)
+  triggerNoteWithDelay(sampler, fallbackNote, delay)
+}
+
 async function playGuitarClassicalNote(
   note: { noteName?: string; frequency: number },
   startTime: number,
@@ -204,12 +250,17 @@ async function playGuitarClassicalNote(
   await ensureToneContextRunning()
 
   const delay = Math.max(0, startTime - ctx.currentTime)
+  const noteToPlay = note.noteName
 
-  if (delay > 0) {
-    const toneTime = Tone.now() + delay
-    guitarClassicalSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
-  } else {
-    guitarClassicalSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION)
+  try {
+    triggerNoteWithDelay(guitarClassicalSampler, noteToPlay, delay)
+  } catch (error) {
+    const fallbackNote = findClosestNote(noteToPlay)
+    if (fallbackNote !== noteToPlay) {
+      playFallbackNote(guitarClassicalSampler, noteToPlay, delay)
+    } else {
+      throw error
+    }
   }
 }
 
