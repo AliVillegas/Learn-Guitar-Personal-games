@@ -59,11 +59,15 @@ function createPlayAllHandler(audio: ReturnType<typeof useAudio>) {
 }
 
 function createPlayCurrentNoteHandler(audio: ReturnType<typeof useAudio>) {
-  return () => {
+  return async () => {
     const state = useGameStore.getState()
     const currentNote = state.sequence[state.currentIndex]
     if (currentNote) {
-      audio.playNote(currentNote.note)
+      try {
+        await audio.playNote(currentNote.note)
+      } catch (error) {
+        console.error('Error playing current note:', error)
+      }
     }
   }
 }

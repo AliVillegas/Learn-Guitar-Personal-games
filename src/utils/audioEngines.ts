@@ -39,12 +39,19 @@ async function initializeGuitarSampler(): Promise<void> {
   }
 
   samplerReadyPromise = (async () => {
-    await Tone.start()
-    guitarSampler = new Tone.Sampler({
-      urls: GUITAR_SAMPLER_URLS,
-      release: 1,
-      baseUrl: 'https://tonejs.github.io/audio/salamander/',
-    }).toDestination()
+    try {
+      if (Tone.context.state !== 'running') {
+        await Tone.start()
+      }
+      guitarSampler = new Tone.Sampler({
+        urls: GUITAR_SAMPLER_URLS,
+        release: 1,
+        baseUrl: 'https://tonejs.github.io/audio/salamander/',
+      }).toDestination()
+    } catch (error) {
+      console.error('Failed to initialize guitar sampler:', error)
+      throw error
+    }
   })()
 
   return samplerReadyPromise
@@ -99,26 +106,49 @@ function createGuitarEnvelope(ctx: AudioContext, duration: number): GainNode {
   return gain
 }
 
+async function ensureToneContextRunning(): Promise<void> {
+  if (Tone.context.state !== 'running') {
+    await Tone.start()
+  }
+}
+
+function calculateToneTime(startTime: number, ctx: AudioContext): string | undefined {
+  const delay = Math.max(0, startTime - ctx.currentTime)
+  return delay > 0 ? `+${delay}` : undefined
+}
+
+async function playGuitarNote(
+  note: { noteName?: string; frequency: number },
+  startTime: number,
+  ctx: AudioContext
+): Promise<void> {
+  if (!note.noteName) {
+    console.warn('No note name provided:', note)
+    return
+  }
+
+  await initializeGuitarSampler()
+
+  if (!guitarSampler) {
+    console.warn('Guitar sampler not ready after initialization')
+    return
+  }
+
+  await ensureToneContextRunning()
+
+  const toneTime = calculateToneTime(startTime, ctx)
+  guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+}
+
 const guitarEngine: AudioEngine = {
   playNote: async (note, startTime, ctx) => {
-    if (!note.noteName) {
-      return
-    }
-
-    await initializeGuitarSampler()
-
-    if (!guitarSampler) {
-      console.warn('Guitar sampler not ready')
-      return
-    }
-
-    const delay = Math.max(0, startTime - ctx.currentTime)
-    const toneTime = delay > 0 ? `+${delay}` : undefined
-
     try {
-      guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+      await playGuitarNote(note, startTime, ctx)
     } catch (error) {
-      console.error('Error triggering guitar note:', error, { noteName: note.noteName, toneTime })
+      console.error('Error playing guitar note:', error, {
+        noteName: note.noteName,
+        frequency: note.frequency,
+      })
     }
   },
   createEnvelope: createGuitarEnvelope,

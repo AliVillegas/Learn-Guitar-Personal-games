@@ -35,6 +35,11 @@ async function scheduleNote(
 ): Promise<void> {
   const engine = getAudioEngine(instrument)
   const noteName = `${note.letter}${note.octave}`
+
+  if (instrument === 'guitar') {
+    await initializeGuitarSampler()
+  }
+
   await engine.playNote({ frequency: note.frequency, noteName }, startTime, ctx)
 }
 
