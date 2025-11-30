@@ -7,13 +7,15 @@ import { useAnswerFeedback } from './useAnswerFeedback'
 type AudioHook = ReturnType<typeof useAudio>
 type FeedbackHook = ReturnType<typeof useAnswerFeedback>
 
-function playNextNoteAfterCorrectAnswer(audio: AudioHook): void {
+const QUARTER_NOTE_DURATION = 0.4
+
+function playNextNoteAfterCorrectAnswer(audio: AudioHook, startTime: number): void {
   const updatedState = useGameStore.getState()
   const nextIndex = updatedState.currentIndex
   const nextNote = updatedState.sequence[nextIndex]
 
   if (nextNote && updatedState.phase === 'playing') {
-    audio.playNote(nextNote.note).catch((error) => {
+    audio.playNoteAtTime(nextNote.note, startTime).catch((error) => {
       console.error('Error playing next note:', error)
     })
   }
@@ -42,13 +44,16 @@ function handleCorrectAnswer(
   audio: AudioHook
 ): void {
   feedback.setFeedback(selectedNote, 'correct')
-  audio.playNote(currentNote.note).catch((error) => {
+  game.submitAnswer(selectedNote)
+
+  const currentTime = audio.getCurrentTime()
+  const nextNoteStartTime = currentTime + QUARTER_NOTE_DURATION
+
+  audio.playNoteAtTime(currentNote.note, currentTime).catch((error) => {
     console.error('Error playing correct note:', error)
   })
-  game.submitAnswer(selectedNote)
-  setTimeout(() => {
-    playNextNoteAfterCorrectAnswer(audio)
-  }, 800)
+
+  playNextNoteAfterCorrectAnswer(audio, nextNoteStartTime)
 }
 
 export function createAnswerHandler(

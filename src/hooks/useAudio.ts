@@ -11,7 +11,9 @@ import { getGuitarSoundingFrequency } from '../utils/notes'
 import { useGameStore } from '../store/gameStore'
 
 interface UseAudioReturn {
-  playNote: (note: NoteDefinition) => void
+  playNote: (note: NoteDefinition) => Promise<void>
+  playNoteAtTime: (note: NoteDefinition, startTime: number) => Promise<void>
+  getCurrentTime: () => number
   playSequence: (notes: NoteDefinition[], bpm?: number, startIndex?: number) => Promise<void>
   playErrorSound: () => void
   isPlaying: boolean
@@ -161,6 +163,57 @@ async function cleanupGuitarInstrument(instrument: InstrumentType): Promise<void
   }
 }
 
+async function prepareNotePlayback(ctx: AudioContext, instrument: InstrumentType): Promise<void> {
+  await ensureContextResumed(ctx)
+  await ensureToneStarted(instrument)
+}
+
+async function playNoteImpl(
+  ctx: AudioContext,
+  note: NoteDefinition,
+  instrument: InstrumentType
+): Promise<void> {
+  await prepareNotePlayback(ctx, instrument)
+  await scheduleNote(ctx, note, ctx.currentTime, instrument)
+}
+
+async function playNoteAtTimeImpl(
+  ctx: AudioContext,
+  note: NoteDefinition,
+  startTime: number,
+  instrument: InstrumentType
+): Promise<void> {
+  await prepareNotePlayback(ctx, instrument)
+  await scheduleNote(ctx, note, startTime, instrument)
+}
+
+async function playSequenceImpl(
+  ctx: AudioContext,
+  notes: NoteDefinition[],
+  bpm: number,
+  startIndex: number,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void
+): Promise<void> {
+  clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
+  await cleanupGuitarInstrument(instrument)
+  await prepareSequencePlayback(ctx, instrument, setIsPlaying)
+  const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
+  const duration = await scheduleSequence(
+    ctx,
+    notes,
+    bpm,
+    instrument,
+    onNoteStart,
+    noteTimeoutRefs.current
+  )
+  setPlayingIndex(startIndex)
+  handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
+}
+
 export function useAudio(): UseAudioReturn {
   const ctxRef = useRef<AudioContext | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -168,51 +221,48 @@ export function useAudio(): UseAudioReturn {
   const [isPlaying, setIsPlaying] = useState(false)
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
   const instrument = useGameStore((state) => state.config.instrument)
-
   const getContext = useCallback((): AudioContext => {
-    if (!ctxRef.current) {
-      ctxRef.current = createAudioContext()
-    }
+    if (!ctxRef.current) ctxRef.current = createAudioContext()
     return ctxRef.current
   }, [])
 
   const playNote = useCallback(
-    async (note: NoteDefinition) => {
-      const ctx = getContext()
-      await ensureContextResumed(ctx)
-      await ensureToneStarted(instrument)
-      await scheduleNote(ctx, note, ctx.currentTime, instrument)
-    },
+    (note: NoteDefinition) => playNoteImpl(getContext(), note, instrument),
     [getContext, instrument]
   )
-
+  const playNoteAtTime = useCallback(
+    (note: NoteDefinition, startTime: number) =>
+      playNoteAtTimeImpl(getContext(), note, startTime, instrument),
+    [getContext, instrument]
+  )
+  const getCurrentTime = useCallback(() => getContext().currentTime, [getContext])
   const playSequence = useCallback(
-    async (
-      notes: NoteDefinition[],
-      bpm: number = DEFAULT_BPM,
-      startIndex: number = 0
-    ): Promise<void> => {
-      clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
-      await cleanupGuitarInstrument(instrument)
-      await prepareSequencePlayback(getContext(), instrument, setIsPlaying)
-      const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
-      const duration = await scheduleSequence(
+    (notes: NoteDefinition[], bpm = DEFAULT_BPM, startIndex = 0) =>
+      playSequenceImpl(
         getContext(),
         notes,
         bpm,
+        startIndex,
         instrument,
-        onNoteStart,
-        noteTimeoutRefs.current
-      )
-      setPlayingIndex(startIndex)
-      handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
-    },
+        noteTimeoutRefs,
+        timeoutRef,
+        setPlayingIndex,
+        setIsPlaying
+      ),
     [getContext, instrument]
   )
+  const playErrorSound = useCallback(
+    () => ensureContextResumed(getContext()).then(() => createErrorSound(getContext())),
+    [getContext]
+  )
 
-  const playErrorSound = useCallback(() => {
-    ensureContextResumed(getContext()).then(() => createErrorSound(getContext()))
-  }, [getContext])
-
-  return { playNote, playSequence, playErrorSound, isPlaying, playingIndex }
+  return {
+    playNote,
+    playNoteAtTime,
+    getCurrentTime,
+    playSequence,
+    playErrorSound,
+    isPlaying,
+    playingIndex,
+  }
 }
