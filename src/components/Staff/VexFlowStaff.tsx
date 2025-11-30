@@ -72,7 +72,7 @@ function renderStaff(
 
   const staveNotes = createStaveNotes(notes, currentIndex)
 
-  const voice = new Voice({ num_beats: measureCount * 4, beat_value: 4 })
+  const voice = new Voice({ num_beats: notes.length, beat_value: 4 })
   voice.addTickables(staveNotes)
 
   new Formatter().joinVoices([voice]).format([voice], width - 150)
