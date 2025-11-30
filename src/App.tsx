@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher'
-import { AppContent } from './components/AppContent/AppContent'
+import { ConfigPage } from './pages/ConfigPage'
+import { GamePage } from './pages/GamePage'
 import { VERSION } from './version'
 import './App.css'
 
@@ -17,7 +19,11 @@ function App() {
       </header>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <AppContent />
+        <Routes>
+          <Route path="/config" element={<ConfigPage />} />
+          <Route path="/game" element={<GamePage />} />
+          <Route path="/" element={<Navigate to="/config" replace />} />
+        </Routes>
       </main>
 
       <footer className="border-t border-border bg-background mt-auto">

@@ -30,7 +30,9 @@
     "identifyNote": "Identifica la nota resaltada",
     "correct": "¡Correcto!",
     "incorrect": "Intenta de nuevo",
-    "score": "Puntuación: {{correct}}/{{total}}"
+    "score": "Puntuación: {{correct}}/{{total}}",
+    "backToConfig": "Volver a Configuración",
+    "regenerate": "Regenerar"
   },
   "result": {
     "complete": "¡Ronda Completa!",

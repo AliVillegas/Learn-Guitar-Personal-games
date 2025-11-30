@@ -30,7 +30,9 @@
     "identifyNote": "Identify the highlighted note",
     "correct": "Correct!",
     "incorrect": "Try again",
-    "score": "Score: {{correct}}/{{total}}"
+    "score": "Score: {{correct}}/{{total}}",
+    "backToConfig": "Back to Config",
+    "regenerate": "Regenerate"
   },
   "result": {
     "complete": "Round Complete!",
