@@ -8,15 +8,10 @@ interface StringSelectorProps {
   onToggleNote: (guitarString: GuitarString, note: SolfegeNote) => void
 }
 
-function getStringSuffix(guitarString: GuitarString): string {
-  if (guitarString === 1) return 'st'
-  if (guitarString === 2) return 'nd'
-  if (guitarString === 3) return 'rd'
-  return 'th'
-}
-
-function getStringTitle(guitarString: GuitarString): string {
-  return `${guitarString}${getStringSuffix(guitarString)} String`
+function getStringTitle(guitarString: GuitarString, t: (key: string) => string): string {
+  const ordinal = t(`strings.ordinal.${guitarString}`)
+  const stringLabel = t('strings.string')
+  return `${ordinal} ${stringLabel}`
 }
 
 function renderStringNoteCheckbox(
@@ -34,7 +29,7 @@ function renderStringNoteCheckbox(
       <Checkbox
         checked={checked}
         onChange={() => onToggle(guitarString, noteDef.solfege)}
-        aria-label={`${getStringTitle(guitarString)} - ${t(`notes.${noteDef.solfege}`)}`}
+        aria-label={`${getStringTitle(guitarString, t)} - ${t(`notes.${noteDef.solfege}`)}`}
       />
       <span className="text-sm">{t(`notes.${noteDef.solfege}`)}</span>
     </label>
@@ -52,7 +47,7 @@ function renderStringSection(
 
   return (
     <div key={guitarString} className="border border-border rounded-lg p-4 space-y-2">
-      <h4 className="font-medium text-foreground">{getStringTitle(guitarString)}</h4>
+      <h4 className="font-medium text-foreground">{getStringTitle(guitarString, t)}</h4>
       <div className="flex flex-wrap gap-2">
         {availableNotes.map((noteDef) =>
           renderStringNoteCheckbox(

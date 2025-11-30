@@ -31,6 +31,18 @@
     "playAgain": "Jugar de Nuevo"
   },
   "language": {
-    "switch": "English"
+    "switch": "English",
+    "label": "Idioma"
+  },
+  "strings": {
+    "string": "Cuerda",
+    "ordinal": {
+      "1": "1ra",
+      "2": "2da",
+      "3": "3ra",
+      "4": "4ta",
+      "5": "5ta",
+      "6": "6ta"
+    }
   }
 }
