@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback } from 'react'
 import * as Tone from 'tone'
 import type { NoteDefinition } from '../types/music'
 import type { InstrumentType } from '../types/audio'
@@ -50,7 +50,8 @@ async function scheduleSequence(
   notes: NoteDefinition[],
   bpm: number,
   instrument: InstrumentType,
-  onNoteStart: (index: number) => void
+  onNoteStart: (index: number) => void,
+  timeoutIds: ReturnType<typeof setTimeout>[]
 ): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
@@ -63,9 +64,10 @@ async function scheduleSequence(
     const startTime = now + index * noteDuration
     const delayMs = (startTime - now) * 1000
 
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       onNoteStart(index)
     }, delayMs)
+    timeoutIds.push(timeoutId)
 
     return scheduleNote(ctx, note, startTime, instrument)
   })
@@ -101,19 +103,49 @@ async function ensureToneStarted(instrument: InstrumentType): Promise<void> {
   }
 }
 
+function clearAllTimeouts(
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>
+): void {
+  noteTimeoutRefs.current.forEach((id) => clearTimeout(id))
+  noteTimeoutRefs.current = []
+
+  if (timeoutRef.current) {
+    clearTimeout(timeoutRef.current)
+    timeoutRef.current = null
+  }
+}
+
 function handleSequenceEnd(
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
   setIsPlaying: (playing: boolean) => void,
   setPlayingIndex: (index: number | null) => void,
   duration: number
-) {
-  setTimeout(() => {
+): void {
+  timeoutRef.current = setTimeout(() => {
     setIsPlaying(false)
     setPlayingIndex(null)
+    timeoutRef.current = null
   }, duration)
+}
+
+async function prepareSequencePlayback(
+  ctx: AudioContext,
+  instrument: InstrumentType,
+  setIsPlaying: (playing: boolean) => void,
+  setPlayingIndex: (index: number | null) => void,
+  startIndex: number
+): Promise<void> {
+  await ensureContextResumed(ctx)
+  await ensureToneStarted(instrument)
+  setIsPlaying(true)
+  setPlayingIndex(startIndex)
 }
 
 export function useAudio(): UseAudioReturn {
   const ctxRef = useRef<AudioContext | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const noteTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([])
   const [isPlaying, setIsPlaying] = useState(false)
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
   const instrument = useGameStore((state) => state.config.instrument)
@@ -141,14 +173,19 @@ export function useAudio(): UseAudioReturn {
       bpm: number = DEFAULT_BPM,
       startIndex: number = 0
     ): Promise<void> => {
+      clearAllTimeouts(noteTimeoutRefs, timeoutRef)
       const ctx = getContext()
-      await ensureContextResumed(ctx)
-      await ensureToneStarted(instrument)
-      setIsPlaying(true)
-      setPlayingIndex(startIndex)
+      await prepareSequencePlayback(ctx, instrument, setIsPlaying, setPlayingIndex, startIndex)
       const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
-      const duration = await scheduleSequence(ctx, notes, bpm, instrument, onNoteStart)
-      handleSequenceEnd(setIsPlaying, setPlayingIndex, duration)
+      const duration = await scheduleSequence(
+        ctx,
+        notes,
+        bpm,
+        instrument,
+        onNoteStart,
+        noteTimeoutRefs.current
+      )
+      handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
     },
     [getContext, instrument]
   )
