@@ -29,6 +29,24 @@ const GUITAR_SAMPLER_URLS = {
   G4: 'https://tonejs.github.io/audio/salamander/G4.mp3',
 }
 
+function waitForSamplerLoad(sampler: Tone.Sampler): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('Sampler load timeout'))
+    }, 10000)
+
+    sampler.addListener('load', () => {
+      clearTimeout(timeout)
+      resolve()
+    })
+
+    sampler.addListener('error', (error) => {
+      clearTimeout(timeout)
+      reject(error)
+    })
+  })
+}
+
 async function initializeGuitarSampler(): Promise<void> {
   if (guitarSampler) {
     return
@@ -43,8 +61,13 @@ async function initializeGuitarSampler(): Promise<void> {
       guitarSampler = new Tone.Sampler({
         urls: GUITAR_SAMPLER_URLS,
         release: 1,
-        baseUrl: 'https://tonejs.github.io/audio/salamander/',
       }).toDestination()
+
+      if (!guitarSampler) {
+        throw new Error('Sampler not created')
+      }
+
+      await waitForSamplerLoad(guitarSampler)
     } catch (error) {
       console.error('Failed to initialize guitar sampler:', error)
       throw error
