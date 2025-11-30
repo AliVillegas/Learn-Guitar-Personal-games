@@ -1,6 +1,7 @@
 import type { SolfegeNote, MeasureCount, GuitarString } from '../types/music'
 import type { InstrumentType } from '../types/audio'
 import { useGameStore } from '../store/gameStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
 import { createAnswerHandler } from './useAnswerHandler'
@@ -25,18 +26,21 @@ function createToggleStringNoteHandler() {
     )
 
     useGameStore.getState().setConfig({ stringNotes: updatedStringNotes })
+    useSettingsStore.getState().setStringNotes(updatedStringNotes)
   }
 }
 
 function createChangeMeasureHandler() {
   return (count: MeasureCount) => {
     useGameStore.getState().setConfig({ measureCount: count })
+    useSettingsStore.getState().setMeasureCount(count)
   }
 }
 
 function createChangeInstrumentHandler() {
   return (instrument: InstrumentType) => {
     useGameStore.getState().setConfig({ instrument })
+    useSettingsStore.getState().setInstrument(instrument)
     if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
       preloadGuitarSampler()
     }

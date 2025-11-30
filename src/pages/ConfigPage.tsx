@@ -1,12 +1,23 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ConfigSection } from '../components/ConfigSection/ConfigSection'
 import { useGameStore } from '../store/gameStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
 
 export function ConfigPage() {
   const navigate = useNavigate()
   const config = useGameStore((state) => state.config)
+  const settings = useSettingsStore()
   const handlers = useAppHandlers()
+
+  useEffect(() => {
+    useGameStore.getState().setConfig({
+      stringNotes: settings.stringNotes,
+      measureCount: settings.measureCount,
+      instrument: settings.instrument,
+    })
+  }, [settings.stringNotes, settings.measureCount, settings.instrument])
 
   const handleGenerate = () => {
     handlers.handleGenerate()

@@ -39,6 +39,18 @@ describe('getNoteFrequency', () => {
     expect(getNoteFrequency('la', 4 as 3 | 4 | 5)).toBe(440.0)
     expect(getNoteFrequency('si', 4 as 3 | 4 | 5)).toBe(493.88)
   })
+
+  it('returns fallback frequency when octave 5 note does not exist', () => {
+    const frequency = getNoteFrequency('fa', 5)
+    expect(frequency).toBeGreaterThan(0)
+    expect(frequency).toBe(698.46)
+  })
+
+  it('returns fallback frequency when octave 5 note key does not exist in map', () => {
+    const frequency = getNoteFrequency('sol', 5)
+    expect(frequency).toBeGreaterThan(0)
+    expect(frequency).toBe(783.99)
+  })
 })
 
 describe('getStaffPosition', () => {

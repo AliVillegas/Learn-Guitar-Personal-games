@@ -88,9 +88,17 @@ function renderScoreSection(notes: ReturnType<typeof useGameStore>['sequence']) 
 function renderCompletePhase(
   score: ReturnType<typeof useGameStore>['score'],
   sequenceLength: number,
-  onPlayAgain: () => void
+  onPlayAgain: () => void,
+  onGoToConfig: () => void
 ) {
-  return <ResultPanel correct={score.correct} total={sequenceLength} onPlayAgain={onPlayAgain} />
+  return (
+    <ResultPanel
+      correct={score.correct}
+      total={sequenceLength}
+      onPlayAgain={onPlayAgain}
+      onGoToConfig={onGoToConfig}
+    />
+  )
 }
 
 function renderGameButtons(
@@ -252,6 +260,7 @@ function useNotePlaybackOnNextHighlight(
       }
     }
     previousIndexRef.current = game.currentIndex
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.currentIndex, game.phase, game.sequence, handlers.audio])
 }
 
@@ -273,6 +282,7 @@ function useNotePlaybackOnHighlight(
     if (shouldResetIndex) {
       previousIndexRef.current = null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.phase, game.currentIndex, game.sequence.length, game.sequence, handlers])
 
   useNotePlaybackOnNextHighlight(game, handlers, previousIndexRef)
@@ -285,6 +295,11 @@ export function GamePage() {
   const handlers = useAppHandlers()
 
   const handlePlayAgain = () => {
+    handlers.feedback.reset()
+    game.generateSequence()
+  }
+
+  const handleGoToConfig = () => {
     handlers.handlePlayAgain()
     navigate('/config')
   }
@@ -298,7 +313,7 @@ export function GamePage() {
   useNotePlaybackOnHighlight(game, handlers)
 
   if (game.phase === 'complete') {
-    return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain)
+    return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain, handleGoToConfig)
   }
 
   if (game.phase !== 'playing') {

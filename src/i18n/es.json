@@ -37,7 +37,8 @@
   "result": {
     "complete": "¡Ronda Completa!",
     "finalScore": "Puntuación Final: {{correct}} de {{total}}",
-    "playAgain": "Jugar de Nuevo"
+    "playAgain": "Jugar de Nuevo",
+    "goToConfig": "Ir a Configuración"
   },
   "language": {
     "switch": "English",

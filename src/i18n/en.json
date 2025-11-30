@@ -37,7 +37,8 @@
   "result": {
     "complete": "Round Complete!",
     "finalScore": "Final Score: {{correct}} of {{total}}",
-    "playAgain": "Play Again"
+    "playAgain": "Play Again",
+    "goToConfig": "Go to Config"
   },
   "language": {
     "switch": "Español",

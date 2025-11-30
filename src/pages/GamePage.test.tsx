@@ -169,8 +169,9 @@ describe('GamePage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/config')
   })
 
-  it('calls handlePlayAgain when play again is clicked', async () => {
+  it('regenerates sequence when play again is clicked', async () => {
     const user = userEvent.setup()
+    const generateSequenceSpy = vi.spyOn(useGameStore.getState(), 'generateSequence')
     useGameStore.setState({
       ...useGameStore.getState(),
       phase: 'complete',
@@ -184,6 +185,27 @@ describe('GamePage', () => {
 
     const playAgainButton = screen.getByRole('button', { name: /play again/i })
     await user.click(playAgainButton)
+
+    expect(generateSequenceSpy).toHaveBeenCalled()
+    expect(useGameStore.getState().phase).toBe('playing')
+    generateSequenceSpy.mockRestore()
+  })
+
+  it('navigates to config when go to config is clicked', async () => {
+    const user = userEvent.setup()
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      phase: 'complete',
+    })
+
+    render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    const goToConfigButton = screen.getByRole('button', { name: /go to config/i })
+    await user.click(goToConfigButton)
 
     expect(mockNavigate).toHaveBeenCalledWith('/config')
   })

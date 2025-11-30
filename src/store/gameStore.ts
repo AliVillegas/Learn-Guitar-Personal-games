@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { GameState, GameConfig, StringNoteConfig } from '../types/game'
 import type { SolfegeNote } from '../types/music'
 import { createNoteDefinition, getNotesForString, getAllGuitarStrings } from '../utils/notes'
+import { useSettingsStore } from './settingsStore'
 
 function createInitialStringNotes(): GameConfig['stringNotes'] {
   return getAllGuitarStrings().map((string) => ({
@@ -192,22 +193,38 @@ interface GameStore extends GameState {
   reset: () => void
 }
 
-export const useGameStore = create<GameStore>((set) => ({
-  phase: 'config',
-  config: initialConfig,
-  sequence: [],
-  currentIndex: 0,
-  score: { correct: 0, incorrect: 0 },
+export const useGameStore = create<GameStore>((set) => {
+  const loadConfigFromSettings = () => {
+    try {
+      const settings = useSettingsStore.getState()
+      return {
+        selectedNotes: ['do', 're', 'mi'],
+        stringNotes: settings.stringNotes,
+        measureCount: settings.measureCount,
+        instrument: settings.instrument,
+      }
+    } catch {
+      return initialConfig
+    }
+  }
 
-  setConfig: (partialConfig) => set(createSetConfigHandler()(partialConfig)),
+  return {
+    phase: 'config',
+    config: loadConfigFromSettings(),
+    sequence: [],
+    currentIndex: 0,
+    score: { correct: 0, incorrect: 0 },
 
-  generateSequence: () => set(createGenerateSequenceHandler()),
+    setConfig: (partialConfig) => set(createSetConfigHandler()(partialConfig)),
 
-  submitAnswer: (answer) =>
-    set((state) => {
-      const result = processAnswer(state, answer)
-      return result || state
-    }),
+    generateSequence: () => set(createGenerateSequenceHandler()),
 
-  reset: () => set(createResetHandler()),
-}))
+    submitAnswer: (answer) =>
+      set((state) => {
+        const result = processAnswer(state, answer)
+        return result || state
+      }),
+
+    reset: () => set(createResetHandler()),
+  }
+})
