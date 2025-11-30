@@ -11,9 +11,10 @@ export function useAnswerFeedback() {
 
   const setFeedback = (note: SolfegeNote, state: 'correct' | 'incorrect') => {
     setFeedbackState((prev) => ({ ...prev, [note]: state }))
+    const duration = state === 'correct' ? 800 : 400
     setTimeout(() => {
       setFeedbackState((prev) => ({ ...prev, [note]: 'idle' }))
-    }, 200)
+    }, duration)
   }
 
   return { feedbackState, setFeedback, reset }

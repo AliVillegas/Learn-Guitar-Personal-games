@@ -42,7 +42,9 @@ function handleCorrectAnswer(
 ): void {
   feedback.setFeedback(selectedNote, 'correct')
   game.submitAnswer(selectedNote)
-  playNextNoteAfterCorrectAnswer(audio)
+  setTimeout(() => {
+    playNextNoteAfterCorrectAnswer(audio)
+  }, 600)
 }
 
 export function createAnswerHandler(
