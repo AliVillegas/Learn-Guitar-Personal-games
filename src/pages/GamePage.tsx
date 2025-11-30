@@ -99,10 +99,10 @@ function renderGameButtons(
 ) {
   return (
     <div className="flex justify-between items-center">
-      <Button onClick={() => navigate('/config')} variant="outline">
+      <Button onClick={() => navigate('/config')} variant="ghost">
         {t('game.backToConfig')}
       </Button>
-      <Button onClick={onRegenerate} variant="outline">
+      <Button onClick={onRegenerate} variant="secondary">
         {t('game.regenerate')}
       </Button>
     </div>

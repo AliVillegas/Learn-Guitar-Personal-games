@@ -48,7 +48,7 @@ function renderPlayCurrentNoteButton(
       onClick={handlePlayCurrentNote}
       disabled={isPlaying || !currentNote}
       size="lg"
-      variant="outline"
+      variant="secondary"
       aria-label={t('game.playCurrentNote')}
       className="min-w-[180px]"
     >
@@ -108,7 +108,7 @@ function renderMeasureButtons(
           onClick={createPlayMeasureHandler(isPlaying, i, onPlayMeasure)}
           disabled={isPlaying}
           size="lg"
-          variant="outline"
+          variant="secondary"
           aria-label={t('game.playMeasure', { number: i + 1 })}
           className="min-w-[180px]"
         >
