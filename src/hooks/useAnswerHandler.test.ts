@@ -80,13 +80,12 @@ describe('createAnswerHandler', () => {
     expect(audio.playNoteAtTime).not.toHaveBeenCalled()
   })
 
-  it('sets correct feedback and plays correct note then next note for correct answer', () => {
+  it('sets correct feedback and submits answer for correct answer', () => {
     const game = useGameStore.getState()
-    const currentTime = 1000
     const audio = {
       playNote: vi.fn().mockResolvedValue(undefined),
       playNoteAtTime: vi.fn().mockResolvedValue(undefined),
-      getCurrentTime: vi.fn().mockReturnValue(currentTime),
+      getCurrentTime: vi.fn().mockReturnValue(0),
       playErrorSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
@@ -95,15 +94,11 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNoteAtTime).toHaveBeenCalledWith(createNoteDefinition('mi', 3), currentTime)
-    expect(audio.playNoteAtTime).toHaveBeenCalledWith(
-      createNoteDefinition('fa', 3),
-      currentTime + 0.4
-    )
+    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
     expect(audio.playErrorSound).not.toHaveBeenCalled()
   })
 
-  it('plays correct note but not next note when game is complete after correct answer', () => {
+  it('sets correct feedback when game is complete after correct answer', () => {
     useGameStore.setState({
       phase: 'playing',
       sequence: [
@@ -117,11 +112,10 @@ describe('createAnswerHandler', () => {
       score: { correct: 0, incorrect: 0 },
     })
     const game = useGameStore.getState()
-    const currentTime = 1000
     const audio = {
       playNote: vi.fn().mockResolvedValue(undefined),
       playNoteAtTime: vi.fn().mockResolvedValue(undefined),
-      getCurrentTime: vi.fn().mockReturnValue(currentTime),
+      getCurrentTime: vi.fn().mockReturnValue(0),
       playErrorSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
@@ -130,8 +124,7 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNoteAtTime).toHaveBeenCalledWith(createNoteDefinition('mi', 3), currentTime)
-    expect(audio.playNoteAtTime).toHaveBeenCalledTimes(1)
+    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
   })
 
   it('plays note and sets incorrect feedback for wrong answer', () => {

@@ -8,6 +8,7 @@ import {
   getOctaveFromString,
   getAllGuitarStrings,
   getNotesFromStrings,
+  getGuitarSoundingFrequency,
 } from './notes'
 import type { SolfegeNote, GuitarString } from '../types/music'
 
@@ -198,5 +199,28 @@ describe('getStaffPosition', () => {
   it('returns first position when octave does not match', () => {
     const position = getStaffPosition('do', 5)
     expect(position).toBeGreaterThanOrEqual(0)
+  })
+})
+
+describe('getGuitarSoundingFrequency', () => {
+  it('returns correct frequency for octave 3 note (sounds one octave lower)', () => {
+    const frequency = getGuitarSoundingFrequency('mi', 3)
+    expect(frequency).toBe(82.41)
+  })
+
+  it('returns correct frequency for octave 4 note (sounds one octave lower)', () => {
+    const frequency = getGuitarSoundingFrequency('mi', 4)
+    expect(frequency).toBe(164.81)
+  })
+
+  it('returns correct frequency for octave 5 note (sounds one octave lower)', () => {
+    const frequency = getGuitarSoundingFrequency('mi', 5)
+    expect(frequency).toBe(329.63)
+  })
+
+  it('uses fallback when sounding octave key does not exist', () => {
+    const frequency = getGuitarSoundingFrequency('do', 3)
+    expect(frequency).toBeGreaterThan(0)
+    expect(frequency).toBe(65.41)
   })
 })

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Staff } from '../components/Staff/Staff'
@@ -166,6 +166,35 @@ function renderPlayingPhase(
   )
 }
 
+function useNotePlaybackOnHighlight(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>
+) {
+  const previousIndexRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (game.phase === 'playing' && game.currentIndex === 0) {
+      previousIndexRef.current = null
+    }
+  }, [game.phase, game.currentIndex, game.sequence.length])
+
+  useEffect(() => {
+    if (
+      game.phase === 'playing' &&
+      previousIndexRef.current !== null &&
+      previousIndexRef.current < game.currentIndex
+    ) {
+      const currentNote = game.sequence[game.currentIndex]
+      if (currentNote) {
+        handlers.audio.playNote(currentNote.note).catch((error) => {
+          console.error('Error playing highlighted note:', error)
+        })
+      }
+    }
+    previousIndexRef.current = game.currentIndex
+  }, [game.currentIndex, game.phase, game.sequence, handlers.audio])
+}
+
 export function GamePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -182,6 +211,8 @@ export function GamePage() {
       navigate('/config')
     }
   }, [game.phase, navigate])
+
+  useNotePlaybackOnHighlight(game, handlers)
 
   if (game.phase === 'complete') {
     return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain)
