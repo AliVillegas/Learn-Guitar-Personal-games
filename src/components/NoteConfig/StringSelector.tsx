@@ -24,7 +24,7 @@ function renderStringNoteCheckbox(
   return (
     <label
       key={`${guitarString}-${noteDef.solfege}`}
-      className="flex items-center gap-2 cursor-pointer px-3 py-1 rounded hover:bg-muted"
+      className="flex items-center gap-1.5 cursor-pointer px-2 py-0.5 rounded hover:bg-muted"
     >
       <Checkbox
         checked={checked}
@@ -46,9 +46,9 @@ function renderStringSection(
   const selectedNotes = stringConfig?.notes || []
 
   return (
-    <div key={guitarString} className="border border-border rounded-lg p-4 space-y-2">
-      <h4 className="font-medium text-foreground">{getStringTitle(guitarString, t)}</h4>
-      <div className="flex flex-wrap gap-2">
+    <div key={guitarString} className="border border-border rounded-lg p-2.5 space-y-1.5">
+      <h4 className="font-medium text-foreground text-sm">{getStringTitle(guitarString, t)}</h4>
+      <div className="flex flex-wrap gap-1.5">
         {availableNotes.map((noteDef) =>
           renderStringNoteCheckbox(
             guitarString,
@@ -70,7 +70,7 @@ export function StringSelector({ stringNotes, onToggleNote }: StringSelectorProp
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-foreground">{t('config.selectStringNotes')}</h3>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {allStrings.map((guitarString) => {
           const stringConfig = stringNotes.find((sn) => sn.string === guitarString)
           return renderStringSection(guitarString, stringConfig, onToggleNote, t)
