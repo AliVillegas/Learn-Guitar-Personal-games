@@ -15,7 +15,8 @@ export function InstrumentSelector({ instrument, onChange }: InstrumentSelectorP
       <label className="text-sm font-medium text-foreground">{t('config.instrument')}</label>
       <Select value={instrument} onChange={(e) => onChange(e.target.value as InstrumentType)}>
         <option value="midi">{t('config.instruments.midi')}</option>
-        <option value="guitar">{t('config.instruments.guitar')}</option>
+        <option value="guitar-synth">{t('config.instruments.guitarSynth')}</option>
+        <option value="guitar-classical">{t('config.instruments.guitarClassical')}</option>
       </Select>
     </div>
   )

@@ -17,7 +17,8 @@
     "instrument": "Sound",
     "instruments": {
       "midi": "MIDI",
-      "guitar": "Guitar"
+      "guitarSynth": "Guitar (Synth)",
+      "guitarClassical": "Guitar (Classical)"
     },
     "minStringNotesWarning": "Select at least one note from any string",
     "generate": "Generate"

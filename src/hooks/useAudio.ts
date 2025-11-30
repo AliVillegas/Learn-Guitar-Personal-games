@@ -37,7 +37,7 @@ async function scheduleNote(
   const engine = getAudioEngine(instrument)
   const noteName = `${note.letter}${note.octave}`
 
-  if (instrument === 'guitar') {
+  if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
     await initializeGuitarSynth()
   }
 
@@ -53,7 +53,7 @@ async function scheduleSequence(
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
 
-  if (instrument === 'guitar') {
+  if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
     await initializeGuitarSynth()
   }
 
@@ -83,6 +83,16 @@ function createErrorSound(ctx: AudioContext): void {
   osc.stop(ctx.currentTime + 0.1)
 }
 
+function isGuitarInstrument(instrument: InstrumentType): boolean {
+  return instrument === 'guitar-synth' || instrument === 'guitar-classical'
+}
+
+async function ensureToneStarted(instrument: InstrumentType): Promise<void> {
+  if (isGuitarInstrument(instrument) && Tone.context.state !== 'running') {
+    await Tone.start()
+  }
+}
+
 export function useAudio(): UseAudioReturn {
   const ctxRef = useRef<AudioContext | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -99,11 +109,7 @@ export function useAudio(): UseAudioReturn {
     async (note: NoteDefinition) => {
       const ctx = getContext()
       await ensureContextResumed(ctx)
-
-      if (instrument === 'guitar' && Tone.context.state !== 'running') {
-        await Tone.start()
-      }
-
+      await ensureToneStarted(instrument)
       await scheduleNote(ctx, note, ctx.currentTime, instrument)
     },
     [getContext, instrument]
@@ -113,15 +119,9 @@ export function useAudio(): UseAudioReturn {
     async (notes: NoteDefinition[], bpm: number = DEFAULT_BPM): Promise<void> => {
       const ctx = getContext()
       await ensureContextResumed(ctx)
-
-      if (instrument === 'guitar' && Tone.context.state !== 'running') {
-        await Tone.start()
-      }
-
+      await ensureToneStarted(instrument)
       setIsPlaying(true)
-
       const duration = await scheduleSequence(ctx, notes, bpm, instrument)
-
       setTimeout(() => {
         setIsPlaying(false)
       }, duration)

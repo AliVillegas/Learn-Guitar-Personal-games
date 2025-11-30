@@ -14,7 +14,7 @@ const initialConfig: GameConfig = {
   selectedNotes: ['do', 're', 'mi'],
   stringNotes: createInitialStringNotes(),
   measureCount: 1,
-  instrument: 'guitar',
+  instrument: 'guitar-synth',
 }
 
 function generateId(): string {

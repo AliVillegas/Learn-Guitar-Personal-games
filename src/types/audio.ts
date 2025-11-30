@@ -1,4 +1,4 @@
-export type InstrumentType = 'midi' | 'guitar'
+export type InstrumentType = 'midi' | 'guitar-synth' | 'guitar-classical'
 
 export interface AudioEngine {
   playNote: (

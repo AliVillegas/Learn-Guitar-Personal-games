@@ -17,7 +17,8 @@
     "instrument": "Sonido",
     "instruments": {
       "midi": "MIDI",
-      "guitar": "Guitarra"
+      "guitarSynth": "Guitarra (Sintetizador)",
+      "guitarClassical": "Guitarra (Clásica)"
     },
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
     "generate": "Generar"

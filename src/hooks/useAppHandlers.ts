@@ -37,7 +37,7 @@ function createChangeMeasureHandler() {
 function createChangeInstrumentHandler() {
   return (instrument: InstrumentType) => {
     useGameStore.getState().setConfig({ instrument })
-    if (instrument === 'guitar') {
+    if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
       preloadGuitarSampler()
     }
   }
