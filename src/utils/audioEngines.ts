@@ -3,54 +3,38 @@ import type { AudioEngine, InstrumentType } from '../types/audio'
 
 const QUARTER_NOTE_DURATION = 0.4
 
-let guitarSampler: Tone.Sampler | null = null
-let samplerReadyPromise: Promise<void> | null = null
+let guitarSynth: Tone.PolySynth<Tone.Synth> | null = null
+let synthReadyPromise: Promise<void> | null = null
 
-const GUITAR_SAMPLER_URLS = {
-  C3: 'https://tonejs.github.io/audio/salamander/C3.mp3',
-  'C#3': 'https://tonejs.github.io/audio/salamander/Cs3.mp3',
-  D3: 'https://tonejs.github.io/audio/salamander/D3.mp3',
-  'D#3': 'https://tonejs.github.io/audio/salamander/Ds3.mp3',
-  E3: 'https://tonejs.github.io/audio/salamander/E3.mp3',
-  F3: 'https://tonejs.github.io/audio/salamander/F3.mp3',
-  'F#3': 'https://tonejs.github.io/audio/salamander/Fs3.mp3',
-  G3: 'https://tonejs.github.io/audio/salamander/G3.mp3',
-  'G#3': 'https://tonejs.github.io/audio/salamander/Gs3.mp3',
-  A3: 'https://tonejs.github.io/audio/salamander/A3.mp3',
-  'A#3': 'https://tonejs.github.io/audio/salamander/As3.mp3',
-  B3: 'https://tonejs.github.io/audio/salamander/B3.mp3',
-  C4: 'https://tonejs.github.io/audio/salamander/C4.mp3',
-  'C#4': 'https://tonejs.github.io/audio/salamander/Cs4.mp3',
-  D4: 'https://tonejs.github.io/audio/salamander/D4.mp3',
-  'D#4': 'https://tonejs.github.io/audio/salamander/Ds4.mp3',
-  E4: 'https://tonejs.github.io/audio/salamander/E4.mp3',
-  F4: 'https://tonejs.github.io/audio/salamander/F4.mp3',
-  'F#4': 'https://tonejs.github.io/audio/salamander/Fs4.mp3',
-  G4: 'https://tonejs.github.io/audio/salamander/G4.mp3',
-}
-
-async function initializeGuitarSampler(): Promise<void> {
-  if (guitarSampler) {
+async function initializeGuitarSynth(): Promise<void> {
+  if (guitarSynth) {
     return
   }
 
-  if (samplerReadyPromise) {
-    return samplerReadyPromise
+  if (synthReadyPromise) {
+    return synthReadyPromise
   }
 
-  samplerReadyPromise = (async () => {
+  synthReadyPromise = (async () => {
     try {
-      guitarSampler = new Tone.Sampler({
-        urls: GUITAR_SAMPLER_URLS,
-        release: 1,
+      guitarSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: {
+          type: 'sawtooth',
+        },
+        envelope: {
+          attack: 0.01,
+          decay: 0.1,
+          sustain: 0.3,
+          release: 0.5,
+        },
       }).toDestination()
     } catch (error) {
-      console.error('Failed to initialize guitar sampler:', error)
+      console.error('Failed to initialize guitar synth:', error)
       throw error
     }
   })()
 
-  return samplerReadyPromise
+  return synthReadyPromise
 }
 
 function createMidiOscillator(ctx: AudioContext, frequency: number): OscillatorNode {
@@ -123,17 +107,17 @@ async function playGuitarNote(
     return
   }
 
-  await initializeGuitarSampler()
+  await initializeGuitarSynth()
 
-  if (!guitarSampler) {
-    console.warn('Guitar sampler not ready after initialization')
+  if (!guitarSynth) {
+    console.warn('Guitar synth not ready after initialization')
     return
   }
 
   await ensureToneContextRunning()
 
   const toneTime = calculateToneTime(startTime, ctx)
-  guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+  guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
 }
 
 const guitarEngine: AudioEngine = {
@@ -151,12 +135,12 @@ const guitarEngine: AudioEngine = {
 }
 
 export function preloadGuitarSampler(): Promise<void> {
-  return initializeGuitarSampler()
+  return initializeGuitarSynth()
 }
 
 export function getAudioEngine(instrument: InstrumentType): AudioEngine {
   if (instrument === 'guitar') {
-    initializeGuitarSampler()
+    initializeGuitarSynth()
   }
 
   switch (instrument) {

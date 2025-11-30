@@ -4,7 +4,7 @@ import type { NoteDefinition } from '../types/music'
 import type { InstrumentType } from '../types/audio'
 import {
   getAudioEngine,
-  preloadGuitarSampler as initializeGuitarSampler,
+  preloadGuitarSampler as initializeGuitarSynth,
 } from '../utils/audioEngines'
 import { useGameStore } from '../store/gameStore'
 
@@ -38,7 +38,7 @@ async function scheduleNote(
   const noteName = `${note.letter}${note.octave}`
 
   if (instrument === 'guitar') {
-    await initializeGuitarSampler()
+    await initializeGuitarSynth()
   }
 
   await engine.playNote({ frequency: note.frequency, noteName }, startTime, ctx)
@@ -54,7 +54,7 @@ async function scheduleSequence(
   const now = ctx.currentTime
 
   if (instrument === 'guitar') {
-    await initializeGuitarSampler()
+    await initializeGuitarSynth()
   }
 
   const promises = notes.map((note, index) => {
