@@ -57,6 +57,22 @@ describe('gameReducer', () => {
       expect(result.phase).toBe('playing')
       expect(result.sequence[0].status).toBe('active')
     })
+
+    it('returns empty sequence when no notes are available', () => {
+      const state = createTestState({
+        config: {
+          selectedNotes: [],
+          stringNotes: [
+            { string: 6, notes: [] },
+            { string: 5, notes: [] },
+          ],
+          measureCount: 1,
+        },
+      })
+      const result = gameReducer(state, { type: 'GENERATE_SEQUENCE' })
+
+      expect(result.sequence).toHaveLength(0)
+    })
   })
 
   describe('SUBMIT_ANSWER', () => {
@@ -113,6 +129,25 @@ describe('gameReducer', () => {
       const result = gameReducer(state, { type: 'SUBMIT_ANSWER', payload: 'mi' })
 
       expect(result.phase).toBe('complete')
+    })
+
+    it('returns state unchanged when current note is undefined', () => {
+      const state = createTestState({
+        currentIndex: 0,
+        sequence: [],
+      })
+      const result = gameReducer(state, { type: 'SUBMIT_ANSWER', payload: 'mi' })
+
+      expect(result).toEqual(state)
+    })
+  })
+
+  describe('unknown action type', () => {
+    it('returns state unchanged for unknown action types', () => {
+      const state = createTestState({})
+      const result = gameReducer(state, { type: 'UNKNOWN_ACTION' as never, payload: undefined })
+
+      expect(result).toEqual(state)
     })
   })
 

@@ -9,12 +9,12 @@ export function LanguageSwitcher() {
     i18n.changeLanguage(newLang)
   }
 
-  const currentFlag = i18n.language === 'en' ? '🇺🇸' : '🇲🇽'
+  const targetFlag = i18n.language === 'en' ? '🇲🇽' : '🇺🇸'
   const buttonText = i18n.language === 'en' ? 'Español' : 'English'
 
   return (
     <Button type="button" onClick={toggleLanguage} variant="outline" size="sm" className="gap-2">
-      <span>{currentFlag}</span>
+      <span>{targetFlag}</span>
       <span>{t('language.label')}</span>
       <span className="ml-1">{buttonText}</span>
     </Button>

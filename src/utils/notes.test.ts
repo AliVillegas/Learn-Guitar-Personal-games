@@ -33,6 +33,11 @@ describe('getNoteFrequency', () => {
       })
     }
   })
+
+  it('returns default frequency when note/octave combination is not found', () => {
+    expect(getNoteFrequency('la', 4 as 3 | 4)).toBe(220.0)
+    expect(getNoteFrequency('si', 4 as 3 | 4)).toBe(220.0)
+  })
 })
 
 describe('getStaffPosition', () => {
@@ -56,6 +61,11 @@ describe('getStaffPosition', () => {
         expect(getStaffPosition(solfege as SolfegeNote, 4)).toBe(positions.octave4)
       })
     }
+  })
+
+  it('returns first position when octave match is not found', () => {
+    expect(getStaffPosition('la', 4 as 3 | 4)).toBe(0)
+    expect(getStaffPosition('si', 4 as 3 | 4)).toBe(1)
   })
 })
 
