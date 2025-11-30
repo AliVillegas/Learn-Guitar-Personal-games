@@ -1,23 +1,49 @@
 import type { GameState, GameAction } from '../types/game'
-import type { SolfegeNote } from '../types/music'
-import { createNoteDefinition } from '../utils/notes'
+import type { SolfegeNote, GuitarString } from '../types/music'
+import { createNoteDefinition, getSolfegeFromString, getOctaveFromString } from '../utils/notes'
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
 }
 
-function pickRandomNote(notes: SolfegeNote[]): SolfegeNote {
-  const index = Math.floor(Math.random() * notes.length)
-  return notes[index]
+function pickRandomString(strings: GuitarString[]): GuitarString {
+  const index = Math.floor(Math.random() * strings.length)
+  return strings[index]
 }
 
-function generateSequence(selectedNotes: SolfegeNote[], measureCount: number) {
+function getValidStrings(
+  selectedNotes: SolfegeNote[],
+  selectedStrings: GuitarString[]
+): GuitarString[] {
+  const availableStrings = selectedStrings.length > 0 ? selectedStrings : [6, 5, 4, 3, 2, 1]
+  return availableStrings.filter((str) => {
+    const solfege = getSolfegeFromString(str)
+    return selectedNotes.includes(solfege)
+  })
+}
+
+function createNoteFromString(guitarString: GuitarString) {
+  const solfege = getSolfegeFromString(guitarString)
+  const octave = getOctaveFromString(guitarString)
+  return createNoteDefinition(solfege, octave)
+}
+
+function generateSequence(
+  selectedNotes: SolfegeNote[],
+  selectedStrings: GuitarString[],
+  measureCount: number
+) {
   const totalNotes = measureCount * 4
   const sequence = []
+  const validStrings = getValidStrings(selectedNotes, selectedStrings)
+
+  if (validStrings.length === 0) {
+    return sequence
+  }
 
   for (let i = 0; i < totalNotes; i++) {
-    const solfege = pickRandomNote(selectedNotes)
-    const note = createNoteDefinition(solfege, 3)
+    const guitarString = pickRandomString(validStrings)
+    const note = createNoteFromString(guitarString)
     sequence.push({
       id: generateId(),
       note,
@@ -43,7 +69,11 @@ function handleSetConfig(state: GameState, payload: Partial<GameState['config']>
 }
 
 function handleGenerateSequence(state: GameState): GameState {
-  const sequence = generateSequence(state.config.selectedNotes, state.config.measureCount)
+  const sequence = generateSequence(
+    state.config.selectedNotes,
+    state.config.selectedStrings,
+    state.config.measureCount
+  )
 
   return {
     ...state,

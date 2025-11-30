@@ -15,8 +15,10 @@ function renderConfigPhase(handlers: Handlers) {
   return (
     <ConfigSection
       selectedNotes={config.selectedNotes}
+      selectedStrings={config.selectedStrings}
       measureCount={config.measureCount}
       onToggleNote={handlers.handleToggleNote}
+      onToggleString={handlers.handleToggleString}
       onChangeMeasure={handlers.handleChangeMeasure}
       onGenerate={handlers.handleGenerate}
     />

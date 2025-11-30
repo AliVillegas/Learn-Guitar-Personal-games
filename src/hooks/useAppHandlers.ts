@@ -1,4 +1,4 @@
-import type { SolfegeNote, MeasureCount } from '../types/music'
+import type { SolfegeNote, MeasureCount, GuitarString } from '../types/music'
 import { useGameState } from './useGameState'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
@@ -10,6 +10,17 @@ function createToggleNoteHandler(game: ReturnType<typeof useGameState>) {
     const isSelected = current.includes(note)
     const newSelection = isSelected ? current.filter((n) => n !== note) : [...current, note]
     game.setConfig({ selectedNotes: newSelection })
+  }
+}
+
+function createToggleStringHandler(game: ReturnType<typeof useGameState>) {
+  return (guitarString: GuitarString) => {
+    const current = game.state.config.selectedStrings
+    const isSelected = current.includes(guitarString)
+    const newSelection = isSelected
+      ? current.filter((s) => s !== guitarString)
+      : [...current, guitarString]
+    game.setConfig({ selectedStrings: newSelection })
   }
 }
 
@@ -67,6 +78,7 @@ export function useAppHandlers() {
     audio,
     feedback,
     handleToggleNote: createToggleNoteHandler(game),
+    handleToggleString: createToggleStringHandler(game),
     handleChangeMeasure: createChangeMeasureHandler(game),
     handleGenerate: createGenerateHandler(feedback, game),
     handlePlayAll: createPlayAllHandler(game, audio),

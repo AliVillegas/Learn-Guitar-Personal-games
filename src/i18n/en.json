@@ -13,8 +13,10 @@
   },
   "config": {
     "selectNotes": "Select notes to practice",
+    "selectStrings": "Select guitar strings",
     "measures": "Measures",
     "minNotesWarning": "Select at least 2 notes",
+    "minStringsWarning": "Select at least 1 string",
     "generate": "Generate"
   },
   "game": {

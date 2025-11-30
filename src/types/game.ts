@@ -1,9 +1,10 @@
-import type { SolfegeNote, MeasureCount, GameNote } from './music'
+import type { SolfegeNote, MeasureCount, GameNote, GuitarString } from './music'
 
 export type GamePhase = 'config' | 'playing' | 'complete'
 
 export interface GameConfig {
   selectedNotes: SolfegeNote[]
+  selectedStrings: GuitarString[]
   measureCount: MeasureCount
 }
 

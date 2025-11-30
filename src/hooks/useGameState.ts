@@ -5,6 +5,7 @@ import { gameReducer } from './useGameReducer'
 
 const initialConfig: GameConfig = {
   selectedNotes: ['do', 're', 'mi'],
+  selectedStrings: [6, 5, 4, 3, 2, 1],
   measureCount: 1,
 }
 

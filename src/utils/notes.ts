@@ -1,4 +1,4 @@
-import type { SolfegeNote, NoteDefinition, LetterNote } from '../types/music'
+import type { SolfegeNote, NoteDefinition, LetterNote, GuitarString } from '../types/music'
 
 const NOTE_FREQUENCIES: Record<string, number> = {
   C3: 130.81,
@@ -78,4 +78,42 @@ export function createNoteDefinition(solfege: SolfegeNote, octave: 3 | 4 = 3): N
 
 export function getAllSolfegeNotes(): SolfegeNote[] {
   return ['do', 're', 'mi', 'fa', 'sol', 'la', 'si']
+}
+
+const STRING_TO_SOLFEGE: Record<GuitarString, SolfegeNote> = {
+  6: 'mi',
+  5: 'la',
+  4: 're',
+  3: 'sol',
+  2: 'si',
+  1: 'mi',
+}
+
+const STRING_TO_OCTAVE: Record<GuitarString, 3 | 4> = {
+  6: 3,
+  5: 3,
+  4: 3,
+  3: 3,
+  2: 3,
+  1: 4,
+}
+
+export function getSolfegeFromString(guitarString: GuitarString): SolfegeNote {
+  return STRING_TO_SOLFEGE[guitarString]
+}
+
+export function getOctaveFromString(guitarString: GuitarString): 3 | 4 {
+  return STRING_TO_OCTAVE[guitarString]
+}
+
+export function getAllGuitarStrings(): GuitarString[] {
+  return [6, 5, 4, 3, 2, 1]
+}
+
+export function getNotesFromStrings(strings: GuitarString[]): SolfegeNote[] {
+  const notes = new Set<SolfegeNote>()
+  strings.forEach((str) => {
+    notes.add(getSolfegeFromString(str))
+  })
+  return Array.from(notes)
 }

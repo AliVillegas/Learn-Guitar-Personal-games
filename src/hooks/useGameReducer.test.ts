@@ -8,6 +8,7 @@ function createTestState(overrides: Partial<GameState>): GameState {
     phase: 'playing',
     config: {
       selectedNotes: ['mi', 'fa'],
+      selectedStrings: [6, 5, 4, 3, 2, 1],
       measureCount: 1,
     },
     sequence: [],
@@ -33,7 +34,13 @@ describe('gameReducer', () => {
 
   describe('GENERATE_SEQUENCE', () => {
     it('creates sequence with correct number of notes', () => {
-      const state = createTestState({ config: { selectedNotes: ['mi'], measureCount: 1 } })
+      const state = createTestState({
+        config: {
+          selectedNotes: ['mi'],
+          selectedStrings: [6, 1],
+          measureCount: 1,
+        },
+      })
       const result = gameReducer(state, { type: 'GENERATE_SEQUENCE' })
 
       expect(result.sequence).toHaveLength(4)
