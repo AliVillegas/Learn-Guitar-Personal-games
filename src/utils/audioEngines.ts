@@ -141,6 +141,13 @@ async function ensureToneContextRunning(): Promise<void> {
   }
 }
 
+async function releaseAllGuitarSynthNotes(): Promise<void> {
+  await initializeGuitarSynth()
+  if (guitarSynth) {
+    guitarSynth.releaseAll()
+  }
+}
+
 async function playGuitarSynthNote(
   note: { noteName?: string; frequency: number },
   startTime: number,
@@ -160,8 +167,6 @@ async function playGuitarSynthNote(
 
   await ensureToneContextRunning()
 
-  guitarSynth.releaseAll()
-
   const delay = Math.max(0, startTime - ctx.currentTime)
 
   if (delay > 0) {
@@ -169,6 +174,13 @@ async function playGuitarSynthNote(
     guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
   } else {
     guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION)
+  }
+}
+
+async function releaseAllGuitarClassicalNotes(): Promise<void> {
+  await initializeGuitarClassicalSampler()
+  if (guitarClassicalSampler) {
+    guitarClassicalSampler.releaseAll()
   }
 }
 
@@ -190,8 +202,6 @@ async function playGuitarClassicalNote(
   }
 
   await ensureToneContextRunning()
-
-  guitarClassicalSampler.releaseAll()
 
   const delay = Math.max(0, startTime - ctx.currentTime)
 
@@ -233,6 +243,14 @@ const guitarClassicalEngine: AudioEngine = {
 
 export function preloadGuitarSampler(): Promise<void> {
   return Promise.all([initializeGuitarSynth(), initializeGuitarClassicalSampler()]).then(() => {})
+}
+
+export async function releaseAllNotes(instrument: InstrumentType): Promise<void> {
+  if (instrument === 'guitar-synth') {
+    await releaseAllGuitarSynthNotes()
+  } else if (instrument === 'guitar-classical') {
+    await releaseAllGuitarClassicalNotes()
+  }
 }
 
 export function getAudioEngine(instrument: InstrumentType): AudioEngine {

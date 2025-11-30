@@ -5,6 +5,7 @@ import type { InstrumentType } from '../types/audio'
 import {
   getAudioEngine,
   preloadGuitarSampler as initializeGuitarSynth,
+  releaseAllNotes,
 } from '../utils/audioEngines'
 import { useGameStore } from '../store/gameStore'
 
@@ -59,6 +60,7 @@ async function scheduleSequence(
 
   if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
     await initializeGuitarSynth()
+    await releaseAllNotes(instrument)
   }
 
   const promises = notes.map((note, index) => {
