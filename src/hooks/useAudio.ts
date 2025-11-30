@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback } from 'react'
+import * as Tone from 'tone'
 import type { NoteDefinition } from '../types/music'
 import type { InstrumentType } from '../types/audio'
 import {
@@ -98,6 +99,11 @@ export function useAudio(): UseAudioReturn {
     async (note: NoteDefinition) => {
       const ctx = getContext()
       await ensureContextResumed(ctx)
+
+      if (instrument === 'guitar' && Tone.context.state !== 'running') {
+        await Tone.start()
+      }
+
       await scheduleNote(ctx, note, ctx.currentTime, instrument)
     },
     [getContext, instrument]
@@ -107,6 +113,11 @@ export function useAudio(): UseAudioReturn {
     async (notes: NoteDefinition[], bpm: number = DEFAULT_BPM): Promise<void> => {
       const ctx = getContext()
       await ensureContextResumed(ctx)
+
+      if (instrument === 'guitar' && Tone.context.state !== 'running') {
+        await Tone.start()
+      }
+
       setIsPlaying(true)
 
       const duration = await scheduleSequence(ctx, notes, bpm, instrument)

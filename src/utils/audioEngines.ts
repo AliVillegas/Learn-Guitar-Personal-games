@@ -40,9 +40,6 @@ async function initializeGuitarSampler(): Promise<void> {
 
   samplerReadyPromise = (async () => {
     try {
-      if (Tone.context.state !== 'running') {
-        await Tone.start()
-      }
       guitarSampler = new Tone.Sampler({
         urls: GUITAR_SAMPLER_URLS,
         release: 1,
