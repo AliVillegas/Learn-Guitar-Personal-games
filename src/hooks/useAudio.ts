@@ -10,7 +10,7 @@ import { useGameStore } from '../store/gameStore'
 
 interface UseAudioReturn {
   playNote: (note: NoteDefinition) => void
-  playSequence: (notes: NoteDefinition[], bpm?: number) => Promise<void>
+  playSequence: (notes: NoteDefinition[], bpm?: number, startIndex?: number) => Promise<void>
   playErrorSound: () => void
   isPlaying: boolean
   playingIndex: number | null
@@ -101,6 +101,17 @@ async function ensureToneStarted(instrument: InstrumentType): Promise<void> {
   }
 }
 
+function handleSequenceEnd(
+  setIsPlaying: (playing: boolean) => void,
+  setPlayingIndex: (index: number | null) => void,
+  duration: number
+) {
+  setTimeout(() => {
+    setIsPlaying(false)
+    setPlayingIndex(null)
+  }, duration)
+}
+
 export function useAudio(): UseAudioReturn {
   const ctxRef = useRef<AudioContext | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -125,17 +136,21 @@ export function useAudio(): UseAudioReturn {
   )
 
   const playSequence = useCallback(
-    async (notes: NoteDefinition[], bpm: number = DEFAULT_BPM): Promise<void> => {
+    async (
+      notes: NoteDefinition[],
+      bpm: number = DEFAULT_BPM,
+      startIndex: number = 0
+    ): Promise<void> => {
       const ctx = getContext()
       await ensureContextResumed(ctx)
       await ensureToneStarted(instrument)
       setIsPlaying(true)
-      setPlayingIndex(0)
-      const duration = await scheduleSequence(ctx, notes, bpm, instrument, setPlayingIndex)
-      setTimeout(() => {
-        setIsPlaying(false)
-        setPlayingIndex(null)
-      }, duration)
+      setPlayingIndex(startIndex)
+      const onNoteStart = (localIndex: number) => {
+        setPlayingIndex(startIndex + localIndex)
+      }
+      const duration = await scheduleSequence(ctx, notes, bpm, instrument, onNoteStart)
+      handleSequenceEnd(setIsPlaying, setPlayingIndex, duration)
     },
     [getContext, instrument]
   )

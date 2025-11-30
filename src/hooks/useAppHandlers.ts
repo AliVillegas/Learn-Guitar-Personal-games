@@ -79,7 +79,7 @@ function createPlayMeasureHandler(audio: ReturnType<typeof useAudio>) {
     const startIndex = measureIndex * notesPerMeasure
     const endIndex = startIndex + notesPerMeasure
     const measureNotes = state.sequence.slice(startIndex, endIndex).map((gn) => gn.note)
-    audio.playSequence(measureNotes)
+    audio.playSequence(measureNotes, undefined, startIndex)
   }
 }
 
