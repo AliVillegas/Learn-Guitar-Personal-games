@@ -36,15 +36,19 @@ function handleIncorrectAnswer(
 
 function handleCorrectAnswer(
   selectedNote: SolfegeNote,
+  currentNote: { note: { solfege: SolfegeNote; octave: number } },
   feedback: FeedbackHook,
   game: ReturnType<typeof useGameStore>,
   audio: AudioHook
 ): void {
   feedback.setFeedback(selectedNote, 'correct')
+  audio.playNote(currentNote.note).catch((error) => {
+    console.error('Error playing correct note:', error)
+  })
   game.submitAnswer(selectedNote)
   setTimeout(() => {
     playNextNoteAfterCorrectAnswer(audio)
-  }, 600)
+  }, 800)
 }
 
 export function createAnswerHandler(
@@ -61,7 +65,7 @@ export function createAnswerHandler(
     const isCorrect = currentNote.note.solfege === selectedNote
 
     if (isCorrect) {
-      handleCorrectAnswer(selectedNote, feedback, game, audio)
+      handleCorrectAnswer(selectedNote, currentNote, feedback, game, audio)
     } else {
       handleIncorrectAnswer(selectedNote, currentNote, audio, feedback, game)
     }
