@@ -52,6 +52,30 @@ function createStaveNotes(notes: GameNote[], currentIndex: number): StaveNote[] 
   })
 }
 
+function renderMeasure(
+  context: ReturnType<Renderer['getContext']>,
+  measureNotes: StaveNote[],
+  measureIndex: number,
+  staveWidth: number
+): void {
+  const xPosition = 50 + measureIndex * staveWidth
+  const stave = new Stave(xPosition, 40, staveWidth - 20)
+
+  if (measureIndex === 0) {
+    stave.addClef('treble')
+    stave.addTimeSignature('4/4')
+  }
+
+  stave.setContext(context).draw()
+
+  const voice = new Voice({ num_beats: measureNotes.length, beat_value: 4 })
+  voice.addTickables(measureNotes)
+
+  new Formatter().joinVoices([voice]).format([voice], staveWidth - 50)
+
+  voice.draw(context, stave)
+}
+
 function renderStaff(
   container: HTMLDivElement,
   notes: GameNote[],
@@ -61,23 +85,23 @@ function renderStaff(
   container.innerHTML = ''
 
   const renderer = new Renderer(container, Renderer.Backends.SVG)
-  const width = Math.max(800, measureCount * 200)
-  renderer.resize(width, 200)
+  const staveWidth = 200
+  const totalWidth = Math.max(800, measureCount * staveWidth)
+  renderer.resize(totalWidth, 200)
   const context = renderer.getContext()
 
-  const stave = new Stave(50, 40, width - 100)
-  stave.addClef('treble')
-  stave.addTimeSignature('4/4')
-  stave.setContext(context).draw()
-
+  const notesPerMeasure = 4
   const staveNotes = createStaveNotes(notes, currentIndex)
 
-  const voice = new Voice({ num_beats: notes.length, beat_value: 4 })
-  voice.addTickables(staveNotes)
+  for (let measureIndex = 0; measureIndex < measureCount; measureIndex++) {
+    const startNoteIndex = measureIndex * notesPerMeasure
+    const endNoteIndex = Math.min(startNoteIndex + notesPerMeasure, staveNotes.length)
+    const measureNotes = staveNotes.slice(startNoteIndex, endNoteIndex)
 
-  new Formatter().joinVoices([voice]).format([voice], width - 150)
+    if (measureNotes.length === 0) break
 
-  voice.draw(context, stave)
+    renderMeasure(context, measureNotes, measureIndex, staveWidth)
+  }
 }
 
 export function VexFlowStaff({ notes, measureCount, currentIndex }: VexFlowStaffProps) {
