@@ -146,9 +146,7 @@ export function useAudio(): UseAudioReturn {
       await ensureToneStarted(instrument)
       setIsPlaying(true)
       setPlayingIndex(startIndex)
-      const onNoteStart = (localIndex: number) => {
-        setPlayingIndex(startIndex + localIndex)
-      }
+      const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
       const duration = await scheduleSequence(ctx, notes, bpm, instrument, onNoteStart)
       handleSequenceEnd(setIsPlaying, setPlayingIndex, duration)
     },
@@ -156,17 +154,8 @@ export function useAudio(): UseAudioReturn {
   )
 
   const playErrorSound = useCallback(() => {
-    const ctx = getContext()
-    ensureContextResumed(ctx).then(() => {
-      createErrorSound(ctx)
-    })
+    ensureContextResumed(getContext()).then(() => createErrorSound(getContext()))
   }, [getContext])
 
-  return {
-    playNote,
-    playSequence,
-    playErrorSound,
-    isPlaying,
-    playingIndex,
-  }
+  return { playNote, playSequence, playErrorSound, isPlaying, playingIndex }
 }

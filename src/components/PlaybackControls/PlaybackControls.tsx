@@ -50,6 +50,7 @@ function renderPlayCurrentNoteButton(
       size="lg"
       variant="outline"
       aria-label={t('game.playCurrentNote')}
+      className="min-w-[180px]"
     >
       {t('game.playCurrentNote')}
     </Button>
@@ -69,6 +70,7 @@ function renderPlayAllButton(
       size="lg"
       variant="default"
       aria-label={t('game.playAll')}
+      className="min-w-[180px]"
     >
       {t('game.playAll')}
     </Button>
@@ -108,6 +110,7 @@ function renderMeasureButtons(
           size="lg"
           variant="outline"
           aria-label={t('game.playMeasure', { number: i + 1 })}
+          className="min-w-[180px]"
         >
           {t('game.playMeasure', { number: i + 1 })}
         </Button>
