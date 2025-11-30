@@ -133,4 +133,91 @@ describe('GamePage', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/config')
   })
+
+  it('navigates to config when phase is config', () => {
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      phase: 'config',
+    })
+
+    render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    expect(mockNavigate).toHaveBeenCalledWith('/config')
+  })
+
+  it('calls handlePlayAgain when play again is clicked', async () => {
+    const user = userEvent.setup()
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      phase: 'complete',
+    })
+
+    render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    const playAgainButton = screen.getByRole('button', { name: /play again/i })
+    await user.click(playAgainButton)
+
+    expect(mockNavigate).toHaveBeenCalledWith('/config')
+  })
+
+  it('returns null when phase is not playing or complete', () => {
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      phase: 'config',
+    })
+
+    const { container } = render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('handles null current note', () => {
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      sequence: [],
+      currentIndex: 0,
+    })
+
+    render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    expect(screen.getByLabelText(/play all/i)).toBeInTheDocument()
+  })
+
+  it('handles currentIndex out of bounds', () => {
+    useGameStore.setState({
+      ...useGameStore.getState(),
+      sequence: [
+        {
+          id: '1',
+          note: createNoteDefinition('mi', 3),
+          status: 'active',
+        },
+      ],
+      currentIndex: 10,
+    })
+
+    render(
+      <RouterWrapper>
+        <GamePage />
+      </RouterWrapper>
+    )
+
+    expect(screen.getByLabelText(/play all/i)).toBeInTheDocument()
+  })
 })

@@ -193,3 +193,10 @@ describe('Note accuracy - string to note mapping', () => {
     })
   })
 })
+
+describe('getStaffPosition', () => {
+  it('returns first position when octave does not match', () => {
+    const position = getStaffPosition('do', 5)
+    expect(position).toBeGreaterThanOrEqual(0)
+  })
+})

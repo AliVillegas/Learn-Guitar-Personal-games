@@ -68,7 +68,7 @@ describe('createAnswerHandler', () => {
     expect(audio.playNote).not.toHaveBeenCalled()
   })
 
-  it('sets correct feedback without playing note for correct answer', () => {
+  it('sets correct feedback and plays next note for correct answer', () => {
     const game = useGameStore.getState()
     const audio = { playNote: vi.fn().mockResolvedValue(undefined), playErrorSound: vi.fn() }
     const feedback = { setFeedback: vi.fn() }
@@ -76,9 +76,33 @@ describe('createAnswerHandler', () => {
 
     handler('mi')
 
-    expect(audio.playNote).not.toHaveBeenCalled()
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
+    expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('fa', 3))
     expect(audio.playErrorSound).not.toHaveBeenCalled()
+  })
+
+  it('does not play next note when game is complete after correct answer', () => {
+    useGameStore.setState({
+      phase: 'playing',
+      sequence: [
+        {
+          id: '1',
+          note: createNoteDefinition('mi', 3),
+          status: 'active',
+        },
+      ],
+      currentIndex: 0,
+      score: { correct: 0, incorrect: 0 },
+    })
+    const game = useGameStore.getState()
+    const audio = { playNote: vi.fn().mockResolvedValue(undefined), playErrorSound: vi.fn() }
+    const feedback = { setFeedback: vi.fn() }
+    const handler = createAnswerHandler(game, audio as any, feedback as any)
+
+    handler('mi')
+
+    expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
+    expect(audio.playNote).not.toHaveBeenCalled()
   })
 
   it('plays note and sets incorrect feedback for wrong answer', () => {
