@@ -10,11 +10,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {t('app.title')}
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground">{t('app.title')}</h1>
           <LanguageSwitcher />
         </div>
       </header>

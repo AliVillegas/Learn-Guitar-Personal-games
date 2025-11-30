@@ -23,7 +23,7 @@ export function ConfigPanel({
   const canGenerate = selectedNotes.length >= 2
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-6 shadow-sm">
+    <div className="bg-card border border-border rounded-lg p-6 space-y-6">
       <NoteSelector selectedNotes={selectedNotes} onToggle={onToggleNote} />
       <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
       {selectedNotes.length < 2 && (

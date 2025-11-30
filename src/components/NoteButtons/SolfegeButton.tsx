@@ -35,7 +35,7 @@ export function SolfegeButton({ note, onSelect, disabled, feedbackState }: Solfe
       variant={variant}
       className={cn(
         'min-w-[80px] transition-all duration-200',
-        feedbackState === 'correct' && 'bg-green-300 hover:bg-green-400',
+        feedbackState === 'correct' && 'bg-primary/10 border-primary/30',
         feedbackState === 'incorrect' && 'animate-shake'
       )}
     >

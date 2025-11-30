@@ -24,7 +24,7 @@ export function PlaybackControls({ notes, onPlayAll, isPlaying }: PlaybackContro
         onClick={handlePlayAll}
         disabled={isPlaying}
         size="lg"
-        className="bg-accent hover:bg-accent/90 text-accent-foreground"
+        variant="default"
       >
         {t('game.playAll')}
       </Button>
