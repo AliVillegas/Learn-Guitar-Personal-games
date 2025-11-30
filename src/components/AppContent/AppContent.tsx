@@ -51,6 +51,7 @@ function renderPlaying(
       feedbackState={handlers.feedback.feedbackState}
       onPlayAll={handlers.handlePlayAll}
       onPlayCurrentNote={handlers.handlePlayCurrentNote}
+      onPlayMeasure={handlers.handlePlayMeasure}
       onAnswerSelect={handlers.handleAnswerSelect}
       playingIndex={handlers.audio.playingIndex}
     />

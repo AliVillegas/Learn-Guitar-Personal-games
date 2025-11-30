@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
-import type { NoteDefinition } from '../../types/music'
+import type { NoteDefinition, MeasureCount } from '../../types/music'
 
 interface PlaybackControlsProps {
   notes: NoteDefinition[]
   currentNote: NoteDefinition | null
+  measureCount: MeasureCount
   onPlayAll: (notes: NoteDefinition[]) => void
   onPlayCurrentNote: () => void
+  onPlayMeasure: (measureIndex: number) => void
   isPlaying: boolean
 }
 
@@ -73,11 +75,54 @@ function renderPlayAllButton(
   )
 }
 
+function createPlayMeasureHandler(
+  isPlaying: boolean,
+  measureIndex: number,
+  onPlayMeasure: (measureIndex: number) => void
+) {
+  return () => {
+    if (!isPlaying) {
+      onPlayMeasure(measureIndex)
+    }
+  }
+}
+
+function renderMeasureButtons(
+  t: (key: string) => string,
+  measureCount: MeasureCount,
+  isPlaying: boolean,
+  onPlayMeasure: (measureIndex: number) => void
+) {
+  if (measureCount <= 1) {
+    return null
+  }
+
+  return (
+    <div className="flex justify-center gap-4 flex-wrap">
+      {Array.from({ length: measureCount }, (_, i) => (
+        <Button
+          key={i}
+          type="button"
+          onClick={createPlayMeasureHandler(isPlaying, i, onPlayMeasure)}
+          disabled={isPlaying}
+          size="lg"
+          variant="outline"
+          aria-label={t('game.playMeasure', { number: i + 1 })}
+        >
+          {t('game.playMeasure', { number: i + 1 })}
+        </Button>
+      ))}
+    </div>
+  )
+}
+
 export function PlaybackControls({
   notes,
   currentNote,
+  measureCount,
   onPlayAll,
   onPlayCurrentNote,
+  onPlayMeasure,
   isPlaying,
 }: PlaybackControlsProps) {
   const { t } = useTranslation()
@@ -89,9 +134,12 @@ export function PlaybackControls({
   )
 
   return (
-    <div className="flex justify-center gap-4">
-      {renderPlayCurrentNoteButton(t, handlePlayCurrentNote, isPlaying, currentNote)}
-      {renderPlayAllButton(t, handlePlayAll, isPlaying)}
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex justify-center gap-4">
+        {renderPlayCurrentNoteButton(t, handlePlayCurrentNote, isPlaying, currentNote)}
+        {renderPlayAllButton(t, handlePlayAll, isPlaying)}
+      </div>
+      {renderMeasureButtons(t, measureCount, isPlaying, onPlayMeasure)}
     </div>
   )
 }

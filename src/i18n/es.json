@@ -26,6 +26,7 @@
   "game": {
     "playAll": "Reproducir Todo",
     "playCurrentNote": "Reproducir Nota Actual",
+    "playMeasure": "Reproducir Compás {{number}}",
     "identifyNote": "Identifica la nota resaltada",
     "correct": "¡Correcto!",
     "incorrect": "Intenta de nuevo",

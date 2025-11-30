@@ -72,6 +72,17 @@ function createPlayCurrentNoteHandler(audio: ReturnType<typeof useAudio>) {
   }
 }
 
+function createPlayMeasureHandler(audio: ReturnType<typeof useAudio>) {
+  return (measureIndex: number) => {
+    const state = useGameStore.getState()
+    const notesPerMeasure = 4
+    const startIndex = measureIndex * notesPerMeasure
+    const endIndex = startIndex + notesPerMeasure
+    const measureNotes = state.sequence.slice(startIndex, endIndex).map((gn) => gn.note)
+    audio.playSequence(measureNotes)
+  }
+}
+
 function createPlayAgainHandler() {
   return () => {
     useGameStore.getState().reset()
@@ -93,6 +104,7 @@ export function useAppHandlers() {
     handleGenerate: createGenerateHandler(feedback),
     handlePlayAll: createPlayAllHandler(audio),
     handlePlayCurrentNote: createPlayCurrentNoteHandler(audio),
+    handlePlayMeasure: createPlayMeasureHandler(audio),
     handleAnswerSelect: createAnswerHandler(game, audio, feedback),
     handlePlayAgain: createPlayAgainHandler(),
   }

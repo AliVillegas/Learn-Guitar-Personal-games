@@ -26,6 +26,7 @@
   "game": {
     "playAll": "Play All",
     "playCurrentNote": "Play Current Note",
+    "playMeasure": "Play Measure {{number}}",
     "identifyNote": "Identify the highlighted note",
     "correct": "Correct!",
     "incorrect": "Try again",

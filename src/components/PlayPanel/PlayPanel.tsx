@@ -16,6 +16,7 @@ interface PlayPanelProps {
   feedbackState: Record<SolfegeNote, 'idle' | 'correct' | 'incorrect'>
   onPlayAll: () => void
   onPlayCurrentNote: () => void
+  onPlayMeasure: (measureIndex: number) => void
   onAnswerSelect: (note: SolfegeNote) => void
   playingIndex: number | null
 }
@@ -56,51 +57,66 @@ function renderPlaybackSection(
   notes: GameNote[],
   currentIndex: number,
   noteDefinitions: NoteDefinition[],
+  measureCount: MeasureCount,
   isPlayingAudio: boolean,
   onPlayAll: () => void,
-  onPlayCurrentNote: () => void
+  onPlayCurrentNote: () => void,
+  onPlayMeasure: (measureIndex: number) => void
 ) {
   const currentNote = getCurrentNote(notes, currentIndex)
   return (
     <PlaybackControls
       notes={noteDefinitions}
       currentNote={currentNote}
+      measureCount={measureCount}
       onPlayAll={onPlayAll}
       onPlayCurrentNote={onPlayCurrentNote}
+      onPlayMeasure={onPlayMeasure}
       isPlaying={isPlayingAudio}
     />
   )
 }
 
-export function PlayPanel({
-  notes,
-  measureCount,
-  currentIndex,
-  noteDefinitions,
-  isComplete,
-  isPlayingAudio,
-  feedbackState,
-  onPlayAll,
-  onPlayCurrentNote,
-  onAnswerSelect,
-  playingIndex,
-}: PlayPanelProps) {
-  const correctCount = calculateCorrectCount(notes)
-  const highlightIndex = getHighlightIndex(isPlayingAudio, playingIndex, currentIndex)
+function renderStaffSection(notes: GameNote[], measureCount: MeasureCount, highlightIndex: number) {
+  return <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
+}
 
+function renderScoreSection(notes: GameNote[]) {
+  const correctCount = calculateCorrectCount(notes)
+  return <ScoreDisplay correct={correctCount} total={notes.length} />
+}
+
+function renderAllSections(props: PlayPanelProps, highlightIndex: number) {
   return (
-    <div className="space-y-6">
-      <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
+    <>
+      {renderStaffSection(props.notes, props.measureCount, highlightIndex)}
       {renderPlaybackSection(
-        notes,
-        currentIndex,
-        noteDefinitions,
-        isPlayingAudio,
-        onPlayAll,
-        onPlayCurrentNote
+        props.notes,
+        props.currentIndex,
+        props.noteDefinitions,
+        props.measureCount,
+        props.isPlayingAudio,
+        props.onPlayAll,
+        props.onPlayCurrentNote,
+        props.onPlayMeasure
       )}
-      {renderAnswerSection(isComplete, isPlayingAudio, feedbackState, onAnswerSelect)}
-      <ScoreDisplay correct={correctCount} total={notes.length} />
-    </div>
+      {renderAnswerSection(
+        props.isComplete,
+        props.isPlayingAudio,
+        props.feedbackState,
+        props.onAnswerSelect
+      )}
+      {renderScoreSection(props.notes)}
+    </>
   )
+}
+
+export function PlayPanel(props: PlayPanelProps) {
+  const highlightIndex = getHighlightIndex(
+    props.isPlayingAudio,
+    props.playingIndex,
+    props.currentIndex
+  )
+
+  return <div className="space-y-6">{renderAllSections(props, highlightIndex)}</div>
 }
