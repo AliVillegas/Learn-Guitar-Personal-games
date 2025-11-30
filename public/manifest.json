@@ -1,0 +1,21 @@
+{
+  "name": "Guitar Sight Reading - First Position",
+  "short_name": "Guitar Sight Reading",
+  "description": "Practice guitar sight reading in first position. Interactive tool with staff notation, audio playback, and real-time feedback.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#1e1b4b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "music"],
+  "lang": "en",
+  "dir": "ltr"
+}

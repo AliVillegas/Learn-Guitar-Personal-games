@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://guitar-sight-reading.vercel.app/sitemap.xml
+
