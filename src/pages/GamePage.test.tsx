@@ -7,12 +7,32 @@ import { createNoteDefinition } from '../utils/notes'
 import { RouterWrapper } from '../test/routerWrapper'
 
 const mockNavigate = vi.fn()
+const mockPlayNote = vi.fn().mockResolvedValue(undefined)
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+  }
+})
+
+vi.mock('../hooks/useAppHandlers', async () => {
+  const actual = await vi.importActual('../hooks/useAppHandlers')
+  return {
+    ...actual,
+    useAppHandlers: () => ({
+      ...actual.useAppHandlers(),
+      audio: {
+        playNote: mockPlayNote,
+        playNoteAtTime: vi.fn(),
+        getCurrentTime: vi.fn(),
+        playSequence: vi.fn(),
+        playErrorSound: vi.fn(),
+        isPlaying: false,
+        playingIndex: null,
+      },
+    }),
   }
 })
 

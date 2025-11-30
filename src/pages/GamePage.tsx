@@ -166,18 +166,78 @@ function renderPlayingPhase(
   )
 }
 
-function useNotePlaybackOnHighlight(
-  game: ReturnType<typeof useGameStore>,
-  handlers: ReturnType<typeof useAppHandlers>
+function playFirstNote(
+  handlers: ReturnType<typeof useAppHandlers>,
+  firstNote: ReturnType<typeof useGameStore>['sequence'][0]
 ) {
-  const previousIndexRef = useRef<number | null>(null)
+  if (firstNote) {
+    handlers.audio.playNote(firstNote.note).catch((error) => {
+      console.error('Error playing first note:', error)
+    })
+  }
+}
 
-  useEffect(() => {
-    if (game.phase === 'playing' && game.currentIndex === 0) {
-      previousIndexRef.current = null
-    }
-  }, [game.phase, game.currentIndex, game.sequence.length])
+function handleInitialMount(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>,
+  previousSequenceLengthRef: React.MutableRefObject<number>
+) {
+  previousSequenceLengthRef.current = game.sequence.length
+  if (game.phase === 'playing' && game.currentIndex === 0 && game.sequence.length > 0) {
+    playFirstNote(handlers, game.sequence[0])
+  }
+}
 
+function isNewSequenceGenerated(
+  game: ReturnType<typeof useGameStore>,
+  previousSequenceLengthRef: React.MutableRefObject<number>
+): boolean {
+  return (
+    game.phase === 'playing' &&
+    game.currentIndex === 0 &&
+    game.sequence.length > 0 &&
+    previousSequenceLengthRef.current !== game.sequence.length
+  )
+}
+
+function handleSequenceGeneration(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>,
+  previousSequenceLengthRef: React.MutableRefObject<number>
+): boolean {
+  if (isNewSequenceGenerated(game, previousSequenceLengthRef)) {
+    playFirstNote(handlers, game.sequence[0])
+    previousSequenceLengthRef.current = game.sequence.length
+    return true
+  }
+
+  if (game.phase === 'playing' && game.currentIndex === 0) {
+    previousSequenceLengthRef.current = game.sequence.length
+  }
+
+  return false
+}
+
+function playFirstNoteOnGeneration(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>,
+  previousSequenceLengthRef: React.MutableRefObject<number>,
+  isInitialMountRef: React.MutableRefObject<boolean>
+) {
+  if (isInitialMountRef.current) {
+    isInitialMountRef.current = false
+    handleInitialMount(game, handlers, previousSequenceLengthRef)
+    return true
+  }
+
+  return handleSequenceGeneration(game, handlers, previousSequenceLengthRef)
+}
+
+function useNotePlaybackOnNextHighlight(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>,
+  previousIndexRef: React.MutableRefObject<number | null>
+) {
   useEffect(() => {
     if (
       game.phase === 'playing' &&
@@ -193,6 +253,29 @@ function useNotePlaybackOnHighlight(
     }
     previousIndexRef.current = game.currentIndex
   }, [game.currentIndex, game.phase, game.sequence, handlers.audio])
+}
+
+function useNotePlaybackOnHighlight(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>
+) {
+  const previousIndexRef = useRef<number | null>(null)
+  const previousSequenceLengthRef = useRef<number>(0)
+  const isInitialMountRef = useRef<boolean>(true)
+
+  useEffect(() => {
+    const shouldResetIndex = playFirstNoteOnGeneration(
+      game,
+      handlers,
+      previousSequenceLengthRef,
+      isInitialMountRef
+    )
+    if (shouldResetIndex) {
+      previousIndexRef.current = null
+    }
+  }, [game.phase, game.currentIndex, game.sequence.length, game.sequence, handlers])
+
+  useNotePlaybackOnNextHighlight(game, handlers, previousIndexRef)
 }
 
 export function GamePage() {
