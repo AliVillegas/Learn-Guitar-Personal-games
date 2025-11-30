@@ -4,6 +4,7 @@ import { useGameStore } from '../store/gameStore'
 import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
 import { createAnswerHandler } from './useAnswerHandler'
+import { preloadGuitarSampler } from '../utils/audioEngines'
 
 function createToggleStringNoteHandler() {
   return (guitarString: GuitarString, note: SolfegeNote) => {
@@ -36,6 +37,9 @@ function createChangeMeasureHandler() {
 function createChangeInstrumentHandler() {
   return (instrument: InstrumentType) => {
     useGameStore.getState().setConfig({ instrument })
+    if (instrument === 'guitar') {
+      preloadGuitarSampler()
+    }
   }
 }
 

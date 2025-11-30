@@ -1,7 +1,10 @@
 import { useRef, useState, useCallback } from 'react'
 import type { NoteDefinition } from '../types/music'
 import type { InstrumentType } from '../types/audio'
-import { getAudioEngine } from '../utils/audioEngines'
+import {
+  getAudioEngine,
+  preloadGuitarSampler as initializeGuitarSampler,
+} from '../utils/audioEngines'
 import { useGameStore } from '../store/gameStore'
 
 interface UseAudioReturn {
@@ -24,29 +27,36 @@ function ensureContextResumed(ctx: AudioContext): Promise<void> {
   return Promise.resolve()
 }
 
-function scheduleNote(
+async function scheduleNote(
   ctx: AudioContext,
   note: NoteDefinition,
   startTime: number,
   instrument: InstrumentType
-): void {
+): Promise<void> {
   const engine = getAudioEngine(instrument)
-  engine.playNote({ frequency: note.frequency }, startTime, ctx)
+  const noteName = `${note.letter}${note.octave}`
+  await engine.playNote({ frequency: note.frequency, noteName }, startTime, ctx)
 }
 
-function scheduleSequence(
+async function scheduleSequence(
   ctx: AudioContext,
   notes: NoteDefinition[],
   bpm: number,
   instrument: InstrumentType
-): number {
+): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
 
-  notes.forEach((note, index) => {
+  if (instrument === 'guitar') {
+    await initializeGuitarSampler()
+  }
+
+  const promises = notes.map((note, index) => {
     const startTime = now + index * noteDuration
-    scheduleNote(ctx, note, startTime, instrument)
+    return scheduleNote(ctx, note, startTime, instrument)
   })
+
+  await Promise.all(promises)
 
   return notes.length * noteDuration * 1000
 }
@@ -95,7 +105,7 @@ export function useAudio(): UseAudioReturn {
       await ensureContextResumed(ctx)
       setIsPlaying(true)
 
-      const duration = scheduleSequence(ctx, notes, bpm, instrument)
+      const duration = await scheduleSequence(ctx, notes, bpm, instrument)
 
       setTimeout(() => {
         setIsPlaying(false)

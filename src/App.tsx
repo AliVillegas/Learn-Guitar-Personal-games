@@ -1,10 +1,16 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher'
 import { AppContent } from './components/AppContent/AppContent'
+import { preloadGuitarSampler } from './utils/audioEngines'
 import './App.css'
 
 function App() {
   const { t } = useTranslation()
+
+  useEffect(() => {
+    preloadGuitarSampler()
+  }, [])
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

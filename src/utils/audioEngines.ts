@@ -1,6 +1,54 @@
+import * as Tone from 'tone'
 import type { AudioEngine, InstrumentType } from '../types/audio'
 
 const QUARTER_NOTE_DURATION = 0.4
+
+let guitarSampler: Tone.Sampler | null = null
+let samplerReadyPromise: Promise<void> | null = null
+
+const GUITAR_SAMPLER_URLS = {
+  C3: 'https://tonejs.github.io/audio/salamander/C3.mp3',
+  'C#3': 'https://tonejs.github.io/audio/salamander/Cs3.mp3',
+  D3: 'https://tonejs.github.io/audio/salamander/D3.mp3',
+  'D#3': 'https://tonejs.github.io/audio/salamander/Ds3.mp3',
+  E3: 'https://tonejs.github.io/audio/salamander/E3.mp3',
+  F3: 'https://tonejs.github.io/audio/salamander/F3.mp3',
+  'F#3': 'https://tonejs.github.io/audio/salamander/Fs3.mp3',
+  G3: 'https://tonejs.github.io/audio/salamander/G3.mp3',
+  'G#3': 'https://tonejs.github.io/audio/salamander/Gs3.mp3',
+  A3: 'https://tonejs.github.io/audio/salamander/A3.mp3',
+  'A#3': 'https://tonejs.github.io/audio/salamander/As3.mp3',
+  B3: 'https://tonejs.github.io/audio/salamander/B3.mp3',
+  C4: 'https://tonejs.github.io/audio/salamander/C4.mp3',
+  'C#4': 'https://tonejs.github.io/audio/salamander/Cs4.mp3',
+  D4: 'https://tonejs.github.io/audio/salamander/D4.mp3',
+  'D#4': 'https://tonejs.github.io/audio/salamander/Ds4.mp3',
+  E4: 'https://tonejs.github.io/audio/salamander/E4.mp3',
+  F4: 'https://tonejs.github.io/audio/salamander/F4.mp3',
+  'F#4': 'https://tonejs.github.io/audio/salamander/Fs4.mp3',
+  G4: 'https://tonejs.github.io/audio/salamander/G4.mp3',
+}
+
+async function initializeGuitarSampler(): Promise<void> {
+  if (guitarSampler) {
+    return
+  }
+
+  if (samplerReadyPromise) {
+    return samplerReadyPromise
+  }
+
+  samplerReadyPromise = (async () => {
+    await Tone.start()
+    guitarSampler = new Tone.Sampler({
+      urls: GUITAR_SAMPLER_URLS,
+      release: 1,
+      baseUrl: 'https://tonejs.github.io/audio/salamander/',
+    }).toDestination()
+  })()
+
+  return samplerReadyPromise
+}
 
 function createMidiOscillator(ctx: AudioContext, frequency: number): OscillatorNode {
   const osc = ctx.createOscillator()
@@ -34,35 +82,6 @@ const midiEngine: AudioEngine = {
   createEnvelope: createMidiEnvelope,
 }
 
-function createGuitarOscillators(ctx: AudioContext, frequency: number): OscillatorNode[] {
-  const oscillators: OscillatorNode[] = []
-
-  const fundamental = ctx.createOscillator()
-  fundamental.type = 'sawtooth'
-  fundamental.frequency.value = frequency
-  oscillators.push(fundamental)
-
-  const harmonic2 = ctx.createOscillator()
-  harmonic2.type = 'sawtooth'
-  harmonic2.frequency.value = frequency * 2
-  oscillators.push(harmonic2)
-
-  const detuned = ctx.createOscillator()
-  detuned.type = 'sawtooth'
-  detuned.frequency.value = frequency * 1.01
-  oscillators.push(detuned)
-
-  return oscillators
-}
-
-function createGuitarFilter(ctx: AudioContext, frequency: number): BiquadFilterNode {
-  const filter = ctx.createBiquadFilter()
-  filter.type = 'lowpass'
-  filter.frequency.value = frequency * 3
-  filter.Q.value = 1
-  return filter
-}
-
 function createGuitarEnvelope(ctx: AudioContext, duration: number): GainNode {
   const gain = ctx.createGain()
   const now = ctx.currentTime
@@ -80,47 +99,35 @@ function createGuitarEnvelope(ctx: AudioContext, duration: number): GainNode {
   return gain
 }
 
-function createGuitarReverb(ctx: AudioContext): ConvolverNode {
-  const convolver = ctx.createConvolver()
-  const length = ctx.sampleRate * 0.3
-  const impulse = ctx.createBuffer(2, length, ctx.sampleRate)
-
-  for (let channel = 0; channel < 2; channel++) {
-    const channelData = impulse.getChannelData(channel)
-    for (let i = 0; i < length; i++) {
-      const n = length - i
-      channelData[i] = (Math.random() * 2 - 1) * (n / length) * 0.1
-    }
-  }
-
-  convolver.buffer = impulse
-  return convolver
-}
-
 const guitarEngine: AudioEngine = {
-  playNote: (note, startTime, ctx) => {
-    const oscillators = createGuitarOscillators(ctx, note.frequency)
-    const filter = createGuitarFilter(ctx, note.frequency)
-    const envelope = createGuitarEnvelope(ctx, QUARTER_NOTE_DURATION)
-    const reverb = createGuitarReverb(ctx)
+  playNote: async (note, startTime, ctx) => {
+    if (!note.noteName) {
+      return
+    }
 
-    oscillators.forEach((osc) => {
-      osc.connect(filter)
-    })
+    await initializeGuitarSampler()
 
-    filter.connect(envelope)
-    envelope.connect(reverb)
-    reverb.connect(ctx.destination)
+    if (!guitarSampler) {
+      return
+    }
 
-    oscillators.forEach((osc) => {
-      osc.start(startTime)
-      osc.stop(startTime + QUARTER_NOTE_DURATION)
-    })
+    const delay = Math.max(0, startTime - ctx.currentTime)
+    const toneTime = delay > 0 ? Tone.now() + delay : Tone.now()
+
+    guitarSampler.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
   },
   createEnvelope: createGuitarEnvelope,
 }
 
+export function preloadGuitarSampler(): Promise<void> {
+  return initializeGuitarSampler()
+}
+
 export function getAudioEngine(instrument: InstrumentType): AudioEngine {
+  if (instrument === 'guitar') {
+    initializeGuitarSampler()
+  }
+
   switch (instrument) {
     case 'guitar':
       return guitarEngine
