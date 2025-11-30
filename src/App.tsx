@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher'
 import { AppContent } from './components/AppContent/AppContent'
+import { VERSION } from './version'
 import './App.css'
 
 function App() {
@@ -18,6 +19,12 @@ function App() {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <AppContent />
       </main>
+
+      <footer className="border-t border-border bg-background mt-auto">
+        <div className="container mx-auto px-4 py-2 flex justify-center">
+          <span className="text-xs text-muted-foreground">v{VERSION}</span>
+        </div>
+      </footer>
     </div>
   )
 }
