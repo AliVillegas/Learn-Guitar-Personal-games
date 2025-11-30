@@ -56,11 +56,10 @@ async function scheduleSequence(
 ): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
-  const minDelay = 0.01
+  const minDelay = 0.05
 
   if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
     await initializeGuitarSynth()
-    await releaseAllNotes(instrument)
   }
 
   const promises = notes.map((note, index) => {
@@ -141,14 +140,19 @@ function handleSequenceEnd(
 async function prepareSequencePlayback(
   ctx: AudioContext,
   instrument: InstrumentType,
-  setIsPlaying: (playing: boolean) => void,
-  setPlayingIndex: (index: number | null) => void,
-  startIndex: number
+  setIsPlaying: (playing: boolean) => void
 ): Promise<void> {
   await ensureContextResumed(ctx)
   await ensureToneStarted(instrument)
   setIsPlaying(true)
-  setPlayingIndex(startIndex)
+}
+
+async function cleanupGuitarInstrument(instrument: InstrumentType): Promise<void> {
+  if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
+    await initializeGuitarSynth()
+    await releaseAllNotes(instrument)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
 }
 
 export function useAudio(): UseAudioReturn {
@@ -183,17 +187,18 @@ export function useAudio(): UseAudioReturn {
       startIndex: number = 0
     ): Promise<void> => {
       clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
-      const ctx = getContext()
-      await prepareSequencePlayback(ctx, instrument, setIsPlaying, setPlayingIndex, startIndex)
+      await cleanupGuitarInstrument(instrument)
+      await prepareSequencePlayback(getContext(), instrument, setIsPlaying)
       const onNoteStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
       const duration = await scheduleSequence(
-        ctx,
+        getContext(),
         notes,
         bpm,
         instrument,
         onNoteStart,
         noteTimeoutRefs.current
       )
+      setPlayingIndex(startIndex)
       handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
     },
     [getContext, instrument]
