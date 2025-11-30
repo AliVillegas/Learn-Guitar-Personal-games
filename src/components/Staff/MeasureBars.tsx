@@ -17,4 +17,3 @@ export function MeasureBars({ measureCount }: MeasureBarsProps) {
     </div>
   )
 }
-

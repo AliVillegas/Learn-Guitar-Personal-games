@@ -6,9 +6,11 @@ export function createInitialFeedbackState(): Record<
   'idle' | 'correct' | 'incorrect'
 > {
   const notes = getAllSolfegeNotes()
-  return notes.reduce((acc, note) => {
-    acc[note] = 'idle'
-    return acc
-  }, {} as Record<SolfegeNote, 'idle'>)
+  return notes.reduce(
+    (acc, note) => {
+      acc[note] = 'idle'
+      return acc
+    },
+    {} as Record<SolfegeNote, 'idle'>
+  )
 }
-

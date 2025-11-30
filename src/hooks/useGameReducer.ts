@@ -11,10 +11,7 @@ function pickRandomNote(notes: SolfegeNote[]): SolfegeNote {
   return notes[index]
 }
 
-function generateSequence(
-  selectedNotes: SolfegeNote[],
-  measureCount: number
-) {
+function generateSequence(selectedNotes: SolfegeNote[], measureCount: number) {
   const totalNotes = measureCount * 4
   const sequence = []
 
@@ -46,10 +43,7 @@ function handleSetConfig(state: GameState, payload: Partial<GameState['config']>
 }
 
 function handleGenerateSequence(state: GameState): GameState {
-  const sequence = generateSequence(
-    state.config.selectedNotes,
-    state.config.measureCount
-  )
+  const sequence = generateSequence(state.config.selectedNotes, state.config.measureCount)
 
   return {
     ...state,
@@ -60,7 +54,11 @@ function handleGenerateSequence(state: GameState): GameState {
   }
 }
 
-function handleIncorrectAnswer(state: GameState, newSequence: typeof state.sequence, newScore: typeof state.score): GameState {
+function handleIncorrectAnswer(
+  state: GameState,
+  newSequence: typeof state.sequence,
+  newScore: typeof state.score
+): GameState {
   return {
     ...state,
     sequence: newSequence,
@@ -68,7 +66,11 @@ function handleIncorrectAnswer(state: GameState, newSequence: typeof state.seque
   }
 }
 
-function handleCorrectAnswer(state: GameState, newSequence: typeof state.sequence, newScore: typeof state.score): GameState {
+function handleCorrectAnswer(
+  state: GameState,
+  newSequence: typeof state.sequence,
+  newScore: typeof state.score
+): GameState {
   const nextIndex = state.currentIndex + 1
   const isComplete = nextIndex >= state.sequence.length
 
@@ -120,10 +122,7 @@ function handleSubmitAnswer(state: GameState, answer: SolfegeNote): GameState {
   }
 
   const isCorrect = currentNote.note.solfege === answer
-  const { sequence: newSequence, score: newScore } = updateSequenceWithAnswer(
-    state,
-    isCorrect
-  )
+  const { sequence: newSequence, score: newScore } = updateSequenceWithAnswer(state, isCorrect)
 
   if (!isCorrect) {
     return handleIncorrectAnswer(state, newSequence, newScore)

@@ -25,4 +25,3 @@ export function NotesContainer({ notes, currentIndex, noteWidth }: NotesContaine
     </div>
   )
 }
-

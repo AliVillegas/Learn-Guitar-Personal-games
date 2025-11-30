@@ -20,12 +20,9 @@ export function QuarterNote({ note, isActive, horizontalPosition }: QuarterNoteP
 
   return (
     <div className={`quarter-note ${statusClass} ${isActive ? 'active' : ''}`} style={noteStyle}>
-      {hasLedger && (
-        <div className="ledger-line" />
-      )}
+      {hasLedger && <div className="ledger-line" />}
       <div className="note-head" />
       <div className={`note-stem ${stemDirection}`} />
     </div>
   )
 }
-

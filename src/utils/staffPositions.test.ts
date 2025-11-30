@@ -26,4 +26,3 @@ describe('getStemDirection', () => {
     expect(getStemDirection(-3)).toBe('up')
   })
 })
-

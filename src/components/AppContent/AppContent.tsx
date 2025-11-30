@@ -47,6 +47,7 @@ function renderPlayingPhase(handlers: Handlers) {
       isPlayingAudio={audio.isPlaying}
       feedbackState={feedback.feedbackState}
       onPlayAll={handlers.handlePlayAll}
+      onPlayCurrentNote={handlers.handlePlayCurrentNote}
       onAnswerSelect={handlers.handleAnswerSelect}
     />
   )

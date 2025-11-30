@@ -3,9 +3,7 @@ import { createInitialFeedbackState } from '../utils/feedback'
 import type { SolfegeNote } from '../types/music'
 
 export function useAnswerFeedback() {
-  const [feedbackState, setFeedbackState] = useState(
-    createInitialFeedbackState
-  )
+  const [feedbackState, setFeedbackState] = useState(createInitialFeedbackState)
 
   const reset = () => {
     setFeedbackState(createInitialFeedbackState())
@@ -20,4 +18,3 @@ export function useAnswerFeedback() {
 
   return { feedbackState, setFeedback, reset }
 }
-

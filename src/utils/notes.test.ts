@@ -45,4 +45,3 @@ describe('getAllSolfegeNotes', () => {
     expect(notes).toContain('si')
   })
 })
-

@@ -19,6 +19,7 @@
   },
   "game": {
     "playAll": "Reproducir Todo",
+    "playCurrentNote": "Reproducir Nota Actual",
     "identifyNote": "Identifica la nota resaltada",
     "correct": "¡Correcto!",
     "incorrect": "Intenta de nuevo",
@@ -33,4 +34,3 @@
     "switch": "English"
   }
 }
-

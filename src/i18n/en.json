@@ -19,6 +19,7 @@
   },
   "game": {
     "playAll": "Play All",
+    "playCurrentNote": "Play Current Note",
     "identifyNote": "Identify the highlighted note",
     "correct": "Correct!",
     "incorrect": "Try again",
@@ -33,4 +34,3 @@
     "switch": "Español"
   }
 }
-

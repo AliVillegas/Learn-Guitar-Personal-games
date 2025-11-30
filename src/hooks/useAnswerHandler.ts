@@ -8,11 +8,7 @@ type GameStateHook = ReturnType<typeof useGameState>
 type AudioHook = ReturnType<typeof useAudio>
 type FeedbackHook = ReturnType<typeof useAnswerFeedback>
 
-export function createAnswerHandler(
-  game: GameStateHook,
-  audio: AudioHook,
-  feedback: FeedbackHook
-) {
+export function createAnswerHandler(game: GameStateHook, audio: AudioHook, feedback: FeedbackHook) {
   return (selectedNote: SolfegeNote) => {
     const currentNote = game.state.sequence[game.state.currentIndex]
     if (!currentNote || game.state.phase !== 'playing') {
@@ -32,4 +28,3 @@ export function createAnswerHandler(
     game.submitAnswer(selectedNote)
   }
 }
-

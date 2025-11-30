@@ -20,4 +20,3 @@ export type GameAction =
   | { type: 'GENERATE_SEQUENCE' }
   | { type: 'SUBMIT_ANSWER'; payload: SolfegeNote }
   | { type: 'RESET' }
-

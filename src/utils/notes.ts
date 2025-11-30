@@ -1,18 +1,18 @@
 import type { SolfegeNote, NoteDefinition, LetterNote } from '../types/music'
 
 const NOTE_FREQUENCIES: Record<string, number> = {
-  'C3': 130.81,
-  'D3': 146.83,
-  'E3': 164.81,
-  'F3': 174.61,
-  'G3': 196.0,
-  'A3': 220.0,
-  'B3': 246.94,
-  'C4': 261.63,
-  'D4': 293.66,
-  'E4': 329.63,
-  'F4': 349.23,
-  'G4': 392.0,
+  C3: 130.81,
+  D3: 146.83,
+  E3: 164.81,
+  F3: 174.61,
+  G3: 196.0,
+  A3: 220.0,
+  B3: 246.94,
+  C4: 261.63,
+  D4: 293.66,
+  E4: 329.63,
+  F4: 349.23,
+  G4: 392.0,
 }
 
 const SOLFEGE_TO_LETTER: Record<SolfegeNote, LetterNote> = {
@@ -26,11 +26,26 @@ const SOLFEGE_TO_LETTER: Record<SolfegeNote, LetterNote> = {
 }
 
 const STAFF_POSITIONS: Record<SolfegeNote, { position: number; octave: number }[]> = {
-  do: [{ position: -5, octave: 3 }, { position: 2, octave: 4 }],
-  re: [{ position: -4, octave: 3 }, { position: 3, octave: 4 }],
-  mi: [{ position: -3, octave: 3 }, { position: 4, octave: 4 }],
-  fa: [{ position: -2, octave: 3 }, { position: 5, octave: 4 }],
-  sol: [{ position: -1, octave: 3 }, { position: 6, octave: 4 }],
+  do: [
+    { position: -5, octave: 3 },
+    { position: 2, octave: 4 },
+  ],
+  re: [
+    { position: -4, octave: 3 },
+    { position: 3, octave: 4 },
+  ],
+  mi: [
+    { position: -3, octave: 3 },
+    { position: 4, octave: 4 },
+  ],
+  fa: [
+    { position: -2, octave: 3 },
+    { position: 5, octave: 4 },
+  ],
+  sol: [
+    { position: -1, octave: 3 },
+    { position: 6, octave: 4 },
+  ],
   la: [{ position: 0, octave: 3 }],
   si: [{ position: 1, octave: 3 }],
 }
@@ -47,10 +62,7 @@ export function getStaffPosition(solfege: SolfegeNote, octave: 3 | 4): number {
   return match ? match.position : positions[0].position
 }
 
-export function createNoteDefinition(
-  solfege: SolfegeNote,
-  octave: 3 | 4 = 3
-): NoteDefinition {
+export function createNoteDefinition(solfege: SolfegeNote, octave: 3 | 4 = 3): NoteDefinition {
   const letter = SOLFEGE_TO_LETTER[solfege]
   const frequency = getNoteFrequency(solfege, octave)
   const staffPosition = getStaffPosition(solfege, octave)
@@ -67,4 +79,3 @@ export function createNoteDefinition(
 export function getAllSolfegeNotes(): SolfegeNote[] {
   return ['do', 're', 'mi', 'fa', 'sol', 'la', 'si']
 }
-

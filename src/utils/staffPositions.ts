@@ -5,4 +5,3 @@ export function needsLedgerLine(position: number): boolean {
 export function getStemDirection(position: number): 'up' | 'down' {
   return position >= 0 ? 'down' : 'up'
 }
-

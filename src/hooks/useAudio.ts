@@ -40,11 +40,7 @@ function ensureContextResumed(ctx: AudioContext): Promise<void> {
   return Promise.resolve()
 }
 
-function scheduleNote(
-  ctx: AudioContext,
-  note: NoteDefinition,
-  startTime: number
-): void {
+function scheduleNote(ctx: AudioContext, note: NoteDefinition, startTime: number): void {
   const osc = createNoteOscillator(ctx, note.frequency)
   const gain = createEnvelope(ctx, QUARTER_NOTE_DURATION)
 
@@ -55,11 +51,7 @@ function scheduleNote(
   osc.stop(startTime + QUARTER_NOTE_DURATION)
 }
 
-function scheduleSequence(
-  ctx: AudioContext,
-  notes: NoteDefinition[],
-  bpm: number
-): number {
+function scheduleSequence(ctx: AudioContext, notes: NoteDefinition[], bpm: number): number {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
 
@@ -69,6 +61,22 @@ function scheduleSequence(
   })
 
   return notes.length * noteDuration * 1000
+}
+
+function createErrorSound(ctx: AudioContext): void {
+  const osc = ctx.createOscillator()
+  osc.type = 'square'
+  osc.frequency.value = 150
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.3, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
+
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+
+  osc.start(ctx.currentTime)
+  osc.stop(ctx.currentTime + 0.1)
 }
 
 export function useAudio(): UseAudioReturn {
@@ -82,12 +90,15 @@ export function useAudio(): UseAudioReturn {
     return ctxRef.current
   }, [])
 
-  const playNote = useCallback((note: NoteDefinition) => {
-    const ctx = getContext()
-    ensureContextResumed(ctx).then(() => {
-      scheduleNote(ctx, note, ctx.currentTime)
-    })
-  }, [getContext])
+  const playNote = useCallback(
+    (note: NoteDefinition) => {
+      const ctx = getContext()
+      ensureContextResumed(ctx).then(() => {
+        scheduleNote(ctx, note, ctx.currentTime)
+      })
+    },
+    [getContext]
+  )
 
   const playSequence = useCallback(
     async (notes: NoteDefinition[], bpm: number = DEFAULT_BPM): Promise<void> => {
@@ -107,19 +118,7 @@ export function useAudio(): UseAudioReturn {
   const playErrorSound = useCallback(() => {
     const ctx = getContext()
     ensureContextResumed(ctx).then(() => {
-      const osc = ctx.createOscillator()
-      osc.type = 'square'
-      osc.frequency.value = 150
-
-      const gain = ctx.createGain()
-      gain.gain.setValueAtTime(0.3, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
-
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.1)
+      createErrorSound(ctx)
     })
   }, [getContext])
 

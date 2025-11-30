@@ -19,4 +19,3 @@ export interface GameNote {
   note: NoteDefinition
   status: 'pending' | 'active' | 'correct' | 'incorrect'
 }
-
