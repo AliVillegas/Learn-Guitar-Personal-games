@@ -44,11 +44,11 @@ describe('getStaffPosition', () => {
   const expectedPositions: Record<string, { octave3: number; octave4?: number }> = {
     do: { octave3: -5, octave4: 2 },
     re: { octave3: -4, octave4: 3 },
-    mi: { octave3: -3, octave4: 4 },
-    fa: { octave3: -2, octave4: 5 },
+    mi: { octave3: 0, octave4: -4 },
+    fa: { octave3: 1, octave4: 5 },
     sol: { octave3: -1, octave4: 6 },
-    la: { octave3: 0 },
-    si: { octave3: 1 },
+    la: { octave3: -2 },
+    si: { octave3: -3 },
   }
 
   Object.entries(expectedPositions).forEach(([solfege, positions]) => {
@@ -64,8 +64,8 @@ describe('getStaffPosition', () => {
   })
 
   it('returns first position when octave match is not found', () => {
-    expect(getStaffPosition('la', 4 as 3 | 4)).toBe(0)
-    expect(getStaffPosition('si', 4 as 3 | 4)).toBe(1)
+    expect(getStaffPosition('la', 4 as 3 | 4)).toBe(-2)
+    expect(getStaffPosition('si', 4 as 3 | 4)).toBe(-3)
   })
 })
 
@@ -75,7 +75,7 @@ describe('createNoteDefinition', () => {
     expect(note.solfege).toBe('mi')
     expect(note.letter).toBe('E')
     expect(note.frequency).toBe(164.81)
-    expect(note.staffPosition).toBe(-3)
+    expect(note.staffPosition).toBe(0)
     expect(note.octave).toBe(3)
   })
 
@@ -84,7 +84,7 @@ describe('createNoteDefinition', () => {
     expect(note.solfege).toBe('mi')
     expect(note.letter).toBe('E')
     expect(note.frequency).toBe(329.63)
-    expect(note.staffPosition).toBe(4)
+    expect(note.staffPosition).toBe(-4)
     expect(note.octave).toBe(4)
   })
 

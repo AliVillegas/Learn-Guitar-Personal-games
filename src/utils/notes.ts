@@ -35,19 +35,19 @@ const STAFF_POSITIONS: Record<SolfegeNote, { position: number; octave: number }[
     { position: 3, octave: 4 },
   ],
   mi: [
-    { position: -3, octave: 3 },
-    { position: 4, octave: 4 },
+    { position: 0, octave: 3 },
+    { position: -4, octave: 4 },
   ],
   fa: [
-    { position: -2, octave: 3 },
+    { position: 1, octave: 3 },
     { position: 5, octave: 4 },
   ],
   sol: [
     { position: -1, octave: 3 },
     { position: 6, octave: 4 },
   ],
-  la: [{ position: 0, octave: 3 }],
-  si: [{ position: 1, octave: 3 }],
+  la: [{ position: -2, octave: 3 }],
+  si: [{ position: -3, octave: 3 }],
 }
 
 export function getNoteFrequency(solfege: SolfegeNote, octave: 3 | 4): number {
@@ -81,53 +81,34 @@ export function getAllSolfegeNotes(): SolfegeNote[] {
 }
 
 const STRING_NOTES: Record<GuitarString, Array<{ solfege: SolfegeNote; octave: 3 | 4 }>> = {
-  6: [
-    { solfege: 'mi', octave: 3 },
-    { solfege: 'fa', octave: 3 },
-    { solfege: 'sol', octave: 3 },
-    { solfege: 'la', octave: 3 },
-    { solfege: 'si', octave: 3 },
-  ],
-  5: [
-    { solfege: 'la', octave: 3 },
-    { solfege: 'si', octave: 3 },
-    { solfege: 'do', octave: 4 },
-    { solfege: 're', octave: 4 },
+  1: [
     { solfege: 'mi', octave: 4 },
     { solfege: 'fa', octave: 4 },
     { solfege: 'sol', octave: 4 },
-    { solfege: 'la', octave: 4 },
-    { solfege: 'si', octave: 4 },
-  ],
-  4: [
-    { solfege: 're', octave: 3 },
-    { solfege: 'mi', octave: 3 },
-    { solfege: 'fa', octave: 3 },
-    { solfege: 'sol', octave: 3 },
-    { solfege: 'la', octave: 3 },
-    { solfege: 'si', octave: 3 },
-    { solfege: 'do', octave: 4 },
-  ],
-  3: [
-    { solfege: 'sol', octave: 3 },
-    { solfege: 'la', octave: 3 },
-    { solfege: 'si', octave: 3 },
-    { solfege: 'do', octave: 4 },
-    { solfege: 're', octave: 4 },
-    { solfege: 'mi', octave: 4 },
-    { solfege: 'fa', octave: 4 },
-    { solfege: 'sol', octave: 4 },
-    { solfege: 'la', octave: 4 },
   ],
   2: [
     { solfege: 'si', octave: 3 },
     { solfege: 'do', octave: 4 },
     { solfege: 're', octave: 4 },
   ],
-  1: [
-    { solfege: 'mi', octave: 4 },
-    { solfege: 'fa', octave: 4 },
-    { solfege: 'sol', octave: 4 },
+  3: [
+    { solfege: 'sol', octave: 3 },
+    { solfege: 'la', octave: 3 },
+  ],
+  4: [
+    { solfege: 're', octave: 3 },
+    { solfege: 'mi', octave: 3 },
+    { solfege: 'fa', octave: 3 },
+  ],
+  5: [
+    { solfege: 'la', octave: 3 },
+    { solfege: 'si', octave: 3 },
+    { solfege: 'do', octave: 4 },
+  ],
+  6: [
+    { solfege: 'mi', octave: 3 },
+    { solfege: 'fa', octave: 3 },
+    { solfege: 'sol', octave: 3 },
   ],
 }
 
