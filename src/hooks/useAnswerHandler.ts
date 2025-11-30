@@ -18,17 +18,15 @@ export function createAnswerHandler(
       return
     }
 
-    const noteToPlay = currentNote.note
     const isCorrect = currentNote.note.solfege === selectedNote
-
-    audio.playNote(noteToPlay).catch((error) => {
-      console.error('Error playing note:', error)
-    })
 
     if (isCorrect) {
       feedback.setFeedback(selectedNote, 'correct')
     } else {
       feedback.setFeedback(selectedNote, 'incorrect')
+      audio.playNote(currentNote.note).catch((error) => {
+        console.error('Error playing note:', error)
+      })
       audio.playErrorSound()
     }
 

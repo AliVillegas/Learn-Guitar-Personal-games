@@ -142,4 +142,41 @@ describe('useAudio', () => {
 
     expect(result.current.playingIndex).toBeDefined()
   })
+
+  it('handles cleanup for guitar instruments', async () => {
+    useGameStore.setState({
+      config: {
+        selectedNotes: [],
+        stringNotes: [],
+        measureCount: 1,
+        instrument: 'guitar-synth',
+      },
+    })
+
+    const { result } = renderHook(() => useAudio())
+    const notes = [createNoteDefinition('mi', 3)]
+
+    await result.current.playSequence(notes, 120, 0)
+
+    expect(result.current).toBeDefined()
+  })
+
+  it('handles different BPM values', async () => {
+    const { result } = renderHook(() => useAudio())
+    const notes = [createNoteDefinition('mi', 3)]
+
+    await result.current.playSequence(notes, 60, 0)
+    await result.current.playSequence(notes, 180, 0)
+
+    expect(result.current).toBeDefined()
+  })
+
+  it('handles startIndex parameter', async () => {
+    const { result } = renderHook(() => useAudio())
+    const notes = [createNoteDefinition('mi', 3)]
+
+    await result.current.playSequence(notes, 120, 5)
+
+    expect(result.current).toBeDefined()
+  })
 })

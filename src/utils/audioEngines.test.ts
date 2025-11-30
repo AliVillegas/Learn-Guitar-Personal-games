@@ -98,6 +98,16 @@ describe('audioEngines', () => {
       expect(ctx.createOscillator).toHaveBeenCalled()
     })
 
+    it('plays note with future start time', () => {
+      const engine = getAudioEngine('midi')
+      const ctx = new AudioContext()
+      const startTime = ctx.currentTime + 0.5
+
+      engine.playNote({ frequency: 440, noteName: 'A4' }, startTime, ctx)
+
+      expect(ctx.createOscillator).toHaveBeenCalled()
+    })
+
     it('creates envelope with correct duration', () => {
       const engine = getAudioEngine('midi')
       const ctx = new AudioContext()
@@ -106,6 +116,17 @@ describe('audioEngines', () => {
 
       expect(envelope).toBeDefined()
       expect(ctx.createGain).toHaveBeenCalled()
+    })
+
+    it('creates envelope with different durations', () => {
+      const engine = getAudioEngine('midi')
+      const ctx = new AudioContext()
+
+      const envelope1 = engine.createEnvelope(ctx, 0.2)
+      const envelope2 = engine.createEnvelope(ctx, 0.8)
+
+      expect(envelope1).toBeDefined()
+      expect(envelope2).toBeDefined()
     })
   })
 

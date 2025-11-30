@@ -197,7 +197,7 @@ describe('PlaybackControls', () => {
     })
   })
 
-  describe('existing functionality', () => {
+  describe('play all button', () => {
     it('renders play all button', () => {
       render(
         <PlaybackControls
@@ -214,6 +214,65 @@ describe('PlaybackControls', () => {
       expect(screen.getByLabelText('Play All')).toBeInTheDocument()
     })
 
+    it('calls onPlayAll when clicked and not playing', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playAllButton = screen.getByLabelText('Play All')
+      await user.click(playAllButton)
+
+      expect(mockOnPlayAll).toHaveBeenCalledWith(notes)
+    })
+
+    it('does not call onPlayAll when clicked while playing', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playAllButton = screen.getByLabelText('Play All')
+      await user.click(playAllButton)
+
+      expect(mockOnPlayAll).not.toHaveBeenCalled()
+    })
+
+    it('disables play all button when isPlaying is true', () => {
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playAllButton = screen.getByLabelText('Play All')
+      expect(playAllButton).toBeDisabled()
+    })
+  })
+
+  describe('play current note button', () => {
     it('renders play current note button when currentNote is provided', () => {
       render(
         <PlaybackControls
@@ -228,6 +287,222 @@ describe('PlaybackControls', () => {
       )
 
       expect(screen.getByLabelText('Play Current Note')).toBeInTheDocument()
+    })
+
+    it('calls onPlayCurrentNote when clicked and not playing', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      await user.click(playCurrentNoteButton)
+
+      expect(mockOnPlayCurrentNote).toHaveBeenCalled()
+    })
+
+    it('does not call onPlayCurrentNote when clicked while playing', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      await user.click(playCurrentNoteButton)
+
+      expect(mockOnPlayCurrentNote).not.toHaveBeenCalled()
+    })
+
+    it('disables play current note button when currentNote is null', () => {
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={null}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      expect(playCurrentNoteButton).toBeDisabled()
+    })
+
+    it('disables play current note button when isPlaying is true', () => {
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      expect(playCurrentNoteButton).toBeDisabled()
+    })
+  })
+
+  describe('branch coverage', () => {
+    it('calls onPlayAll when isPlaying is false', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playAllButton = screen.getByLabelText('Play All')
+      await user.click(playAllButton)
+
+      expect(mockOnPlayAll).toHaveBeenCalledWith(notes)
+    })
+
+    it('does not call onPlayAll when isPlaying is true', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playAllButton = screen.getByLabelText('Play All')
+      await user.click(playAllButton)
+
+      expect(mockOnPlayAll).not.toHaveBeenCalled()
+    })
+
+    it('calls onPlayCurrentNote when isPlaying is false and currentNote exists', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      await user.click(playCurrentNoteButton)
+
+      expect(mockOnPlayCurrentNote).toHaveBeenCalled()
+    })
+
+    it('does not call onPlayCurrentNote when isPlaying is true', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      await user.click(playCurrentNoteButton)
+
+      expect(mockOnPlayCurrentNote).not.toHaveBeenCalled()
+    })
+
+    it('does not call onPlayCurrentNote when currentNote is null', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={null}
+          measureCount={1}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const playCurrentNoteButton = screen.getByLabelText('Play Current Note')
+      await user.click(playCurrentNoteButton)
+
+      expect(mockOnPlayCurrentNote).not.toHaveBeenCalled()
+    })
+
+    it('calls onPlayMeasure when isPlaying is false', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={2}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={false}
+        />
+      )
+
+      const measure1Button = screen.getByLabelText('Play Measure 1')
+      await user.click(measure1Button)
+
+      expect(mockOnPlayMeasure).toHaveBeenCalledWith(0)
+    })
+
+    it('does not call onPlayMeasure when isPlaying is true', async () => {
+      const user = userEvent.setup()
+      render(
+        <PlaybackControls
+          notes={notes}
+          currentNote={notes[0]}
+          measureCount={2}
+          onPlayAll={mockOnPlayAll}
+          onPlayCurrentNote={mockOnPlayCurrentNote}
+          onPlayMeasure={mockOnPlayMeasure}
+          isPlaying={true}
+        />
+      )
+
+      const measure1Button = screen.getByLabelText('Play Measure 1')
+      await user.click(measure1Button)
+
+      expect(mockOnPlayMeasure).not.toHaveBeenCalled()
     })
   })
 })

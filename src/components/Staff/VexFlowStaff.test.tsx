@@ -62,4 +62,39 @@ describe('VexFlowStaff', () => {
       expect(container).toBeTruthy()
     })
   })
+
+  it('renders measure with fewer than 4 notes', () => {
+    const notes = createTestNotes(2)
+    const { container } = render(<VexFlowStaff notes={notes} measureCount={1} currentIndex={0} />)
+    expect(container).toBeTruthy()
+  })
+
+  it('renders measure with exactly 4 notes', () => {
+    const notes = createTestNotes(4)
+    const { container } = render(<VexFlowStaff notes={notes} measureCount={1} currentIndex={0} />)
+    expect(container).toBeTruthy()
+  })
+
+  it('handles currentIndex at end of sequence', () => {
+    const notes = createTestNotes(8)
+    const { container } = render(<VexFlowStaff notes={notes} measureCount={2} currentIndex={7} />)
+    expect(container).toBeTruthy()
+  })
+
+  it('handles currentIndex at -1', () => {
+    const notes = createTestNotes(4)
+    const { container } = render(<VexFlowStaff notes={notes} measureCount={1} currentIndex={-1} />)
+    expect(container).toBeTruthy()
+  })
+
+  it('renders with different note statuses', () => {
+    const notes: GameNote[] = [
+      { id: '1', note: createNoteDefinition('mi', 3), status: 'correct' },
+      { id: '2', note: createNoteDefinition('fa', 3), status: 'incorrect' },
+      { id: '3', note: createNoteDefinition('sol', 3), status: 'pending' },
+      { id: '4', note: createNoteDefinition('la', 3), status: 'active' },
+    ]
+    const { container } = render(<VexFlowStaff notes={notes} measureCount={1} currentIndex={3} />)
+    expect(container).toBeTruthy()
+  })
 })
