@@ -1,0 +1,36 @@
+{
+  "app": {
+    "title": "Lectura a Primera Vista - Primera Posición"
+  },
+  "notes": {
+    "do": "Do",
+    "re": "Re",
+    "mi": "Mi",
+    "fa": "Fa",
+    "sol": "Sol",
+    "la": "La",
+    "si": "Si"
+  },
+  "config": {
+    "selectNotes": "Selecciona las notas a practicar",
+    "measures": "Compases",
+    "minNotesWarning": "Selecciona al menos 2 notas",
+    "generate": "Generar"
+  },
+  "game": {
+    "playAll": "Reproducir Todo",
+    "identifyNote": "Identifica la nota resaltada",
+    "correct": "¡Correcto!",
+    "incorrect": "Intenta de nuevo",
+    "score": "Puntuación: {{correct}}/{{total}}"
+  },
+  "result": {
+    "complete": "¡Ronda Completa!",
+    "finalScore": "Puntuación Final: {{correct}} de {{total}}",
+    "playAgain": "Jugar de Nuevo"
+  },
+  "language": {
+    "switch": "English"
+  }
+}
+

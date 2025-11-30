@@ -1,0 +1,36 @@
+{
+  "app": {
+    "title": "Guitar Sight Reading - First Position"
+  },
+  "notes": {
+    "do": "Do (C)",
+    "re": "Re (D)",
+    "mi": "Mi (E)",
+    "fa": "Fa (F)",
+    "sol": "Sol (G)",
+    "la": "La (A)",
+    "si": "Si (B)"
+  },
+  "config": {
+    "selectNotes": "Select notes to practice",
+    "measures": "Measures",
+    "minNotesWarning": "Select at least 2 notes",
+    "generate": "Generate"
+  },
+  "game": {
+    "playAll": "Play All",
+    "identifyNote": "Identify the highlighted note",
+    "correct": "Correct!",
+    "incorrect": "Try again",
+    "score": "Score: {{correct}}/{{total}}"
+  },
+  "result": {
+    "complete": "Round Complete!",
+    "finalScore": "Final Score: {{correct}} of {{total}}",
+    "playAgain": "Play Again"
+  },
+  "language": {
+    "switch": "Español"
+  }
+}
+
