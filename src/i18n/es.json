@@ -12,11 +12,9 @@
     "si": "Si"
   },
   "config": {
-    "selectNotes": "Selecciona las notas a practicar",
-    "selectStrings": "Selecciona las cuerdas de guitarra",
+    "selectStringNotes": "Selecciona las notas para cada cuerda",
     "measures": "Compases",
-    "minNotesWarning": "Selecciona al menos 2 notas",
-    "minStringsWarning": "Selecciona al menos 1 cuerda",
+    "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
     "generate": "Generar"
   },
   "game": {

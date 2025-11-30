@@ -1,11 +1,18 @@
 import { useReducer } from 'react'
-import type { SolfegeNote } from '../types/music'
 import type { GameConfig } from '../types/game'
 import { gameReducer } from './useGameReducer'
+import { getNotesForString, getAllGuitarStrings } from '../utils/notes'
+
+function createInitialStringNotes(): GameConfig['stringNotes'] {
+  return getAllGuitarStrings().map((string) => ({
+    string,
+    notes: getNotesForString(string).map((n) => n.solfege),
+  }))
+}
 
 const initialConfig: GameConfig = {
   selectedNotes: ['do', 're', 'mi'],
-  selectedStrings: [6, 5, 4, 3, 2, 1],
+  stringNotes: createInitialStringNotes(),
   measureCount: 1,
 }
 

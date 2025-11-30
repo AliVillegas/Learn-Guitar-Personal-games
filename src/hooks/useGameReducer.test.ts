@@ -8,7 +8,14 @@ function createTestState(overrides: Partial<GameState>): GameState {
     phase: 'playing',
     config: {
       selectedNotes: ['mi', 'fa'],
-      selectedStrings: [6, 5, 4, 3, 2, 1],
+      stringNotes: [
+        { string: 6, notes: ['mi', 'fa', 'sol', 'la', 'si'] },
+        { string: 5, notes: ['la', 'si', 'do', 're', 'mi', 'fa', 'sol'] },
+        { string: 4, notes: ['re', 'mi', 'fa', 'sol', 'la', 'si', 'do'] },
+        { string: 3, notes: ['sol', 'la', 'si', 'do', 're', 'mi', 'fa'] },
+        { string: 2, notes: ['si', 'do', 're'] },
+        { string: 1, notes: ['mi', 'fa', 'sol'] },
+      ],
       measureCount: 1,
     },
     sequence: [],
@@ -37,7 +44,10 @@ describe('gameReducer', () => {
       const state = createTestState({
         config: {
           selectedNotes: ['mi'],
-          selectedStrings: [6, 1],
+          stringNotes: [
+            { string: 6, notes: ['mi'] },
+            { string: 1, notes: ['mi'] },
+          ],
           measureCount: 1,
         },
       })

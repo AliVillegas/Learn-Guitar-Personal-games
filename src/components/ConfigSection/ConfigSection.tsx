@@ -1,32 +1,27 @@
 import { ConfigPanel } from '../NoteConfig/ConfigPanel'
-import type { SolfegeNote, MeasureCount, GuitarString } from '../../types/music'
+import type { MeasureCount, GuitarString, SolfegeNote } from '../../types/music'
+import type { StringNoteConfig } from '../../types/game'
 
 interface ConfigSectionProps {
-  selectedNotes: SolfegeNote[]
-  selectedStrings: GuitarString[]
+  stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
-  onToggleNote: (note: SolfegeNote) => void
-  onToggleString: (guitarString: GuitarString) => void
+  onToggleStringNote: (guitarString: GuitarString, note: SolfegeNote) => void
   onChangeMeasure: (count: MeasureCount) => void
   onGenerate: () => void
 }
 
 export function ConfigSection({
-  selectedNotes,
-  selectedStrings,
+  stringNotes,
   measureCount,
-  onToggleNote,
-  onToggleString,
+  onToggleStringNote,
   onChangeMeasure,
   onGenerate,
 }: ConfigSectionProps) {
   return (
     <ConfigPanel
-      selectedNotes={selectedNotes}
-      selectedStrings={selectedStrings}
+      stringNotes={stringNotes}
       measureCount={measureCount}
-      onToggleNote={onToggleNote}
-      onToggleString={onToggleString}
+      onToggleStringNote={onToggleStringNote}
       onChangeMeasure={onChangeMeasure}
       onGenerate={onGenerate}
     />

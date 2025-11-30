@@ -14,11 +14,9 @@ function renderConfigPhase(handlers: Handlers) {
   const config = handlers.game.state.config
   return (
     <ConfigSection
-      selectedNotes={config.selectedNotes}
-      selectedStrings={config.selectedStrings}
+      stringNotes={config.stringNotes}
       measureCount={config.measureCount}
-      onToggleNote={handlers.handleToggleNote}
-      onToggleString={handlers.handleToggleString}
+      onToggleStringNote={handlers.handleToggleStringNote}
       onChangeMeasure={handlers.handleChangeMeasure}
       onGenerate={handlers.handleGenerate}
     />

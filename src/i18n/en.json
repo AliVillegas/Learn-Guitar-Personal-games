@@ -12,11 +12,9 @@
     "si": "Si (B)"
   },
   "config": {
-    "selectNotes": "Select notes to practice",
-    "selectStrings": "Select guitar strings",
+    "selectStringNotes": "Select notes for each string",
     "measures": "Measures",
-    "minNotesWarning": "Select at least 2 notes",
-    "minStringsWarning": "Select at least 1 string",
+    "minStringNotesWarning": "Select at least one note from any string",
     "generate": "Generate"
   },
   "game": {

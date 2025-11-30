@@ -4,23 +4,25 @@ import { useAudio } from './useAudio'
 import { useAnswerFeedback } from './useAnswerFeedback'
 import { createAnswerHandler } from './useAnswerHandler'
 
-function createToggleNoteHandler(game: ReturnType<typeof useGameState>) {
-  return (note: SolfegeNote) => {
-    const current = game.state.config.selectedNotes
-    const isSelected = current.includes(note)
-    const newSelection = isSelected ? current.filter((n) => n !== note) : [...current, note]
-    game.setConfig({ selectedNotes: newSelection })
-  }
-}
+function createToggleStringNoteHandler(game: ReturnType<typeof useGameState>) {
+  return (guitarString: GuitarString, note: SolfegeNote) => {
+    const currentStringNotes = game.state.config.stringNotes
+    const stringConfig = currentStringNotes.find((sn) => sn.string === guitarString)
 
-function createToggleStringHandler(game: ReturnType<typeof useGameState>) {
-  return (guitarString: GuitarString) => {
-    const current = game.state.config.selectedStrings
-    const isSelected = current.includes(guitarString)
-    const newSelection = isSelected
-      ? current.filter((s) => s !== guitarString)
-      : [...current, guitarString]
-    game.setConfig({ selectedStrings: newSelection })
+    if (!stringConfig) {
+      return
+    }
+
+    const isSelected = stringConfig.notes.includes(note)
+    const newNotes = isSelected
+      ? stringConfig.notes.filter((n) => n !== note)
+      : [...stringConfig.notes, note]
+
+    const updatedStringNotes = currentStringNotes.map((sn) =>
+      sn.string === guitarString ? { ...sn, notes: newNotes } : sn
+    )
+
+    game.setConfig({ stringNotes: updatedStringNotes })
   }
 }
 
@@ -77,8 +79,7 @@ export function useAppHandlers() {
     game,
     audio,
     feedback,
-    handleToggleNote: createToggleNoteHandler(game),
-    handleToggleString: createToggleStringHandler(game),
+    handleToggleStringNote: createToggleStringNoteHandler(game),
     handleChangeMeasure: createChangeMeasureHandler(game),
     handleGenerate: createGenerateHandler(feedback, game),
     handlePlayAll: createPlayAllHandler(game, audio),

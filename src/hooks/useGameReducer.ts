@@ -1,49 +1,45 @@
-import type { GameState, GameAction } from '../types/game'
-import type { SolfegeNote, GuitarString } from '../types/music'
-import { createNoteDefinition, getSolfegeFromString, getOctaveFromString } from '../utils/notes'
+import type { GameState, GameAction, StringNoteConfig } from '../types/game'
+import type { SolfegeNote } from '../types/music'
+import { createNoteDefinition, getNotesForString } from '../utils/notes'
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9)
 }
 
-function pickRandomString(strings: GuitarString[]): GuitarString {
-  const index = Math.floor(Math.random() * strings.length)
-  return strings[index]
+function pickRandomNote<T>(items: T[]): T {
+  const index = Math.floor(Math.random() * items.length)
+  return items[index]
 }
 
-function getValidStrings(
-  selectedNotes: SolfegeNote[],
-  selectedStrings: GuitarString[]
-): GuitarString[] {
-  const availableStrings = selectedStrings.length > 0 ? selectedStrings : [6, 5, 4, 3, 2, 1]
-  return availableStrings.filter((str) => {
-    const solfege = getSolfegeFromString(str)
-    return selectedNotes.includes(solfege)
+function getAvailableNotes(
+  stringNotes: StringNoteConfig[]
+): Array<{ solfege: SolfegeNote; octave: 3 | 4 }> {
+  const available: Array<{ solfege: SolfegeNote; octave: 3 | 4 }> = []
+
+  stringNotes.forEach((stringConfig) => {
+    const stringNotesList = getNotesForString(stringConfig.string)
+    stringNotesList.forEach((noteDef) => {
+      if (stringConfig.notes.includes(noteDef.solfege)) {
+        available.push(noteDef)
+      }
+    })
   })
+
+  return available
 }
 
-function createNoteFromString(guitarString: GuitarString) {
-  const solfege = getSolfegeFromString(guitarString)
-  const octave = getOctaveFromString(guitarString)
-  return createNoteDefinition(solfege, octave)
-}
-
-function generateSequence(
-  selectedNotes: SolfegeNote[],
-  selectedStrings: GuitarString[],
-  measureCount: number
-) {
+function generateSequence(stringNotes: StringNoteConfig[], measureCount: number) {
   const totalNotes = measureCount * 4
   const sequence = []
-  const validStrings = getValidStrings(selectedNotes, selectedStrings)
+  const availableNotes = getAvailableNotes(stringNotes)
 
-  if (validStrings.length === 0) {
+  if (availableNotes.length === 0) {
     return sequence
   }
 
   for (let i = 0; i < totalNotes; i++) {
-    const guitarString = pickRandomString(validStrings)
-    const note = createNoteFromString(guitarString)
+    const noteDef = pickRandomNote(availableNotes)
+    const note = createNoteDefinition(noteDef.solfege, noteDef.octave)
     sequence.push({
       id: generateId(),
       note,
@@ -69,11 +65,7 @@ function handleSetConfig(state: GameState, payload: Partial<GameState['config']>
 }
 
 function handleGenerateSequence(state: GameState): GameState {
-  const sequence = generateSequence(
-    state.config.selectedNotes,
-    state.config.selectedStrings,
-    state.config.measureCount
-  )
+  const sequence = generateSequence(state.config.stringNotes, state.config.measureCount)
 
   return {
     ...state,

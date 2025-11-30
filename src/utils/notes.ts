@@ -80,30 +80,69 @@ export function getAllSolfegeNotes(): SolfegeNote[] {
   return ['do', 're', 'mi', 'fa', 'sol', 'la', 'si']
 }
 
-const STRING_TO_SOLFEGE: Record<GuitarString, SolfegeNote> = {
-  6: 'mi',
-  5: 'la',
-  4: 're',
-  3: 'sol',
-  2: 'si',
-  1: 'mi',
+const STRING_NOTES: Record<GuitarString, Array<{ solfege: SolfegeNote; octave: 3 | 4 }>> = {
+  6: [
+    { solfege: 'mi', octave: 3 },
+    { solfege: 'fa', octave: 3 },
+    { solfege: 'sol', octave: 3 },
+    { solfege: 'la', octave: 3 },
+    { solfege: 'si', octave: 3 },
+  ],
+  5: [
+    { solfege: 'la', octave: 3 },
+    { solfege: 'si', octave: 3 },
+    { solfege: 'do', octave: 4 },
+    { solfege: 're', octave: 4 },
+    { solfege: 'mi', octave: 4 },
+    { solfege: 'fa', octave: 4 },
+    { solfege: 'sol', octave: 4 },
+    { solfege: 'la', octave: 4 },
+    { solfege: 'si', octave: 4 },
+  ],
+  4: [
+    { solfege: 're', octave: 3 },
+    { solfege: 'mi', octave: 3 },
+    { solfege: 'fa', octave: 3 },
+    { solfege: 'sol', octave: 3 },
+    { solfege: 'la', octave: 3 },
+    { solfege: 'si', octave: 3 },
+    { solfege: 'do', octave: 4 },
+  ],
+  3: [
+    { solfege: 'sol', octave: 3 },
+    { solfege: 'la', octave: 3 },
+    { solfege: 'si', octave: 3 },
+    { solfege: 'do', octave: 4 },
+    { solfege: 're', octave: 4 },
+    { solfege: 'mi', octave: 4 },
+    { solfege: 'fa', octave: 4 },
+    { solfege: 'sol', octave: 4 },
+    { solfege: 'la', octave: 4 },
+  ],
+  2: [
+    { solfege: 'si', octave: 3 },
+    { solfege: 'do', octave: 4 },
+    { solfege: 're', octave: 4 },
+  ],
+  1: [
+    { solfege: 'mi', octave: 4 },
+    { solfege: 'fa', octave: 4 },
+    { solfege: 'sol', octave: 4 },
+  ],
 }
 
-const STRING_TO_OCTAVE: Record<GuitarString, 3 | 4> = {
-  6: 3,
-  5: 3,
-  4: 3,
-  3: 3,
-  2: 3,
-  1: 4,
+export function getNotesForString(
+  guitarString: GuitarString
+): Array<{ solfege: SolfegeNote; octave: 3 | 4 }> {
+  return STRING_NOTES[guitarString]
 }
 
 export function getSolfegeFromString(guitarString: GuitarString): SolfegeNote {
-  return STRING_TO_SOLFEGE[guitarString]
+  return STRING_NOTES[guitarString][0].solfege
 }
 
 export function getOctaveFromString(guitarString: GuitarString): 3 | 4 {
-  return STRING_TO_OCTAVE[guitarString]
+  return STRING_NOTES[guitarString][0].octave
 }
 
 export function getAllGuitarStrings(): GuitarString[] {

@@ -2,9 +2,14 @@ import type { SolfegeNote, MeasureCount, GameNote, GuitarString } from './music'
 
 export type GamePhase = 'config' | 'playing' | 'complete'
 
+export interface StringNoteConfig {
+  string: GuitarString
+  notes: SolfegeNote[]
+}
+
 export interface GameConfig {
   selectedNotes: SolfegeNote[]
-  selectedStrings: GuitarString[]
+  stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
 }
 
