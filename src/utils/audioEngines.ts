@@ -92,11 +92,6 @@ async function ensureToneContextRunning(): Promise<void> {
   }
 }
 
-function calculateToneTime(startTime: number, ctx: AudioContext): string | undefined {
-  const delay = Math.max(0, startTime - ctx.currentTime)
-  return delay > 0 ? `+${delay}` : undefined
-}
-
 async function playGuitarNote(
   note: { noteName?: string; frequency: number },
   startTime: number,
@@ -116,8 +111,16 @@ async function playGuitarNote(
 
   await ensureToneContextRunning()
 
-  const toneTime = calculateToneTime(startTime, ctx)
-  guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+  guitarSynth.releaseAll()
+
+  const delay = Math.max(0, startTime - ctx.currentTime)
+
+  if (delay > 0) {
+    const toneTime = Tone.now() + delay
+    guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+  } else {
+    guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION)
+  }
 }
 
 const guitarEngine: AudioEngine = {
