@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettingsStore } from '../../store/settingsStore'
 
-const MIN_BPM = 40
+const MIN_BPM = 20
 const MAX_BPM = 200
 
 function CogIcon({ className }: { className?: string }) {

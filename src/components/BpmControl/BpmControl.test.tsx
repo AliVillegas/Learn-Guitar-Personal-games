@@ -76,7 +76,7 @@ describe('BpmControl', () => {
     await user.click(cogButton)
 
     const slider = screen.getByRole('slider')
-    expect(slider).toHaveAttribute('min', '40')
+    expect(slider).toHaveAttribute('min', '20')
     expect(slider).toHaveAttribute('max', '200')
   })
 })
