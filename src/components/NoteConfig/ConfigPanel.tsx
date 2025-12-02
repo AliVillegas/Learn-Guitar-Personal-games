@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { StringSelector } from './StringSelector'
 import { MeasureSelector } from './MeasureSelector'
 import { InstrumentSelector } from './InstrumentSelector'
+import { AutoPlayToggle } from './AutoPlayToggle'
 import { Button } from '../ui/button'
 import type { MeasureCount, GuitarString, SolfegeNote } from '../../types/music'
 import type { StringNoteConfig } from '../../types/game'
@@ -11,9 +12,11 @@ interface ConfigPanelProps {
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
   instrument: InstrumentType
+  autoPlayOnGenerate: boolean
   onToggleStringNote: (guitarString: GuitarString, note: SolfegeNote) => void
   onChangeMeasure: (count: MeasureCount) => void
   onChangeInstrument: (instrument: InstrumentType) => void
+  onChangeAutoPlay: (autoPlay: boolean) => void
   onGenerate: () => void
 }
 
@@ -25,9 +28,11 @@ export function ConfigPanel({
   stringNotes,
   measureCount,
   instrument,
+  autoPlayOnGenerate,
   onToggleStringNote,
   onChangeMeasure,
   onChangeInstrument,
+  onChangeAutoPlay,
   onGenerate,
 }: ConfigPanelProps) {
   const { t } = useTranslation()
@@ -38,6 +43,7 @@ export function ConfigPanel({
       <InstrumentSelector instrument={instrument} onChange={onChangeInstrument} />
       <StringSelector stringNotes={stringNotes} onToggleNote={onToggleStringNote} />
       <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
+      <AutoPlayToggle checked={autoPlayOnGenerate} onChange={onChangeAutoPlay} />
       {!canGenerate && (
         <p className="text-sm text-destructive">{t('config.minStringNotesWarning')}</p>
       )}

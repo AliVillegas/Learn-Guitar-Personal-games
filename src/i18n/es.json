@@ -21,6 +21,7 @@
       "guitarClassical": "Guitarra (Clásica)"
     },
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
+    "autoPlayOnGenerate": "Reproducir secuencia al iniciar",
     "generate": "Generar"
   },
   "game": {

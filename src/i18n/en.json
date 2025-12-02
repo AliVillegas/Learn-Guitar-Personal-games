@@ -21,6 +21,7 @@
       "guitarClassical": "Guitar (Classical)"
     },
     "minStringNotesWarning": "Select at least one note from any string",
+    "autoPlayOnGenerate": "Auto-play sequence on start",
     "generate": "Generate"
   },
   "game": {

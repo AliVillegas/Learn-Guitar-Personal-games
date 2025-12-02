@@ -8,6 +8,7 @@ import { ScoreDisplay } from '../components/ScoreDisplay/ScoreDisplay'
 import { ResultPanel } from '../components/ResultPanel/ResultPanel'
 import { Button } from '../components/ui/button'
 import { useGameStore } from '../store/gameStore'
+import { useSettingsStore } from '../store/settingsStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
 import type { MeasureCount } from '../types/music'
 import type { SolfegeNote } from '../types/music'
@@ -197,24 +198,29 @@ function isNewSequenceGenerated(
 
 function usePlayAllOnGameStart(
   game: ReturnType<typeof useGameStore>,
-  handlers: ReturnType<typeof useAppHandlers>
+  handlers: ReturnType<typeof useAppHandlers>,
+  autoPlayOnGenerate: boolean
 ) {
   const previousSequenceLengthRef = useRef<number>(0)
 
   useEffect(() => {
-    if (isNewSequenceGenerated(game, previousSequenceLengthRef.current)) {
+    const shouldPlay =
+      autoPlayOnGenerate && isNewSequenceGenerated(game, previousSequenceLengthRef.current)
+
+    if (shouldPlay) {
       const noteDefinitions = game.sequence.map((gn) => gn.note)
       playAllNotes(handlers, noteDefinitions)
     }
     previousSequenceLengthRef.current = game.sequence.length
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.phase, game.sequence.length, game.sequence, handlers])
+  }, [game.phase, game.sequence.length, game.sequence, handlers, autoPlayOnGenerate])
 }
 
 export function GamePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const game = useGameStore()
+  const autoPlayOnGenerate = useSettingsStore((state) => state.autoPlayOnGenerate)
   const handlers = useAppHandlers()
 
   const handlePlayAgain = () => {
@@ -233,7 +239,7 @@ export function GamePage() {
     }
   }, [game.phase, navigate])
 
-  usePlayAllOnGameStart(game, handlers)
+  usePlayAllOnGameStart(game, handlers, autoPlayOnGenerate)
 
   if (game.phase === 'complete') {
     return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain, handleGoToConfig)

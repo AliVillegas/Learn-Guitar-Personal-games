@@ -29,9 +29,11 @@ export function ConfigPage() {
       stringNotes={config.stringNotes}
       measureCount={config.measureCount}
       instrument={config.instrument}
+      autoPlayOnGenerate={settings.autoPlayOnGenerate}
       onToggleStringNote={handlers.handleToggleStringNote}
       onChangeMeasure={handlers.handleChangeMeasure}
       onChangeInstrument={handlers.handleChangeInstrument}
+      onChangeAutoPlay={settings.setAutoPlayOnGenerate}
       onGenerate={handleGenerate}
     />
   )

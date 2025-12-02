@@ -12,19 +12,22 @@ function createDefaultStringNotes(): StringNoteConfig[] {
   }))
 }
 
-const defaultSettings: Omit<GameConfig, 'selectedNotes'> = {
+const defaultSettings: Omit<GameConfig, 'selectedNotes'> & { autoPlayOnGenerate: boolean } = {
   stringNotes: createDefaultStringNotes(),
   measureCount: 1,
   instrument: 'guitar-classical',
+  autoPlayOnGenerate: true,
 }
 
 interface SettingsStore {
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
   instrument: InstrumentType
+  autoPlayOnGenerate: boolean
   setStringNotes: (stringNotes: StringNoteConfig[]) => void
   setMeasureCount: (measureCount: MeasureCount) => void
   setInstrument: (instrument: InstrumentType) => void
+  setAutoPlayOnGenerate: (autoPlay: boolean) => void
   reset: () => void
 }
 
@@ -34,12 +37,15 @@ export const useSettingsStore = create<SettingsStore>()(
       stringNotes: defaultSettings.stringNotes,
       measureCount: defaultSettings.measureCount,
       instrument: defaultSettings.instrument,
+      autoPlayOnGenerate: defaultSettings.autoPlayOnGenerate,
 
       setStringNotes: (stringNotes) => set({ stringNotes }),
 
       setMeasureCount: (measureCount) => set({ measureCount }),
 
       setInstrument: (instrument) => set({ instrument }),
+
+      setAutoPlayOnGenerate: (autoPlayOnGenerate) => set({ autoPlayOnGenerate }),
 
       reset: () => set(defaultSettings),
     }),
