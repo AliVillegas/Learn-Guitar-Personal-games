@@ -10,6 +10,7 @@ import { Button } from '../components/ui/button'
 import { useGameStore } from '../store/gameStore'
 import { useSettingsStore } from '../store/settingsStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
+import { preloadGuitarSampler } from '../utils/audioEngines'
 import type { MeasureCount } from '../types/music'
 import type { SolfegeNote } from '../types/music'
 import type { NoteDefinition } from '../types/music'
@@ -196,6 +197,19 @@ function isNewSequenceGenerated(
   )
 }
 
+function usePreloadAudioOnGameStart(gamePhase: string) {
+  const hasPreloadedRef = useRef(false)
+
+  useEffect(() => {
+    if (gamePhase === 'playing' && !hasPreloadedRef.current) {
+      hasPreloadedRef.current = true
+      preloadGuitarSampler().catch((error) => {
+        console.error('Error preloading audio:', error)
+      })
+    }
+  }, [gamePhase])
+}
+
 function usePlayAllOnGameStart(
   game: ReturnType<typeof useGameStore>,
   handlers: ReturnType<typeof useAppHandlers>,
@@ -239,6 +253,7 @@ export function GamePage() {
     }
   }, [game.phase, navigate])
 
+  usePreloadAudioOnGameStart(game.phase)
   usePlayAllOnGameStart(game, handlers, autoPlayOnGenerate)
 
   if (game.phase === 'complete') {
