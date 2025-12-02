@@ -83,7 +83,7 @@ describe('createAnswerHandler', () => {
     expect(audio.playNote).not.toHaveBeenCalled()
   })
 
-  it('sets correct feedback, plays note, plays success sound, and submits answer for correct answer', () => {
+  it('sets correct feedback, plays success sound, and submits answer for correct answer', () => {
     const game = useGameStore.getState()
     const audio = {
       playNote: vi.fn().mockResolvedValue(undefined),
@@ -98,7 +98,7 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('mi', 3))
+    expect(audio.playNote).not.toHaveBeenCalled()
     expect(audio.playSuccessSound).toHaveBeenCalled()
     expect(audio.playErrorSound).not.toHaveBeenCalled()
   })
@@ -130,7 +130,7 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('mi', 3))
+    expect(audio.playNote).not.toHaveBeenCalled()
     expect(audio.playSuccessSound).toHaveBeenCalled()
   })
 
