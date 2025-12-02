@@ -112,14 +112,15 @@ function renderCompletePhase(
 function renderGameButtons(
   navigate: (path: string) => void,
   onRegenerate: () => void,
-  t: (key: string) => string
+  t: (key: string) => string,
+  isPlaying: boolean
 ) {
   return (
     <div className="flex justify-between items-center">
-      <Button onClick={() => navigate('/config')} variant="ghost">
+      <Button onClick={() => navigate('/config')} variant="ghost" disabled={isPlaying}>
         {t('game.backToConfig')}
       </Button>
-      <Button onClick={onRegenerate} variant="secondary">
+      <Button onClick={onRegenerate} variant="secondary" disabled={isPlaying}>
         {t('game.regenerate')}
       </Button>
     </div>
@@ -176,7 +177,7 @@ function renderPlayingPhase(
 
   return (
     <div className="space-y-6">
-      {renderGameButtons(navigate, handleRegenerate, t)}
+      {renderGameButtons(navigate, handleRegenerate, t, handlers.audio.isPlaying)}
       {renderGameContent(game, handlers, highlightIndex, noteDefinitions)}
     </div>
   )
