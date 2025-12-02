@@ -16,6 +16,7 @@ interface UseAudioReturn {
   getCurrentTime: () => number
   playSequence: (notes: NoteDefinition[], bpm?: number, startIndex?: number) => Promise<void>
   playErrorSound: () => void
+  playSuccessSound: () => void
   isPlaying: boolean
   playingIndex: number | null
 }
@@ -104,6 +105,22 @@ function createErrorSound(ctx: AudioContext): void {
 
   osc.start(ctx.currentTime)
   osc.stop(ctx.currentTime + 0.1)
+}
+
+function createSuccessSound(ctx: AudioContext): void {
+  const osc = ctx.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.value = 880
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.15, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15)
+
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+
+  osc.start(ctx.currentTime)
+  osc.stop(ctx.currentTime + 0.15)
 }
 
 function isGuitarInstrument(instrument: InstrumentType): boolean {
@@ -214,18 +231,15 @@ async function playSequenceImpl(
   handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
 }
 
-export function useAudio(): UseAudioReturn {
+function useAudioContext() {
   const ctxRef = useRef<AudioContext | null>(null)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const noteTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([])
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null)
-  const instrument = useGameStore((state) => state.config.instrument)
-  const getContext = useCallback((): AudioContext => {
+  return useCallback((): AudioContext => {
     if (!ctxRef.current) ctxRef.current = createAudioContext()
     return ctxRef.current
   }, [])
+}
 
+function useAudioCallbacks(getContext: () => AudioContext, instrument: InstrumentType) {
   const playNote = useCallback(
     (note: NoteDefinition) => playNoteImpl(getContext(), note, instrument),
     [getContext, instrument]
@@ -236,6 +250,27 @@ export function useAudio(): UseAudioReturn {
     [getContext, instrument]
   )
   const getCurrentTime = useCallback(() => getContext().currentTime, [getContext])
+  const playErrorSound = useCallback(
+    () => ensureContextResumed(getContext()).then(() => createErrorSound(getContext())),
+    [getContext]
+  )
+  const playSuccessSound = useCallback(
+    () => ensureContextResumed(getContext()).then(() => createSuccessSound(getContext())),
+    [getContext]
+  )
+  return { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound }
+}
+
+export function useAudio(): UseAudioReturn {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const noteTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([])
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null)
+  const instrument = useGameStore((state) => state.config.instrument)
+  const getContext = useAudioContext()
+  const { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound } =
+    useAudioCallbacks(getContext, instrument)
+
   const playSequence = useCallback(
     (notes: NoteDefinition[], bpm = DEFAULT_BPM, startIndex = 0) =>
       playSequenceImpl(
@@ -251,10 +286,6 @@ export function useAudio(): UseAudioReturn {
       ),
     [getContext, instrument]
   )
-  const playErrorSound = useCallback(
-    () => ensureContextResumed(getContext()).then(() => createErrorSound(getContext())),
-    [getContext]
-  )
 
   return {
     playNote,
@@ -262,6 +293,7 @@ export function useAudio(): UseAudioReturn {
     getCurrentTime,
     playSequence,
     playErrorSound,
+    playSuccessSound,
     isPlaying,
     playingIndex,
   }

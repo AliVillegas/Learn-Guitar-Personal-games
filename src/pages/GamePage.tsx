@@ -241,22 +241,34 @@ function playFirstNoteOnGeneration(
   return handleSequenceGeneration(game, handlers, previousSequenceLengthRef)
 }
 
+const NEXT_NOTE_DELAY_MS = 500
+
+function playDelayedNote(audio: ReturnType<typeof useAppHandlers>['audio'], note: NoteDefinition) {
+  audio.playNote(note).catch((error) => {
+    console.error('Error playing highlighted note:', error)
+  })
+}
+
 function useNotePlaybackOnNextHighlight(
   game: ReturnType<typeof useGameStore>,
   handlers: ReturnType<typeof useAppHandlers>,
   previousIndexRef: React.MutableRefObject<number | null>
 ) {
   useEffect(() => {
-    if (
+    const shouldPlayNextNote =
       game.phase === 'playing' &&
       previousIndexRef.current !== null &&
       previousIndexRef.current < game.currentIndex
-    ) {
+
+    if (shouldPlayNextNote) {
       const currentNote = game.sequence[game.currentIndex]
       if (currentNote) {
-        handlers.audio.playNote(currentNote.note).catch((error) => {
-          console.error('Error playing highlighted note:', error)
-        })
+        const timeoutId = setTimeout(
+          () => playDelayedNote(handlers.audio, currentNote.note),
+          NEXT_NOTE_DELAY_MS
+        )
+        previousIndexRef.current = game.currentIndex
+        return () => clearTimeout(timeoutId)
       }
     }
     previousIndexRef.current = game.currentIndex

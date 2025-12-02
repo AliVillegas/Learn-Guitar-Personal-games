@@ -9,6 +9,7 @@ vi.mock('./useAudio', () => ({
     playNoteAtTime: vi.fn().mockResolvedValue(undefined),
     getCurrentTime: vi.fn().mockReturnValue(0),
     playErrorSound: vi.fn(),
+    playSuccessSound: vi.fn(),
     playSequence: vi.fn(),
     isPlaying: false,
     playingIndex: null,
@@ -53,13 +54,14 @@ describe('createAnswerHandler', () => {
       playNoteAtTime: vi.fn(),
       getCurrentTime: vi.fn(),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
 
     handler('mi')
 
-    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
+    expect(audio.playNote).not.toHaveBeenCalled()
     expect(feedback.setFeedback).not.toHaveBeenCalled()
   })
 
@@ -71,22 +73,24 @@ describe('createAnswerHandler', () => {
       playNoteAtTime: vi.fn(),
       getCurrentTime: vi.fn(),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
 
     handler('mi')
 
-    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
+    expect(audio.playNote).not.toHaveBeenCalled()
   })
 
-  it('sets correct feedback and submits answer for correct answer', () => {
+  it('sets correct feedback, plays note, plays success sound, and submits answer for correct answer', () => {
     const game = useGameStore.getState()
     const audio = {
       playNote: vi.fn().mockResolvedValue(undefined),
       playNoteAtTime: vi.fn().mockResolvedValue(undefined),
       getCurrentTime: vi.fn().mockReturnValue(0),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
@@ -94,7 +98,8 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
+    expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('mi', 3))
+    expect(audio.playSuccessSound).toHaveBeenCalled()
     expect(audio.playErrorSound).not.toHaveBeenCalled()
   })
 
@@ -117,6 +122,7 @@ describe('createAnswerHandler', () => {
       playNoteAtTime: vi.fn().mockResolvedValue(undefined),
       getCurrentTime: vi.fn().mockReturnValue(0),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
@@ -124,12 +130,17 @@ describe('createAnswerHandler', () => {
     handler('mi')
 
     expect(feedback.setFeedback).toHaveBeenCalledWith('mi', 'correct')
-    expect(audio.playNoteAtTime).not.toHaveBeenCalled()
+    expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('mi', 3))
+    expect(audio.playSuccessSound).toHaveBeenCalled()
   })
 
   it('plays note and sets incorrect feedback for wrong answer', () => {
     const game = useGameStore.getState()
-    const audio = { playNote: vi.fn().mockResolvedValue(undefined), playErrorSound: vi.fn() }
+    const audio = {
+      playNote: vi.fn().mockResolvedValue(undefined),
+      playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
+    }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
 
@@ -138,6 +149,7 @@ describe('createAnswerHandler', () => {
     expect(audio.playNote).toHaveBeenCalledWith(createNoteDefinition('mi', 3))
     expect(feedback.setFeedback).toHaveBeenCalledWith('fa', 'incorrect')
     expect(audio.playErrorSound).toHaveBeenCalled()
+    expect(audio.playSuccessSound).not.toHaveBeenCalled()
   })
 
   it('submits answer to game store', () => {
@@ -148,6 +160,7 @@ describe('createAnswerHandler', () => {
       playNoteAtTime: vi.fn().mockResolvedValue(undefined),
       getCurrentTime: vi.fn().mockReturnValue(0),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const handler = createAnswerHandler(game, audio as any, feedback as any)
@@ -162,6 +175,7 @@ describe('createAnswerHandler', () => {
     const audio = {
       playNote: vi.fn().mockRejectedValue(new Error('Audio error')),
       playErrorSound: vi.fn(),
+      playSuccessSound: vi.fn(),
     }
     const feedback = { setFeedback: vi.fn() }
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
