@@ -33,7 +33,9 @@
     "incorrect": "Intenta de nuevo",
     "score": "Puntuación: {{correct}}/{{total}}",
     "backToConfig": "Volver a Configuración",
-    "regenerate": "Regenerar"
+    "regenerate": "Regenerar",
+    "bpmLabel": "BPM",
+    "speedSettings": "Ajustes de velocidad"
   },
   "result": {
     "complete": "¡Ronda Completa!",

@@ -15,6 +15,8 @@ describe('useSettingsStore', () => {
       ],
       measureCount: 1,
       instrument: 'guitar-classical',
+      autoPlayOnGenerate: true,
+      playbackBpm: 120,
     })
   })
 
@@ -24,6 +26,7 @@ describe('useSettingsStore', () => {
     expect(store.stringNotes).toBeDefined()
     expect(store.measureCount).toBe(1)
     expect(store.instrument).toBe('guitar-classical')
+    expect(store.playbackBpm).toBe(120)
   })
 
   it('sets string notes', () => {
@@ -48,14 +51,22 @@ describe('useSettingsStore', () => {
     expect(useSettingsStore.getState().instrument).toBe('midi')
   })
 
+  it('sets playback BPM', () => {
+    useSettingsStore.getState().setPlaybackBpm(80)
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(80)
+  })
+
   it('resets to default settings', () => {
     useSettingsStore.getState().setMeasureCount(3)
     useSettingsStore.getState().setInstrument('midi')
+    useSettingsStore.getState().setPlaybackBpm(60)
 
     useSettingsStore.getState().reset()
 
     expect(useSettingsStore.getState().measureCount).toBe(1)
     expect(useSettingsStore.getState().instrument).toBe('guitar-classical')
+    expect(useSettingsStore.getState().playbackBpm).toBe(120)
   })
 
   it('persists settings to localStorage', () => {
@@ -66,6 +77,7 @@ describe('useSettingsStore', () => {
     useSettingsStore.getState().setStringNotes(newStringNotes)
     useSettingsStore.getState().setMeasureCount(2)
     useSettingsStore.getState().setInstrument('midi')
+    useSettingsStore.getState().setPlaybackBpm(90)
 
     const stored = localStorage.getItem('guitar-sight-reading-settings')
     expect(stored).toBeTruthy()
@@ -75,6 +87,7 @@ describe('useSettingsStore', () => {
       expect(parsed.state.stringNotes).toEqual(newStringNotes)
       expect(parsed.state.measureCount).toBe(2)
       expect(parsed.state.instrument).toBe('midi')
+      expect(parsed.state.playbackBpm).toBe(90)
     }
   })
 

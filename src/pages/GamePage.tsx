@@ -6,6 +6,7 @@ import { PlaybackControls } from '../components/PlaybackControls/PlaybackControl
 import { AnswerSection } from '../components/PlayPanel/AnswerSection'
 import { ScoreDisplay } from '../components/ScoreDisplay/ScoreDisplay'
 import { ResultPanel } from '../components/ResultPanel/ResultPanel'
+import { BpmControl } from '../components/BpmControl/BpmControl'
 import { Button } from '../components/ui/button'
 import { useGameStore } from '../store/gameStore'
 import { useSettingsStore } from '../store/settingsStore'
@@ -79,7 +80,12 @@ function renderStaffSection(
   measureCount: MeasureCount,
   highlightIndex: number
 ) {
-  return <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
+  return (
+    <div className="space-y-2">
+      <BpmControl />
+      <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
+    </div>
+  )
 }
 
 function renderScoreSection(notes: ReturnType<typeof useGameStore>['sequence']) {

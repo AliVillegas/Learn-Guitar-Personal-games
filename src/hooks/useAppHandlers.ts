@@ -58,7 +58,8 @@ function createPlayAllHandler(audio: ReturnType<typeof useAudio>) {
   return () => {
     const sequence = useGameStore.getState().sequence
     const noteDefinitions = sequence.map((gn) => gn.note)
-    audio.playSequence(noteDefinitions)
+    const bpm = useSettingsStore.getState().playbackBpm
+    audio.playSequence(noteDefinitions, bpm)
   }
 }
 
@@ -83,7 +84,8 @@ function createPlayMeasureHandler(audio: ReturnType<typeof useAudio>) {
     const startIndex = measureIndex * notesPerMeasure
     const endIndex = startIndex + notesPerMeasure
     const measureNotes = state.sequence.slice(startIndex, endIndex).map((gn) => gn.note)
-    audio.playSequence(measureNotes, undefined, startIndex)
+    const bpm = useSettingsStore.getState().playbackBpm
+    audio.playSequence(measureNotes, bpm, startIndex)
   }
 }
 
