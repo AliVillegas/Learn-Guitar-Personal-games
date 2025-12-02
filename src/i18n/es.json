@@ -35,7 +35,8 @@
     "backToConfig": "Volver a Configuración",
     "regenerate": "Regenerar",
     "bpmLabel": "BPM",
-    "speedSettings": "Ajustes de velocidad"
+    "speedSettings": "Ajustes de velocidad",
+    "metronome": "Metrónomo"
   },
   "result": {
     "complete": "¡Ronda Completa!",

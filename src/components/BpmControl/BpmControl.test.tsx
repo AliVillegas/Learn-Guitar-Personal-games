@@ -8,6 +8,7 @@ describe('BpmControl', () => {
   beforeEach(() => {
     useSettingsStore.setState({
       playbackBpm: 120,
+      metronomeEnabled: false,
     })
   })
 
@@ -152,5 +153,58 @@ describe('BpmControl', () => {
     await user.type(bpmInput, '90{Enter}')
 
     expect(useSettingsStore.getState().playbackBpm).toBe(90)
+  })
+
+  it('shows metronome toggle when settings panel is open', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    expect(screen.getByRole('checkbox', { name: /metronome/i })).toBeInTheDocument()
+    expect(screen.getByText('Metronome')).toBeInTheDocument()
+  })
+
+  it('metronome toggle is unchecked by default', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const metronomeCheckbox = screen.getByRole('checkbox', { name: /metronome/i })
+    expect(metronomeCheckbox).not.toBeChecked()
+  })
+
+  it('toggles metronome setting when checkbox is clicked', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const metronomeCheckbox = screen.getByRole('checkbox', { name: /metronome/i })
+    await user.click(metronomeCheckbox)
+
+    expect(useSettingsStore.getState().metronomeEnabled).toBe(true)
+    expect(metronomeCheckbox).toBeChecked()
+  })
+
+  it('can toggle metronome off after enabling', async () => {
+    useSettingsStore.setState({ metronomeEnabled: true })
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const metronomeCheckbox = screen.getByRole('checkbox', { name: /metronome/i })
+    expect(metronomeCheckbox).toBeChecked()
+
+    await user.click(metronomeCheckbox)
+
+    expect(useSettingsStore.getState().metronomeEnabled).toBe(false)
+    expect(metronomeCheckbox).not.toBeChecked()
   })
 })

@@ -9,6 +9,7 @@ import {
 } from '../utils/audioEngines'
 import { getGuitarSoundingFrequency } from '../utils/notes'
 import { useGameStore } from '../store/gameStore'
+import { useSettingsStore } from '../store/settingsStore'
 
 interface UseAudioReturn {
   playNote: (note: NoteDefinition) => Promise<void>
@@ -61,7 +62,8 @@ async function scheduleSequence(
   bpm: number,
   instrument: InstrumentType,
   onNoteStart: (index: number) => void,
-  timeoutIds: ReturnType<typeof setTimeout>[]
+  timeoutIds: ReturnType<typeof setTimeout>[],
+  metronomeEnabled: boolean
 ): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
@@ -82,6 +84,10 @@ async function scheduleSequence(
       Math.max(10, delayMs)
     )
     timeoutIds.push(timeoutId)
+
+    if (metronomeEnabled) {
+      scheduleMetronomeClick(ctx, startTime)
+    }
 
     return scheduleNote(ctx, note, startTime, instrument)
   })
@@ -121,6 +127,22 @@ function createSuccessSound(ctx: AudioContext): void {
 
   osc.start(ctx.currentTime)
   osc.stop(ctx.currentTime + 0.15)
+}
+
+function scheduleMetronomeClick(ctx: AudioContext, startTime: number): void {
+  const osc = ctx.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.value = 1000
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.08, startTime)
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.03)
+
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+
+  osc.start(startTime)
+  osc.stop(startTime + 0.03)
 }
 
 function isGuitarInstrument(instrument: InstrumentType): boolean {
@@ -213,7 +235,8 @@ async function playSequenceImpl(
   noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
   timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
   setPlayingIndex: (index: number | null) => void,
-  setIsPlaying: (playing: boolean) => void
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean
 ): Promise<void> {
   clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
   await cleanupGuitarInstrument(instrument)
@@ -225,7 +248,8 @@ async function playSequenceImpl(
     bpm,
     instrument,
     onNoteStart,
-    noteTimeoutRefs.current
+    noteTimeoutRefs.current,
+    metronomeEnabled
   )
   setPlayingIndex(startIndex)
   handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
@@ -267,6 +291,7 @@ export function useAudio(): UseAudioReturn {
   const [isPlaying, setIsPlaying] = useState(false)
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
   const instrument = useGameStore((state) => state.config.instrument)
+  const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
   const getContext = useAudioContext()
   const { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound } =
     useAudioCallbacks(getContext, instrument)
@@ -282,9 +307,10 @@ export function useAudio(): UseAudioReturn {
         noteTimeoutRefs,
         timeoutRef,
         setPlayingIndex,
-        setIsPlaying
+        setIsPlaying,
+        metronomeEnabled
       ),
-    [getContext, instrument]
+    [getContext, instrument, metronomeEnabled]
   )
 
   return {

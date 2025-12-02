@@ -149,7 +149,7 @@ function RangeSlider({ value, onChange }: { value: number; onChange: (v: number)
 function BpmSlider({ value, onChange, label }: BpmSliderProps) {
   const state = useBpmInputState(value, onChange)
   return (
-    <div className="flex items-center gap-3 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-lg shadow-md border border-border/50">
+    <div className="flex items-center gap-3">
       <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">{label}</label>
       <RangeSlider value={value} onChange={state.handleSliderChange} />
       <BpmInput
@@ -162,27 +162,97 @@ function BpmSlider({ value, onChange, label }: BpmSliderProps) {
   )
 }
 
+function MetronomeToggle({
+  enabled,
+  onChange,
+  label,
+}: {
+  enabled: boolean
+  onChange: (v: boolean) => void
+  label: string
+}) {
+  return (
+    <label className="flex items-center gap-2 cursor-pointer select-none">
+      <input
+        type="checkbox"
+        checked={enabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
+        aria-label={label}
+      />
+      <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{label}</span>
+    </label>
+  )
+}
+
+function SettingsPanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-4 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-lg shadow-md border border-border/50">
+      {children}
+    </div>
+  )
+}
+
+function getCogButtonClassName(isOpen: boolean): string {
+  const baseClasses = 'p-2 rounded-full transition-all duration-200 hover:bg-muted'
+  const openClasses = 'bg-primary text-primary-foreground rotate-90'
+  const closedClasses = 'text-muted-foreground'
+  return `${baseClasses} ${isOpen ? openClasses : closedClasses}`
+}
+
+function CogButton({
+  isOpen,
+  onClick,
+  label,
+}: {
+  isOpen: boolean
+  onClick: () => void
+  label: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={getCogButtonClassName(isOpen)}
+      aria-label={label}
+    >
+      <CogIcon className="w-5 h-5" />
+    </button>
+  )
+}
+
+function usePlaybackSettings() {
+  const playbackBpm = useSettingsStore((state) => state.playbackBpm)
+  const setPlaybackBpm = useSettingsStore((state) => state.setPlaybackBpm)
+  const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
+  const setMetronomeEnabled = useSettingsStore((state) => state.setMetronomeEnabled)
+  return { playbackBpm, setPlaybackBpm, metronomeEnabled, setMetronomeEnabled }
+}
+
 export function BpmControl() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const playbackBpm = useSettingsStore((state) => state.playbackBpm)
-  const setPlaybackBpm = useSettingsStore((state) => state.setPlaybackBpm)
+  const { playbackBpm, setPlaybackBpm, metronomeEnabled, setMetronomeEnabled } =
+    usePlaybackSettings()
 
   return (
     <div className="flex items-center justify-end gap-3">
       {isOpen && (
-        <BpmSlider value={playbackBpm} onChange={setPlaybackBpm} label={t('game.bpmLabel')} />
+        <SettingsPanel>
+          <BpmSlider value={playbackBpm} onChange={setPlaybackBpm} label={t('game.bpmLabel')} />
+          <div className="w-px h-6 bg-border" />
+          <MetronomeToggle
+            enabled={metronomeEnabled}
+            onChange={setMetronomeEnabled}
+            label={t('game.metronome')}
+          />
+        </SettingsPanel>
       )}
-      <button
-        type="button"
+      <CogButton
+        isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-2 rounded-full transition-all duration-200 hover:bg-muted ${
-          isOpen ? 'bg-primary text-primary-foreground rotate-90' : 'text-muted-foreground'
-        }`}
-        aria-label={t('game.speedSettings')}
-      >
-        <CogIcon className="w-5 h-5" />
-      </button>
+        label={t('game.speedSettings')}
+      />
     </div>
   )
 }

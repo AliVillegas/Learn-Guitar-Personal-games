@@ -35,7 +35,8 @@
     "backToConfig": "Back to Config",
     "regenerate": "Regenerate",
     "bpmLabel": "BPM",
-    "speedSettings": "Speed settings"
+    "speedSettings": "Speed settings",
+    "metronome": "Metronome"
   },
   "result": {
     "complete": "Round Complete!",
