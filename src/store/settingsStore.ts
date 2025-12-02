@@ -5,6 +5,8 @@ import type { InstrumentType } from '../types/audio'
 import type { MeasureCount } from '../types/music'
 import { getAllGuitarStrings, getNotesForString } from '../utils/notes'
 
+export type MetronomeSubdivision = 1 | 2 | 4
+
 function createDefaultStringNotes(): StringNoteConfig[] {
   return getAllGuitarStrings().map((string) => ({
     string,
@@ -16,6 +18,7 @@ const defaultSettings: Omit<GameConfig, 'selectedNotes'> & {
   autoPlayOnGenerate: boolean
   playbackBpm: number
   metronomeEnabled: boolean
+  metronomeSubdivision: MetronomeSubdivision
 } = {
   stringNotes: createDefaultStringNotes(),
   measureCount: 1,
@@ -23,6 +26,7 @@ const defaultSettings: Omit<GameConfig, 'selectedNotes'> & {
   autoPlayOnGenerate: true,
   playbackBpm: 120,
   metronomeEnabled: false,
+  metronomeSubdivision: 1,
 }
 
 interface SettingsStore {
@@ -32,12 +36,14 @@ interface SettingsStore {
   autoPlayOnGenerate: boolean
   playbackBpm: number
   metronomeEnabled: boolean
+  metronomeSubdivision: MetronomeSubdivision
   setStringNotes: (stringNotes: StringNoteConfig[]) => void
   setMeasureCount: (measureCount: MeasureCount) => void
   setInstrument: (instrument: InstrumentType) => void
   setAutoPlayOnGenerate: (autoPlay: boolean) => void
   setPlaybackBpm: (bpm: number) => void
   setMetronomeEnabled: (enabled: boolean) => void
+  setMetronomeSubdivision: (subdivision: MetronomeSubdivision) => void
   reset: () => void
 }
 
@@ -50,6 +56,7 @@ export const useSettingsStore = create<SettingsStore>()(
       autoPlayOnGenerate: defaultSettings.autoPlayOnGenerate,
       playbackBpm: defaultSettings.playbackBpm,
       metronomeEnabled: defaultSettings.metronomeEnabled,
+      metronomeSubdivision: defaultSettings.metronomeSubdivision,
 
       setStringNotes: (stringNotes) => set({ stringNotes }),
 
@@ -62,6 +69,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setPlaybackBpm: (playbackBpm) => set({ playbackBpm }),
 
       setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
+
+      setMetronomeSubdivision: (metronomeSubdivision) => set({ metronomeSubdivision }),
 
       reset: () => set(defaultSettings),
     }),

@@ -2,54 +2,71 @@
   "app": {
     "title": "Lectura a Primera Vista - Primera Posición"
   },
-  "notes": {
-    "do": "Do",
-    "re": "Re",
-    "mi": "Mi",
-    "fa": "Fa",
-    "sol": "Sol",
-    "la": "La",
-    "si": "Si"
-  },
   "config": {
-    "selectStringNotes": "Selecciona las notas para cada cuerda",
-    "measures": "Compases",
+    "autoPlayOnGenerate": "Reproducir secuencia al iniciar",
+    "generate": "Generar",
     "instrument": "Sonido",
     "instruments": {
-      "midi": "MIDI",
+      "guitarClassical": "Guitarra (Clásica)",
       "guitarSynth": "Guitarra (Sintetizador)",
-      "guitarClassical": "Guitarra (Clásica)"
+      "midi": "MIDI"
     },
+    "measures": "Compases",
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
-    "autoPlayOnGenerate": "Reproducir secuencia al iniciar",
-    "generate": "Generar"
+    "selectStringNotes": "Selecciona las notas para cada cuerda"
+  },
+  "debug": {
+    "allNotesDisplay": "Todas las Notas Combinadas",
+    "backToConfig": "Volver a Configuración",
+    "frequency": "Frecuencia",
+    "instrument": "Instrumento Actual",
+    "noteTesting": "Probar Notas Individuales",
+    "octave": "Octava",
+    "octaveDisplay": "Notas por Octava",
+    "play": "Reproducir",
+    "sounding": "Sonando",
+    "staffDisplay": "Todas las Notas en el Pentagrama",
+    "title": "Depuración - Prueba de Notas",
+    "written": "Escrita"
   },
   "game": {
+    "backToConfig": "Volver a Configuración",
+    "bpmLabel": "BPM",
+    "correct": "¡Correcto!",
+    "identifyNote": "Identifica la nota resaltada",
+    "incorrect": "Intenta de nuevo",
+    "metronome": "Metrónomo",
     "playAll": "Reproducir Todo",
     "playCurrentNote": "Reproducir Nota Actual",
     "playMeasure": "Reproducir Compás {{number}}",
-    "identifyNote": "Identifica la nota resaltada",
-    "correct": "¡Correcto!",
-    "incorrect": "Intenta de nuevo",
-    "score": "Puntuación: {{correct}}/{{total}}",
-    "backToConfig": "Volver a Configuración",
     "regenerate": "Regenerar",
-    "bpmLabel": "BPM",
+    "score": "Puntuación: {{correct}}/{{total}}",
     "speedSettings": "Ajustes de velocidad",
-    "metronome": "Metrónomo"
+    "subdivision": "Subdivisión",
+    "subdivisionEighth": "♪",
+    "subdivisionQuarter": "♩",
+    "subdivisionSixteenth": "♬"
+  },
+  "language": {
+    "label": "Idioma",
+    "switch": "English"
+  },
+  "notes": {
+    "do": "Do",
+    "fa": "Fa",
+    "la": "La",
+    "mi": "Mi",
+    "re": "Re",
+    "si": "Si",
+    "sol": "Sol"
   },
   "result": {
     "complete": "¡Ronda Completa!",
     "finalScore": "Puntuación Final: {{correct}} de {{total}}",
-    "playAgain": "Jugar de Nuevo",
-    "goToConfig": "Ir a Configuración"
-  },
-  "language": {
-    "switch": "English",
-    "label": "Idioma"
+    "goToConfig": "Ir a Configuración",
+    "playAgain": "Jugar de Nuevo"
   },
   "strings": {
-    "string": "Cuerda",
     "ordinal": {
       "1": "1ra",
       "2": "2da",
@@ -57,20 +74,7 @@
       "4": "4ta",
       "5": "5ta",
       "6": "6ta"
-    }
-  },
-  "debug": {
-    "title": "Depuración - Prueba de Notas",
-    "backToConfig": "Volver a Configuración",
-    "staffDisplay": "Todas las Notas en el Pentagrama",
-    "allNotesDisplay": "Todas las Notas Combinadas",
-    "octaveDisplay": "Notas por Octava",
-    "octave": "Octava",
-    "written": "Escrita",
-    "noteTesting": "Probar Notas Individuales",
-    "instrument": "Instrumento Actual",
-    "play": "Reproducir",
-    "frequency": "Frecuencia",
-    "sounding": "Sonando"
+    },
+    "string": "Cuerda"
   }
 }

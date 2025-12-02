@@ -9,7 +9,7 @@ import {
 } from '../utils/audioEngines'
 import { getGuitarSoundingFrequency } from '../utils/notes'
 import { useGameStore } from '../store/gameStore'
-import { useSettingsStore } from '../store/settingsStore'
+import { useSettingsStore, type MetronomeSubdivision } from '../store/settingsStore'
 
 interface UseAudioReturn {
   playNote: (note: NoteDefinition) => Promise<void>
@@ -63,7 +63,8 @@ async function scheduleSequence(
   instrument: InstrumentType,
   onNoteStart: (index: number) => void,
   timeoutIds: ReturnType<typeof setTimeout>[],
-  metronomeEnabled: boolean
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
 ): Promise<number> {
   const noteDuration = 60 / bpm
   const now = ctx.currentTime
@@ -86,7 +87,7 @@ async function scheduleSequence(
     timeoutIds.push(timeoutId)
 
     if (metronomeEnabled) {
-      scheduleMetronomeClick(ctx, startTime)
+      scheduleSubdividedClicks(ctx, startTime, noteDuration, metronomeSubdivision)
     }
 
     return scheduleNote(ctx, note, startTime, instrument)
@@ -129,13 +130,14 @@ function createSuccessSound(ctx: AudioContext): void {
   osc.stop(ctx.currentTime + 0.15)
 }
 
-function scheduleMetronomeClick(ctx: AudioContext, startTime: number): void {
+function scheduleMetronomeClick(ctx: AudioContext, startTime: number, isAccent: boolean): void {
   const osc = ctx.createOscillator()
   osc.type = 'sine'
-  osc.frequency.value = 1000
+  osc.frequency.value = isAccent ? 1200 : 800
 
   const gain = ctx.createGain()
-  gain.gain.setValueAtTime(0.08, startTime)
+  const volume = isAccent ? 0.1 : 0.06
+  gain.gain.setValueAtTime(volume, startTime)
   gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.03)
 
   osc.connect(gain)
@@ -143,6 +145,20 @@ function scheduleMetronomeClick(ctx: AudioContext, startTime: number): void {
 
   osc.start(startTime)
   osc.stop(startTime + 0.03)
+}
+
+function scheduleSubdividedClicks(
+  ctx: AudioContext,
+  noteStartTime: number,
+  noteDuration: number,
+  subdivision: MetronomeSubdivision
+): void {
+  const subdivisionDuration = noteDuration / subdivision
+  for (let i = 0; i < subdivision; i++) {
+    const clickTime = noteStartTime + i * subdivisionDuration
+    const isAccent = i === 0
+    scheduleMetronomeClick(ctx, clickTime, isAccent)
+  }
 }
 
 function isGuitarInstrument(instrument: InstrumentType): boolean {
@@ -236,7 +252,8 @@ async function playSequenceImpl(
   timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
   setPlayingIndex: (index: number | null) => void,
   setIsPlaying: (playing: boolean) => void,
-  metronomeEnabled: boolean
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
 ): Promise<void> {
   clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
   await cleanupGuitarInstrument(instrument)
@@ -249,7 +266,8 @@ async function playSequenceImpl(
     instrument,
     onNoteStart,
     noteTimeoutRefs.current,
-    metronomeEnabled
+    metronomeEnabled,
+    metronomeSubdivision
   )
   setPlayingIndex(startIndex)
   handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
@@ -292,6 +310,7 @@ export function useAudio(): UseAudioReturn {
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
   const instrument = useGameStore((state) => state.config.instrument)
   const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
+  const metronomeSubdivision = useSettingsStore((state) => state.metronomeSubdivision)
   const getContext = useAudioContext()
   const { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound } =
     useAudioCallbacks(getContext, instrument)
@@ -308,9 +327,10 @@ export function useAudio(): UseAudioReturn {
         timeoutRef,
         setPlayingIndex,
         setIsPlaying,
-        metronomeEnabled
+        metronomeEnabled,
+        metronomeSubdivision
       ),
-    [getContext, instrument, metronomeEnabled]
+    [getContext, instrument, metronomeEnabled, metronomeSubdivision]
   )
 
   return {

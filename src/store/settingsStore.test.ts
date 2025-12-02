@@ -18,6 +18,7 @@ describe('useSettingsStore', () => {
       autoPlayOnGenerate: true,
       playbackBpm: 120,
       metronomeEnabled: false,
+      metronomeSubdivision: 1,
     })
   })
 
@@ -29,6 +30,7 @@ describe('useSettingsStore', () => {
     expect(store.instrument).toBe('guitar-classical')
     expect(store.playbackBpm).toBe(120)
     expect(store.metronomeEnabled).toBe(false)
+    expect(store.metronomeSubdivision).toBe(1)
   })
 
   it('sets string notes', () => {
@@ -65,11 +67,18 @@ describe('useSettingsStore', () => {
     expect(useSettingsStore.getState().metronomeEnabled).toBe(true)
   })
 
+  it('sets metronome subdivision', () => {
+    useSettingsStore.getState().setMetronomeSubdivision(4)
+
+    expect(useSettingsStore.getState().metronomeSubdivision).toBe(4)
+  })
+
   it('resets to default settings', () => {
     useSettingsStore.getState().setMeasureCount(3)
     useSettingsStore.getState().setInstrument('midi')
     useSettingsStore.getState().setPlaybackBpm(60)
     useSettingsStore.getState().setMetronomeEnabled(true)
+    useSettingsStore.getState().setMetronomeSubdivision(4)
 
     useSettingsStore.getState().reset()
 
@@ -77,6 +86,7 @@ describe('useSettingsStore', () => {
     expect(useSettingsStore.getState().instrument).toBe('guitar-classical')
     expect(useSettingsStore.getState().playbackBpm).toBe(120)
     expect(useSettingsStore.getState().metronomeEnabled).toBe(false)
+    expect(useSettingsStore.getState().metronomeSubdivision).toBe(1)
   })
 
   it('persists settings to localStorage', () => {

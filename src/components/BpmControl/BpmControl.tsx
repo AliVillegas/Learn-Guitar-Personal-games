@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { useSettingsStore } from '../../store/settingsStore'
+import { useSettingsStore, type MetronomeSubdivision } from '../../store/settingsStore'
 
 const MIN_BPM = 20
 const MAX_BPM = 200
@@ -185,6 +185,53 @@ function MetronomeToggle({
   )
 }
 
+const SUBDIVISION_OPTIONS: MetronomeSubdivision[] = [1, 2, 4]
+
+function getSubdivisionLabel(
+  subdivision: MetronomeSubdivision,
+  t: (key: string) => string
+): string {
+  const labels: Record<MetronomeSubdivision, string> = {
+    1: t('game.subdivisionQuarter'),
+    2: t('game.subdivisionEighth'),
+    4: t('game.subdivisionSixteenth'),
+  }
+  return labels[subdivision]
+}
+
+function getSubdivisionButtonClass(isSelected: boolean): string {
+  const base = 'px-2 py-1 text-xs font-medium rounded transition-colors'
+  return isSelected
+    ? `${base} bg-primary text-primary-foreground`
+    : `${base} bg-muted text-muted-foreground hover:bg-muted/80`
+}
+
+function SubdivisionSelector({
+  value,
+  onChange,
+  t,
+}: {
+  value: MetronomeSubdivision
+  onChange: (v: MetronomeSubdivision) => void
+  t: (key: string) => string
+}) {
+  return (
+    <div className="flex gap-1" role="group" aria-label={t('game.subdivision')}>
+      {SUBDIVISION_OPTIONS.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onChange(opt)}
+          className={getSubdivisionButtonClass(value === opt)}
+          aria-pressed={value === opt}
+        >
+          {getSubdivisionLabel(opt, t)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function SettingsPanel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-4 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-lg shadow-md border border-border/50">
@@ -226,28 +273,78 @@ function usePlaybackSettings() {
   const setPlaybackBpm = useSettingsStore((state) => state.setPlaybackBpm)
   const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
   const setMetronomeEnabled = useSettingsStore((state) => state.setMetronomeEnabled)
-  return { playbackBpm, setPlaybackBpm, metronomeEnabled, setMetronomeEnabled }
+  const metronomeSubdivision = useSettingsStore((state) => state.metronomeSubdivision)
+  const setMetronomeSubdivision = useSettingsStore((state) => state.setMetronomeSubdivision)
+  return {
+    playbackBpm,
+    setPlaybackBpm,
+    metronomeEnabled,
+    setMetronomeEnabled,
+    metronomeSubdivision,
+    setMetronomeSubdivision,
+  }
+}
+
+function Divider() {
+  return <div className="w-px h-6 bg-border" />
+}
+
+function MetronomeSection({
+  settings,
+  t,
+}: {
+  settings: ReturnType<typeof usePlaybackSettings>
+  t: (k: string) => string
+}) {
+  return (
+    <>
+      <MetronomeToggle
+        enabled={settings.metronomeEnabled}
+        onChange={settings.setMetronomeEnabled}
+        label={t('game.metronome')}
+      />
+      {settings.metronomeEnabled && (
+        <>
+          <Divider />
+          <SubdivisionSelector
+            value={settings.metronomeSubdivision}
+            onChange={settings.setMetronomeSubdivision}
+            t={t}
+          />
+        </>
+      )}
+    </>
+  )
+}
+
+function PlaybackSettingsContent({
+  settings,
+  t,
+}: {
+  settings: ReturnType<typeof usePlaybackSettings>
+  t: (k: string) => string
+}) {
+  return (
+    <SettingsPanel>
+      <BpmSlider
+        value={settings.playbackBpm}
+        onChange={settings.setPlaybackBpm}
+        label={t('game.bpmLabel')}
+      />
+      <Divider />
+      <MetronomeSection settings={settings} t={t} />
+    </SettingsPanel>
+  )
 }
 
 export function BpmControl() {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const { playbackBpm, setPlaybackBpm, metronomeEnabled, setMetronomeEnabled } =
-    usePlaybackSettings()
+  const settings = usePlaybackSettings()
 
   return (
     <div className="flex items-center justify-end gap-3">
-      {isOpen && (
-        <SettingsPanel>
-          <BpmSlider value={playbackBpm} onChange={setPlaybackBpm} label={t('game.bpmLabel')} />
-          <div className="w-px h-6 bg-border" />
-          <MetronomeToggle
-            enabled={metronomeEnabled}
-            onChange={setMetronomeEnabled}
-            label={t('game.metronome')}
-          />
-        </SettingsPanel>
-      )}
+      {isOpen && <PlaybackSettingsContent settings={settings} t={t} />}
       <CogButton
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}

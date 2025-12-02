@@ -9,6 +9,7 @@ describe('BpmControl', () => {
     useSettingsStore.setState({
       playbackBpm: 120,
       metronomeEnabled: false,
+      metronomeSubdivision: 1,
     })
   })
 
@@ -206,5 +207,61 @@ describe('BpmControl', () => {
 
     expect(useSettingsStore.getState().metronomeEnabled).toBe(false)
     expect(metronomeCheckbox).not.toBeChecked()
+  })
+
+  it('shows subdivision selector only when metronome is enabled', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    expect(screen.queryByRole('group', { name: /subdivision/i })).not.toBeInTheDocument()
+
+    const metronomeCheckbox = screen.getByRole('checkbox', { name: /metronome/i })
+    await user.click(metronomeCheckbox)
+
+    expect(screen.getByRole('group', { name: /subdivision/i })).toBeInTheDocument()
+  })
+
+  it('shows three subdivision options when metronome is enabled', async () => {
+    useSettingsStore.setState({ metronomeEnabled: true })
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const subdivisionGroup = screen.getByRole('group', { name: /subdivision/i })
+    const buttons = subdivisionGroup.querySelectorAll('button')
+    expect(buttons).toHaveLength(3)
+  })
+
+  it('changes subdivision when option is clicked', async () => {
+    useSettingsStore.setState({ metronomeEnabled: true, metronomeSubdivision: 1 })
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const eighthNoteButton = screen.getByRole('button', { name: '♪' })
+    await user.click(eighthNoteButton)
+
+    expect(useSettingsStore.getState().metronomeSubdivision).toBe(2)
+  })
+
+  it('changes subdivision to sixteenth notes', async () => {
+    useSettingsStore.setState({ metronomeEnabled: true, metronomeSubdivision: 1 })
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const sixteenthNoteButton = screen.getByRole('button', { name: '♬' })
+    await user.click(sixteenthNoteButton)
+
+    expect(useSettingsStore.getState().metronomeSubdivision).toBe(4)
   })
 })

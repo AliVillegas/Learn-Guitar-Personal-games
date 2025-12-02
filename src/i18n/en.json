@@ -2,54 +2,71 @@
   "app": {
     "title": "Guitar Sight Reading - First Position"
   },
-  "notes": {
-    "do": "Do (C)",
-    "re": "Re (D)",
-    "mi": "Mi (E)",
-    "fa": "Fa (F)",
-    "sol": "Sol (G)",
-    "la": "La (A)",
-    "si": "Si (B)"
-  },
   "config": {
-    "selectStringNotes": "Select notes for each string",
-    "measures": "Measures",
+    "autoPlayOnGenerate": "Auto-play sequence on start",
+    "generate": "Generate",
     "instrument": "Sound",
     "instruments": {
-      "midi": "MIDI",
+      "guitarClassical": "Guitar (Classical)",
       "guitarSynth": "Guitar (Synth)",
-      "guitarClassical": "Guitar (Classical)"
+      "midi": "MIDI"
     },
+    "measures": "Measures",
     "minStringNotesWarning": "Select at least one note from any string",
-    "autoPlayOnGenerate": "Auto-play sequence on start",
-    "generate": "Generate"
+    "selectStringNotes": "Select notes for each string"
+  },
+  "debug": {
+    "allNotesDisplay": "All Notes Combined",
+    "backToConfig": "Back to Config",
+    "frequency": "Frequency",
+    "instrument": "Current Instrument",
+    "noteTesting": "Test Individual Notes",
+    "octave": "Octave",
+    "octaveDisplay": "Notes by Octave",
+    "play": "Play",
+    "sounding": "Sounding",
+    "staffDisplay": "All Notes on Staff",
+    "title": "Debug - Note Testing",
+    "written": "Written"
   },
   "game": {
+    "backToConfig": "Back to Config",
+    "bpmLabel": "BPM",
+    "correct": "Correct!",
+    "identifyNote": "Identify the highlighted note",
+    "incorrect": "Try again",
+    "metronome": "Metronome",
     "playAll": "Play All",
     "playCurrentNote": "Play Current Note",
     "playMeasure": "Play Measure {{number}}",
-    "identifyNote": "Identify the highlighted note",
-    "correct": "Correct!",
-    "incorrect": "Try again",
-    "score": "Score: {{correct}}/{{total}}",
-    "backToConfig": "Back to Config",
     "regenerate": "Regenerate",
-    "bpmLabel": "BPM",
+    "score": "Score: {{correct}}/{{total}}",
     "speedSettings": "Speed settings",
-    "metronome": "Metronome"
+    "subdivision": "Subdivision",
+    "subdivisionEighth": "♪",
+    "subdivisionQuarter": "♩",
+    "subdivisionSixteenth": "♬"
+  },
+  "language": {
+    "label": "Language",
+    "switch": "Español"
+  },
+  "notes": {
+    "do": "Do (C)",
+    "fa": "Fa (F)",
+    "la": "La (A)",
+    "mi": "Mi (E)",
+    "re": "Re (D)",
+    "si": "Si (B)",
+    "sol": "Sol (G)"
   },
   "result": {
     "complete": "Round Complete!",
     "finalScore": "Final Score: {{correct}} of {{total}}",
-    "playAgain": "Play Again",
-    "goToConfig": "Go to Config"
-  },
-  "language": {
-    "switch": "Español",
-    "label": "Language"
+    "goToConfig": "Go to Config",
+    "playAgain": "Play Again"
   },
   "strings": {
-    "string": "String",
     "ordinal": {
       "1": "1st",
       "2": "2nd",
@@ -57,20 +74,7 @@
       "4": "4th",
       "5": "5th",
       "6": "6th"
-    }
-  },
-  "debug": {
-    "title": "Debug - Note Testing",
-    "backToConfig": "Back to Config",
-    "staffDisplay": "All Notes on Staff",
-    "allNotesDisplay": "All Notes Combined",
-    "octaveDisplay": "Notes by Octave",
-    "octave": "Octave",
-    "written": "Written",
-    "noteTesting": "Test Individual Notes",
-    "instrument": "Current Instrument",
-    "play": "Play",
-    "frequency": "Frequency",
-    "sounding": "Sounding"
+    },
+    "string": "String"
   }
 }
