@@ -147,6 +147,8 @@ function scheduleMetronomeClick(ctx: AudioContext, startTime: number, isAccent: 
   osc.stop(startTime + 0.03)
 }
 
+const GUITAR_ATTACK_COMPENSATION = 0.08
+
 function scheduleSubdividedClicks(
   ctx: AudioContext,
   noteStartTime: number,
@@ -155,7 +157,7 @@ function scheduleSubdividedClicks(
 ): void {
   const subdivisionDuration = noteDuration / subdivision
   for (let i = 0; i < subdivision; i++) {
-    const clickTime = noteStartTime + i * subdivisionDuration
+    const clickTime = noteStartTime + i * subdivisionDuration + GUITAR_ATTACK_COMPENSATION
     const isAccent = i === 0
     scheduleMetronomeClick(ctx, clickTime, isAccent)
   }

@@ -51,11 +51,13 @@ function BpmInput({
   onInputChange,
   onBlur,
   hasError,
+  disabled,
 }: {
   inputValue: string
   onInputChange: (value: string) => void
   onBlur: () => void
   hasError: boolean
+  disabled?: boolean
 }) {
   return (
     <input
@@ -67,6 +69,7 @@ function BpmInput({
       onKeyDown={(e) => e.key === 'Enter' && onBlur()}
       className={getBpmInputClassName(hasError)}
       aria-label={`BPM value, valid range ${MIN_BPM} to ${MAX_BPM}`}
+      disabled={disabled}
     />
   )
 }
@@ -131,9 +134,18 @@ interface BpmSliderProps {
   value: number
   onChange: (value: number) => void
   label: string
+  disabled?: boolean
 }
 
-function RangeSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function RangeSlider({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number
+  onChange: (v: number) => void
+  disabled?: boolean
+}) {
   return (
     <input
       type="range"
@@ -141,22 +153,24 @@ function RangeSlider({ value, onChange }: { value: number; onChange: (v: number)
       max={MAX_BPM}
       value={value}
       onChange={(e) => onChange(parseInt(e.target.value, 10))}
-      className="w-28 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+      className="w-28 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled={disabled}
     />
   )
 }
 
-function BpmSlider({ value, onChange, label }: BpmSliderProps) {
+function BpmSlider({ value, onChange, label, disabled }: BpmSliderProps) {
   const state = useBpmInputState(value, onChange)
   return (
     <div className="flex items-center gap-3">
       <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">{label}</label>
-      <RangeSlider value={value} onChange={state.handleSliderChange} />
+      <RangeSlider value={value} onChange={state.handleSliderChange} disabled={disabled} />
       <BpmInput
         inputValue={state.inputValue}
         onInputChange={state.handleInputChange}
         onBlur={state.handleBlur}
         hasError={state.hasError}
+        disabled={disabled}
       />
     </div>
   )
@@ -166,19 +180,24 @@ function MetronomeToggle({
   enabled,
   onChange,
   label,
+  disabled,
 }: {
   enabled: boolean
   onChange: (v: boolean) => void
   label: string
+  disabled?: boolean
 }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer select-none">
+    <label
+      className={`flex items-center gap-2 select-none ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+    >
       <input
         type="checkbox"
         checked={enabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
+        className="w-4 h-4 rounded border-border accent-primary cursor-pointer disabled:cursor-not-allowed"
         aria-label={label}
+        disabled={disabled}
       />
       <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{label}</span>
     </label>
@@ -210,10 +229,12 @@ function SubdivisionSelector({
   value,
   onChange,
   t,
+  disabled,
 }: {
   value: MetronomeSubdivision
   onChange: (v: MetronomeSubdivision) => void
   t: (key: string) => string
+  disabled?: boolean
 }) {
   return (
     <div className="flex gap-1" role="group" aria-label={t('game.subdivision')}>
@@ -222,8 +243,9 @@ function SubdivisionSelector({
           key={opt}
           type="button"
           onClick={() => onChange(opt)}
-          className={getSubdivisionButtonClass(value === opt)}
+          className={`${getSubdivisionButtonClass(value === opt)} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           aria-pressed={value === opt}
+          disabled={disabled}
         >
           {getSubdivisionLabel(opt, t)}
         </button>
@@ -289,19 +311,20 @@ function Divider() {
   return <div className="w-px h-6 bg-border" />
 }
 
-function MetronomeSection({
-  settings,
-  t,
-}: {
+type SettingsProps = {
   settings: ReturnType<typeof usePlaybackSettings>
   t: (k: string) => string
-}) {
+  disabled?: boolean
+}
+
+function MetronomeSection({ settings, t, disabled }: SettingsProps) {
   return (
     <>
       <MetronomeToggle
         enabled={settings.metronomeEnabled}
         onChange={settings.setMetronomeEnabled}
         label={t('game.metronome')}
+        disabled={disabled}
       />
       {settings.metronomeEnabled && (
         <>
@@ -310,6 +333,7 @@ function MetronomeSection({
             value={settings.metronomeSubdivision}
             onChange={settings.setMetronomeSubdivision}
             t={t}
+            disabled={disabled}
           />
         </>
       )}
@@ -317,34 +341,29 @@ function MetronomeSection({
   )
 }
 
-function PlaybackSettingsContent({
-  settings,
-  t,
-}: {
-  settings: ReturnType<typeof usePlaybackSettings>
-  t: (k: string) => string
-}) {
+function PlaybackSettingsContent({ settings, t, disabled }: SettingsProps) {
   return (
     <SettingsPanel>
       <BpmSlider
         value={settings.playbackBpm}
         onChange={settings.setPlaybackBpm}
         label={t('game.bpmLabel')}
+        disabled={disabled}
       />
       <Divider />
-      <MetronomeSection settings={settings} t={t} />
+      <MetronomeSection settings={settings} t={t} disabled={disabled} />
     </SettingsPanel>
   )
 }
 
-export function BpmControl() {
+export function BpmControl({ disabled }: { disabled?: boolean }) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const settings = usePlaybackSettings()
 
   return (
     <div className="flex items-center justify-end gap-3">
-      {isOpen && <PlaybackSettingsContent settings={settings} t={t} />}
+      {isOpen && <PlaybackSettingsContent settings={settings} t={t} disabled={disabled} />}
       <CogButton
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}

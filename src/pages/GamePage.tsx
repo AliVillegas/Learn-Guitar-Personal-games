@@ -12,9 +12,7 @@ import { useGameStore } from '../store/gameStore'
 import { useSettingsStore } from '../store/settingsStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
 import { preloadGuitarSampler } from '../utils/audioEngines'
-import type { MeasureCount } from '../types/music'
-import type { SolfegeNote } from '../types/music'
-import type { NoteDefinition } from '../types/music'
+import type { MeasureCount, NoteDefinition } from '../types/music'
 
 function calculateCorrectCount(notes: ReturnType<typeof useGameStore>['sequence']): number {
   return notes.filter((n) => n.status === 'correct').length
@@ -35,42 +33,33 @@ function getHighlightIndex(
   return isPlayingAudio && playingIndex !== null ? playingIndex : currentIndex
 }
 
-function renderAnswerSection(
-  isComplete: boolean,
-  isPlayingAudio: boolean,
-  feedbackState: Record<SolfegeNote, 'idle' | 'correct' | 'incorrect'>,
-  onAnswerSelect: (note: SolfegeNote) => void
-) {
-  if (isComplete) return null
+type GameState = ReturnType<typeof useGameStore>
+type Handlers = ReturnType<typeof useAppHandlers>
+
+function renderAnswerSection(handlers: Handlers) {
   return (
     <AnswerSection
-      isPlayingAudio={isPlayingAudio}
-      feedbackState={feedbackState}
-      onAnswerSelect={onAnswerSelect}
+      isPlayingAudio={handlers.audio.isPlaying}
+      feedbackState={handlers.feedback.feedbackState}
+      onAnswerSelect={handlers.handleAnswerSelect}
     />
   )
 }
 
 function renderPlaybackSection(
-  notes: ReturnType<typeof useGameStore>['sequence'],
-  currentIndex: number,
-  noteDefinitions: NoteDefinition[],
-  measureCount: MeasureCount,
-  isPlayingAudio: boolean,
-  onPlayAll: () => void,
-  onPlayCurrentNote: () => void,
-  onPlayMeasure: (measureIndex: number) => void
+  game: GameState,
+  handlers: Handlers,
+  noteDefinitions: NoteDefinition[]
 ) {
-  const currentNote = getCurrentNote(notes, currentIndex)
   return (
     <PlaybackControls
       notes={noteDefinitions}
-      currentNote={currentNote}
-      measureCount={measureCount}
-      onPlayAll={onPlayAll}
-      onPlayCurrentNote={onPlayCurrentNote}
-      onPlayMeasure={onPlayMeasure}
-      isPlaying={isPlayingAudio}
+      currentNote={getCurrentNote(game.sequence, game.currentIndex)}
+      measureCount={game.config.measureCount}
+      onPlayAll={handlers.handlePlayAll}
+      onPlayCurrentNote={handlers.handlePlayCurrentNote}
+      onPlayMeasure={handlers.handlePlayMeasure}
+      isPlaying={handlers.audio.isPlaying}
     />
   )
 }
@@ -78,11 +67,12 @@ function renderPlaybackSection(
 function renderStaffSection(
   notes: ReturnType<typeof useGameStore>['sequence'],
   measureCount: MeasureCount,
-  highlightIndex: number
+  highlightIndex: number,
+  isPlaying: boolean
 ) {
   return (
     <div className="space-y-2">
-      <BpmControl />
+      <BpmControl disabled={isPlaying} />
       <Staff notes={notes} measureCount={measureCount} currentIndex={highlightIndex} />
     </div>
   )
@@ -128,30 +118,21 @@ function renderGameButtons(
 }
 
 function renderGameContent(
-  game: ReturnType<typeof useGameStore>,
-  handlers: ReturnType<typeof useAppHandlers>,
+  game: GameState,
+  handlers: Handlers,
   highlightIndex: number,
   noteDefinitions: NoteDefinition[]
 ) {
   return (
     <>
-      {renderStaffSection(game.sequence, game.config.measureCount, highlightIndex)}
-      {renderPlaybackSection(
+      {renderStaffSection(
         game.sequence,
-        game.currentIndex,
-        noteDefinitions,
         game.config.measureCount,
-        handlers.audio.isPlaying,
-        handlers.handlePlayAll,
-        handlers.handlePlayCurrentNote,
-        handlers.handlePlayMeasure
+        highlightIndex,
+        handlers.audio.isPlaying
       )}
-      {renderAnswerSection(
-        false,
-        handlers.audio.isPlaying,
-        handlers.feedback.feedbackState,
-        handlers.handleAnswerSelect
-      )}
+      {renderPlaybackSection(game, handlers, noteDefinitions)}
+      {renderAnswerSection(handlers)}
       {renderScoreSection(game.sequence)}
     </>
   )
