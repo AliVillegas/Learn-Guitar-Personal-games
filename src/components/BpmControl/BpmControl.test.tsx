@@ -4,10 +4,6 @@ import userEvent from '@testing-library/user-event'
 import { BpmControl } from './BpmControl'
 import { useSettingsStore } from '../../store/settingsStore'
 
-const renderWithI18n = (component: React.ReactElement) => {
-  return render(component)
-}
-
 describe('BpmControl', () => {
   beforeEach(() => {
     useSettingsStore.setState({
@@ -16,14 +12,14 @@ describe('BpmControl', () => {
   })
 
   it('renders the cog icon button', () => {
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     expect(screen.getByRole('button', { name: /speed settings/i })).toBeInTheDocument()
   })
 
   it('shows slider when cog icon is clicked', async () => {
     const user = userEvent.setup()
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     const cogButton = screen.getByRole('button', { name: /speed settings/i })
     await user.click(cogButton)
@@ -34,7 +30,7 @@ describe('BpmControl', () => {
 
   it('hides slider when cog icon is clicked again', async () => {
     const user = userEvent.setup()
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     const cogButton = screen.getByRole('button', { name: /speed settings/i })
     await user.click(cogButton)
@@ -44,19 +40,20 @@ describe('BpmControl', () => {
     expect(screen.queryByRole('slider')).not.toBeInTheDocument()
   })
 
-  it('displays current BPM value', async () => {
+  it('displays current BPM value in editable input', async () => {
     const user = userEvent.setup()
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     const cogButton = screen.getByRole('button', { name: /speed settings/i })
     await user.click(cogButton)
 
-    expect(screen.getByText('120')).toBeInTheDocument()
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    expect(bpmInput).toHaveValue('120')
   })
 
   it('updates BPM when slider is changed', async () => {
     const user = userEvent.setup()
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     const cogButton = screen.getByRole('button', { name: /speed settings/i })
     await user.click(cogButton)
@@ -65,12 +62,13 @@ describe('BpmControl', () => {
     fireEvent.change(slider, { target: { value: '80' } })
 
     expect(useSettingsStore.getState().playbackBpm).toBe(80)
-    expect(screen.getByText('80')).toBeInTheDocument()
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    expect(bpmInput).toHaveValue('80')
   })
 
   it('has correct min and max values on slider', async () => {
     const user = userEvent.setup()
-    renderWithI18n(<BpmControl />)
+    render(<BpmControl />)
 
     const cogButton = screen.getByRole('button', { name: /speed settings/i })
     await user.click(cogButton)
@@ -78,5 +76,81 @@ describe('BpmControl', () => {
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('min', '20')
     expect(slider).toHaveAttribute('max', '200')
+  })
+
+  it('updates BPM when valid value is typed in input', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    await user.clear(bpmInput)
+    await user.type(bpmInput, '75')
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(75)
+  })
+
+  it('clamps value to max when input exceeds maximum on blur', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    await user.clear(bpmInput)
+    await user.type(bpmInput, '999')
+    await user.tab()
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(200)
+    expect(bpmInput).toHaveValue('200')
+  })
+
+  it('clamps value to min when input is below minimum on blur', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    await user.clear(bpmInput)
+    await user.type(bpmInput, '5')
+    await user.tab()
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(20)
+    expect(bpmInput).toHaveValue('20')
+  })
+
+  it('restores previous value when invalid input is entered and blurred', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    await user.clear(bpmInput)
+    await user.type(bpmInput, 'abc')
+    await user.tab()
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(120)
+    expect(bpmInput).toHaveValue('120')
+  })
+
+  it('updates value on Enter key press', async () => {
+    const user = userEvent.setup()
+    render(<BpmControl />)
+
+    const cogButton = screen.getByRole('button', { name: /speed settings/i })
+    await user.click(cogButton)
+
+    const bpmInput = screen.getByRole('textbox', { name: /bpm value/i })
+    await user.clear(bpmInput)
+    await user.type(bpmInput, '90{Enter}')
+
+    expect(useSettingsStore.getState().playbackBpm).toBe(90)
   })
 })

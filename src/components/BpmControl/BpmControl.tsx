@@ -1,9 +1,23 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { z } from 'zod'
 import { useSettingsStore } from '../../store/settingsStore'
 
 const MIN_BPM = 20
 const MAX_BPM = 200
+
+const bpmSchema = z.number().int().min(MIN_BPM).max(MAX_BPM)
+
+function validateAndParseBpm(value: string): number | null {
+  const parsed = parseInt(value, 10)
+  if (isNaN(parsed)) return null
+  const result = bpmSchema.safeParse(parsed)
+  return result.success ? result.data : null
+}
+
+function clampBpm(value: number): number {
+  return Math.min(MAX_BPM, Math.max(MIN_BPM, value))
+}
 
 function CogIcon({ className }: { className?: string }) {
   return (
@@ -23,29 +37,127 @@ function CogIcon({ className }: { className?: string }) {
   )
 }
 
-function BpmSlider({
-  value,
-  onChange,
-  label,
+function getBpmInputClassName(hasError: boolean): string {
+  const baseClasses =
+    'w-14 h-8 text-sm font-mono font-semibold text-center rounded border transition-colors'
+  const errorClasses = 'border-destructive bg-destructive/10 text-destructive'
+  const normalClasses =
+    'border-border bg-background text-foreground focus:border-primary focus:ring-1 focus:ring-primary'
+  return `${baseClasses} ${hasError ? errorClasses : normalClasses}`
+}
+
+function BpmInput({
+  inputValue,
+  onInputChange,
+  onBlur,
+  hasError,
 }: {
+  inputValue: string
+  onInputChange: (value: string) => void
+  onBlur: () => void
+  hasError: boolean
+}) {
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={inputValue}
+      onChange={(e) => onInputChange(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={(e) => e.key === 'Enter' && onBlur()}
+      className={getBpmInputClassName(hasError)}
+      aria-label={`BPM value, valid range ${MIN_BPM} to ${MAX_BPM}`}
+    />
+  )
+}
+
+function processInputChange(
+  newValue: string,
+  setInputValue: (v: string) => void,
+  setHasError: (v: boolean) => void,
+  onChange: (v: number) => void
+) {
+  setInputValue(newValue)
+  const validated = validateAndParseBpm(newValue)
+  if (validated !== null) {
+    setHasError(false)
+    onChange(validated)
+  } else {
+    setHasError(newValue !== '' && newValue !== '-')
+  }
+}
+
+function processBlur(
+  inputValue: string,
+  value: number,
+  setInputValue: (v: string) => void,
+  setHasError: (v: boolean) => void,
+  onChange: (v: number) => void
+) {
+  const validated = validateAndParseBpm(inputValue)
+  if (validated !== null) {
+    setInputValue(validated.toString())
+    setHasError(false)
+    return
+  }
+  const parsed = parseInt(inputValue, 10)
+  if (!isNaN(parsed)) {
+    const clamped = clampBpm(parsed)
+    onChange(clamped)
+    setInputValue(clamped.toString())
+  } else {
+    setInputValue(value.toString())
+  }
+  setHasError(false)
+}
+
+function useBpmInputState(value: number, onChange: (value: number) => void) {
+  const [inputValue, setInputValue] = useState(value.toString())
+  const [hasError, setHasError] = useState(false)
+
+  const handleInputChange = (newValue: string) =>
+    processInputChange(newValue, setInputValue, setHasError, onChange)
+  const handleBlur = () => processBlur(inputValue, value, setInputValue, setHasError, onChange)
+  const handleSliderChange = (newValue: number) => {
+    onChange(newValue)
+    setInputValue(newValue.toString())
+    setHasError(false)
+  }
+
+  return { inputValue, hasError, handleInputChange, handleBlur, handleSliderChange }
+}
+
+interface BpmSliderProps {
   value: number
   onChange: (value: number) => void
   label: string
-}) {
+}
+
+function RangeSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex items-center gap-4 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-lg shadow-md border border-border/50">
+    <input
+      type="range"
+      min={MIN_BPM}
+      max={MAX_BPM}
+      value={value}
+      onChange={(e) => onChange(parseInt(e.target.value, 10))}
+      className="w-28 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+    />
+  )
+}
+
+function BpmSlider({ value, onChange, label }: BpmSliderProps) {
+  const state = useBpmInputState(value, onChange)
+  return (
+    <div className="flex items-center gap-3 bg-card/80 backdrop-blur-sm px-4 py-3 rounded-lg shadow-md border border-border/50">
       <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">{label}</label>
-      <input
-        type="range"
-        min={MIN_BPM}
-        max={MAX_BPM}
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        className="w-32 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+      <RangeSlider value={value} onChange={state.handleSliderChange} />
+      <BpmInput
+        inputValue={state.inputValue}
+        onInputChange={state.handleInputChange}
+        onBlur={state.handleBlur}
+        hasError={state.hasError}
       />
-      <span className="text-sm font-mono font-semibold text-foreground min-w-[4ch] text-right">
-        {value}
-      </span>
     </div>
   )
 }
