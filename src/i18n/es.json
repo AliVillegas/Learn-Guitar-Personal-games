@@ -3,7 +3,6 @@
     "title": "Lectura a Primera Vista - Primera Posición"
   },
   "config": {
-    "autoPlayOnGenerate": "Reproducir secuencia al iniciar",
     "generate": "Generar",
     "instrument": "Sonido",
     "instruments": {

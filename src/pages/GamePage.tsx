@@ -9,7 +9,6 @@ import { ResultPanel } from '../components/ResultPanel/ResultPanel'
 import { BpmControl } from '../components/BpmControl/BpmControl'
 import { Button } from '../components/ui/button'
 import { useGameStore } from '../store/gameStore'
-import { useSettingsStore } from '../store/settingsStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
 import { preloadGuitarSampler } from '../utils/audioEngines'
 import type { MeasureCount, NoteDefinition } from '../types/music'
@@ -164,27 +163,6 @@ function renderPlayingPhase(
   )
 }
 
-function playAllNotes(
-  handlers: ReturnType<typeof useAppHandlers>,
-  noteDefinitions: NoteDefinition[]
-) {
-  handlers.audio.playSequence(noteDefinitions).catch((error) => {
-    console.error('Error playing sequence:', error)
-  })
-}
-
-function isNewSequenceGenerated(
-  game: ReturnType<typeof useGameStore>,
-  previousLength: number
-): boolean {
-  return (
-    game.phase === 'playing' &&
-    game.currentIndex === 0 &&
-    game.sequence.length > 0 &&
-    previousLength !== game.sequence.length
-  )
-}
-
 function usePreloadAudioOnGameStart(gamePhase: string) {
   const hasPreloadedRef = useRef(false)
 
@@ -198,31 +176,10 @@ function usePreloadAudioOnGameStart(gamePhase: string) {
   }, [gamePhase])
 }
 
-function usePlayAllOnGameStart(
-  game: ReturnType<typeof useGameStore>,
-  handlers: ReturnType<typeof useAppHandlers>,
-  autoPlayOnGenerate: boolean
-) {
-  const previousSequenceLengthRef = useRef<number>(0)
-
-  useEffect(() => {
-    const shouldPlay =
-      autoPlayOnGenerate && isNewSequenceGenerated(game, previousSequenceLengthRef.current)
-
-    if (shouldPlay) {
-      const noteDefinitions = game.sequence.map((gn) => gn.note)
-      playAllNotes(handlers, noteDefinitions)
-    }
-    previousSequenceLengthRef.current = game.sequence.length
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.phase, game.sequence.length, game.sequence, handlers, autoPlayOnGenerate])
-}
-
 export function GamePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const game = useGameStore()
-  const autoPlayOnGenerate = useSettingsStore((state) => state.autoPlayOnGenerate)
   const handlers = useAppHandlers()
 
   const handlePlayAgain = () => {
@@ -242,7 +199,6 @@ export function GamePage() {
   }, [game.phase, navigate])
 
   usePreloadAudioOnGameStart(game.phase)
-  usePlayAllOnGameStart(game, handlers, autoPlayOnGenerate)
 
   if (game.phase === 'complete') {
     return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain, handleGoToConfig)

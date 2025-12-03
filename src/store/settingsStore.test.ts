@@ -15,7 +15,6 @@ describe('useSettingsStore', () => {
       ],
       measureCount: 1,
       instrument: 'guitar-classical',
-      autoPlayOnGenerate: true,
       playbackBpm: 120,
       metronomeEnabled: false,
       metronomeSubdivision: 1,

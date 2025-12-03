@@ -3,7 +3,6 @@
     "title": "Guitar Sight Reading - First Position"
   },
   "config": {
-    "autoPlayOnGenerate": "Auto-play sequence on start",
     "generate": "Generate",
     "instrument": "Sound",
     "instruments": {

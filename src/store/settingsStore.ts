@@ -15,7 +15,6 @@ function createDefaultStringNotes(): StringNoteConfig[] {
 }
 
 const defaultSettings: Omit<GameConfig, 'selectedNotes'> & {
-  autoPlayOnGenerate: boolean
   playbackBpm: number
   metronomeEnabled: boolean
   metronomeSubdivision: MetronomeSubdivision
@@ -23,7 +22,6 @@ const defaultSettings: Omit<GameConfig, 'selectedNotes'> & {
   stringNotes: createDefaultStringNotes(),
   measureCount: 1,
   instrument: 'guitar-classical',
-  autoPlayOnGenerate: true,
   playbackBpm: 120,
   metronomeEnabled: false,
   metronomeSubdivision: 1,
@@ -33,14 +31,12 @@ interface SettingsStore {
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
   instrument: InstrumentType
-  autoPlayOnGenerate: boolean
   playbackBpm: number
   metronomeEnabled: boolean
   metronomeSubdivision: MetronomeSubdivision
   setStringNotes: (stringNotes: StringNoteConfig[]) => void
   setMeasureCount: (measureCount: MeasureCount) => void
   setInstrument: (instrument: InstrumentType) => void
-  setAutoPlayOnGenerate: (autoPlay: boolean) => void
   setPlaybackBpm: (bpm: number) => void
   setMetronomeEnabled: (enabled: boolean) => void
   setMetronomeSubdivision: (subdivision: MetronomeSubdivision) => void
@@ -53,7 +49,6 @@ export const useSettingsStore = create<SettingsStore>()(
       stringNotes: defaultSettings.stringNotes,
       measureCount: defaultSettings.measureCount,
       instrument: defaultSettings.instrument,
-      autoPlayOnGenerate: defaultSettings.autoPlayOnGenerate,
       playbackBpm: defaultSettings.playbackBpm,
       metronomeEnabled: defaultSettings.metronomeEnabled,
       metronomeSubdivision: defaultSettings.metronomeSubdivision,
@@ -63,8 +58,6 @@ export const useSettingsStore = create<SettingsStore>()(
       setMeasureCount: (measureCount) => set({ measureCount }),
 
       setInstrument: (instrument) => set({ instrument }),
-
-      setAutoPlayOnGenerate: (autoPlayOnGenerate) => set({ autoPlayOnGenerate }),
 
       setPlaybackBpm: (playbackBpm) => set({ playbackBpm }),
 
