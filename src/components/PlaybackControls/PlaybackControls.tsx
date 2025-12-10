@@ -1,15 +1,16 @@
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
-import type { NoteDefinition, MeasureCount } from '../../types/music'
+import type { NoteDefinition, MeasureCount, MultiVoiceMeasureCount } from '../../types/music'
 
 interface PlaybackControlsProps {
   notes: NoteDefinition[]
   currentNote: NoteDefinition | null
-  measureCount: MeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount
   onPlayAll: (notes: NoteDefinition[]) => void
   onPlayCurrentNote: () => void
   onPlayMeasure: (measureIndex: number) => void
   isPlaying: boolean
+  showPlayCurrentNote?: boolean
 }
 
 function createPlayAllHandler(
@@ -91,7 +92,7 @@ function createPlayMeasureHandler(
 
 function renderMeasureButtons(
   t: (key: string) => string,
-  measureCount: MeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount,
   isPlaying: boolean,
   onPlayMeasure: (measureIndex: number) => void
 ) {
@@ -127,6 +128,7 @@ export function PlaybackControls({
   onPlayCurrentNote,
   onPlayMeasure,
   isPlaying,
+  showPlayCurrentNote = true,
 }: PlaybackControlsProps) {
   const { t } = useTranslation()
   const handlePlayAll = createPlayAllHandler(isPlaying, notes, onPlayAll)
@@ -139,7 +141,8 @@ export function PlaybackControls({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex justify-center gap-4">
-        {renderPlayCurrentNoteButton(t, handlePlayCurrentNote, isPlaying, currentNote)}
+        {showPlayCurrentNote &&
+          renderPlayCurrentNoteButton(t, handlePlayCurrentNote, isPlaying, currentNote)}
         {renderPlayAllButton(t, handlePlayAll, isPlaying)}
       </div>
       {renderMeasureButtons(t, measureCount, isPlaying, onPlayMeasure)}

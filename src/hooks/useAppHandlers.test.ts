@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useAppHandlers } from './useAppHandlers'
-import { useGameStore } from '../store/gameStore'
+import { useGameStore, getCurrentStringNotes } from '../store/gameStore'
 import { createNoteDefinition } from '../utils/notes'
 
 vi.mock('./useAudio', () => ({
@@ -32,13 +32,25 @@ describe('useAppHandlers', () => {
     useGameStore.setState({
       phase: 'config',
       config: {
-        selectedNotes: ['do', 're', 'mi'],
-        stringNotes: [
-          { string: 6, notes: ['mi'] },
-          { string: 5, notes: ['la'] },
-        ],
-        measureCount: 1,
-        instrument: 'midi',
+        lessonType: 'single-notes',
+        singleNotes: {
+          selectedNotes: ['do', 're', 'mi'],
+          stringNotes: [
+            { string: 6, notes: ['mi'] },
+            { string: 5, notes: ['la'] },
+          ],
+          measureCount: 1,
+          instrument: 'midi',
+        },
+        multiVoice: {
+          stringNotes: [
+            { string: 6, notes: ['mi'] },
+            { string: 5, notes: ['la'] },
+          ],
+          measureCount: 4,
+          melodyStrings: 'both',
+          instrument: 'midi',
+        },
       },
       sequence: [],
       currentIndex: 0,
@@ -67,7 +79,8 @@ describe('useAppHandlers', () => {
       result.current.handleToggleStringNote(6, 'fa')
 
       const state = useGameStore.getState()
-      const string6 = state.config.stringNotes.find((sn) => sn.string === 6)
+      const stringNotes = getCurrentStringNotes(state.config)
+      const string6 = stringNotes.find((sn) => sn.string === 6)
       expect(string6?.notes).toContain('fa')
     })
 
@@ -77,7 +90,8 @@ describe('useAppHandlers', () => {
       result.current.handleToggleStringNote(6, 'mi')
 
       const state = useGameStore.getState()
-      const string6 = state.config.stringNotes.find((sn) => sn.string === 6)
+      const stringNotes = getCurrentStringNotes(state.config)
+      const string6 = stringNotes.find((sn) => sn.string === 6)
       expect(string6?.notes).not.toContain('mi')
     })
 
@@ -98,7 +112,12 @@ describe('useAppHandlers', () => {
 
       result.current.handleChangeMeasure(2)
 
-      expect(useGameStore.getState().config.measureCount).toBe(2)
+      const state = useGameStore.getState()
+      const measureCount =
+        state.config.lessonType === 'multi-voice'
+          ? state.config.multiVoice.measureCount
+          : state.config.singleNotes.measureCount
+      expect(measureCount).toBe(2)
     })
   })
 
@@ -108,7 +127,12 @@ describe('useAppHandlers', () => {
 
       result.current.handleChangeInstrument('guitar-synth')
 
-      expect(useGameStore.getState().config.instrument).toBe('guitar-synth')
+      const state = useGameStore.getState()
+      const instrument =
+        state.config.lessonType === 'multi-voice'
+          ? state.config.multiVoice.instrument
+          : state.config.singleNotes.instrument
+      expect(instrument).toBe('guitar-synth')
     })
 
     it('preloads sampler for guitar instruments', async () => {

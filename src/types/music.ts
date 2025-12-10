@@ -14,7 +14,28 @@ export interface NoteDefinition {
 
 export type MeasureCount = 1 | 2 | 3 | 4
 
-export type BeatsPerMeasure = 4
+export type MultiVoiceMeasureCount = 4 | 5 | 6 | 7 | 8
+
+export type MelodyStringSelection = 2 | 3 | 'both'
+
+export type BeatsPerMeasure = 3 | 4
+
+export type LessonType = 'single-notes' | 'multi-voice'
+
+export type NoteDuration = 'q' | 'h.' | 'qr'
+
+export interface VoiceNote {
+  note: NoteDefinition | null
+  duration: NoteDuration
+}
+
+export interface MultiVoiceGameNote {
+  id: string
+  bassVoice: VoiceNote[]
+  melodyVoice: VoiceNote[]
+  status: 'pending' | 'active' | 'correct' | 'incorrect'
+  allowStacked?: boolean
+}
 
 export interface GameNote {
   id: string

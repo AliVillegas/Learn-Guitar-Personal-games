@@ -1,9 +1,14 @@
-import type { GameNote, MeasureCount } from '../../types/music'
+import type {
+  GameNote,
+  MeasureCount,
+  MultiVoiceGameNote,
+  MultiVoiceMeasureCount,
+} from '../../types/music'
 import { VexFlowStaff } from './VexFlowStaff'
 
 interface StaffProps {
-  notes: GameNote[]
-  measureCount: MeasureCount
+  notes: GameNote[] | MultiVoiceGameNote[]
+  measureCount: MeasureCount | MultiVoiceMeasureCount
   currentIndex: number
 }
 

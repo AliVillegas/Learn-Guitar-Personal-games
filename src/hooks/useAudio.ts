@@ -2,13 +2,13 @@ import React, { useRef, useState, useCallback } from 'react'
 import * as Tone from 'tone'
 import type { NoteDefinition } from '../types/music'
 import type { InstrumentType } from '../types/audio'
+import type { TimedNote } from '../utils/sequenceHelpers'
 import {
   getAudioEngine,
   preloadGuitarSampler as initializeGuitarSynth,
   releaseAllNotes,
 } from '../utils/audioEngines'
 import { getGuitarSoundingFrequency } from '../utils/notes'
-import { useGameStore } from '../store/gameStore'
 import { useSettingsStore, type MetronomeSubdivision } from '../store/settingsStore'
 
 interface UseAudioReturn {
@@ -16,6 +16,17 @@ interface UseAudioReturn {
   playNoteAtTime: (note: NoteDefinition, startTime: number) => Promise<void>
   getCurrentTime: () => number
   playSequence: (notes: NoteDefinition[], bpm?: number, startIndex?: number) => Promise<void>
+  playChordSequence: (
+    chordGroups: NoteDefinition[][],
+    bpm?: number,
+    startIndex?: number
+  ) => Promise<void>
+  playTimedSequence: (
+    timedGroups: TimedNote[][],
+    bpm?: number,
+    startIndex?: number,
+    beatsPerMeasure?: number
+  ) => Promise<void>
   playErrorSound: () => void
   playSuccessSound: () => void
   isPlaying: boolean
@@ -39,7 +50,8 @@ async function scheduleNote(
   ctx: AudioContext,
   note: NoteDefinition,
   startTime: number,
-  instrument: InstrumentType
+  instrument: InstrumentType,
+  duration?: number
 ): Promise<void> {
   const engine = getAudioEngine(instrument)
 
@@ -53,7 +65,7 @@ async function scheduleNote(
     await initializeGuitarSynth()
   }
 
-  await engine.playNote({ frequency, noteName }, startTime, ctx)
+  await engine.playNote({ frequency, noteName }, startTime, ctx, duration)
 }
 
 async function scheduleSequence(
@@ -96,6 +108,106 @@ async function scheduleSequence(
   await Promise.all(promises)
 
   return notes.length * noteDuration * 1000 + minDelay * 1000
+}
+
+async function scheduleChordSequence(
+  ctx: AudioContext,
+  chordGroups: NoteDefinition[][],
+  bpm: number,
+  instrument: InstrumentType,
+  onChordStart: (index: number) => void,
+  timeoutIds: ReturnType<typeof setTimeout>[],
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+): Promise<number> {
+  const chordDuration = 60 / bpm
+  const now = ctx.currentTime
+  const minDelay = 0.05
+
+  if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
+    await initializeGuitarSynth()
+  }
+
+  const allPromises: Promise<void>[] = []
+
+  chordGroups.forEach((chord, chordIndex) => {
+    const startTime = now + minDelay + chordIndex * chordDuration
+    const delayMs = Math.max(0, (startTime - now) * 1000)
+
+    const timeoutId = setTimeout(
+      () => {
+        onChordStart(chordIndex)
+      },
+      Math.max(10, delayMs)
+    )
+    timeoutIds.push(timeoutId)
+
+    if (metronomeEnabled) {
+      scheduleSubdividedClicks(ctx, startTime, chordDuration, metronomeSubdivision)
+    }
+
+    chord.forEach((note) => {
+      allPromises.push(scheduleNote(ctx, note, startTime, instrument))
+    })
+  })
+
+  await Promise.all(allPromises)
+
+  return chordGroups.length * chordDuration * 1000 + minDelay * 1000
+}
+
+async function scheduleTimedSequence(
+  ctx: AudioContext,
+  timedGroups: TimedNote[][],
+  bpm: number,
+  instrument: InstrumentType,
+  onMeasureStart: (index: number) => void,
+  timeoutIds: ReturnType<typeof setTimeout>[],
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision,
+  beatsPerMeasure: number = 4
+): Promise<number> {
+  const beatDuration = 60 / bpm
+  const measureDuration = beatDuration * beatsPerMeasure
+  const now = ctx.currentTime
+  const minDelay = 0.05
+
+  if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
+    await initializeGuitarSynth()
+  }
+
+  const allPromises: Promise<void>[] = []
+
+  timedGroups.forEach((timedNotes, measureIndex) => {
+    const measureStartTime = now + minDelay + measureIndex * measureDuration
+    const delayMs = Math.max(0, (measureStartTime - now) * 1000)
+
+    const timeoutId = setTimeout(
+      () => {
+        onMeasureStart(measureIndex)
+      },
+      Math.max(10, delayMs)
+    )
+    timeoutIds.push(timeoutId)
+
+    if (metronomeEnabled) {
+      for (let beat = 0; beat < beatsPerMeasure; beat++) {
+        const beatTime = measureStartTime + beat * beatDuration
+        const isAccent = beat === 0
+        scheduleMetronomeClick(ctx, beatTime, isAccent)
+      }
+    }
+
+    timedNotes.forEach((timedNote) => {
+      const noteStartTime = measureStartTime + timedNote.beatOffset * beatDuration
+      const noteDuration = timedNote.durationInBeats * beatDuration
+      allPromises.push(scheduleNote(ctx, timedNote.note, noteStartTime, instrument, noteDuration))
+    })
+  })
+
+  await Promise.all(allPromises)
+
+  return timedGroups.length * measureDuration * 1000 + minDelay * 1000
 }
 
 function createErrorSound(ctx: AudioContext): void {
@@ -275,6 +387,70 @@ async function playSequenceImpl(
   handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
 }
 
+async function playChordSequenceImpl(
+  ctx: AudioContext,
+  chordGroups: NoteDefinition[][],
+  bpm: number,
+  startIndex: number,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+): Promise<void> {
+  clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
+  await cleanupGuitarInstrument(instrument)
+  await prepareSequencePlayback(ctx, instrument, setIsPlaying)
+  const onChordStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
+  const duration = await scheduleChordSequence(
+    ctx,
+    chordGroups,
+    bpm,
+    instrument,
+    onChordStart,
+    noteTimeoutRefs.current,
+    metronomeEnabled,
+    metronomeSubdivision
+  )
+  setPlayingIndex(startIndex)
+  handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
+}
+
+async function playTimedSequenceImpl(
+  ctx: AudioContext,
+  timedGroups: TimedNote[][],
+  bpm: number,
+  startIndex: number,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision,
+  beatsPerMeasure: number = 4
+): Promise<void> {
+  clearAllTimeouts(noteTimeoutRefs, timeoutRef, setPlayingIndex)
+  await cleanupGuitarInstrument(instrument)
+  await prepareSequencePlayback(ctx, instrument, setIsPlaying)
+  const onMeasureStart = (localIndex: number) => setPlayingIndex(startIndex + localIndex)
+  const duration = await scheduleTimedSequence(
+    ctx,
+    timedGroups,
+    bpm,
+    instrument,
+    onMeasureStart,
+    noteTimeoutRefs.current,
+    metronomeEnabled,
+    metronomeSubdivision,
+    beatsPerMeasure
+  )
+  setPlayingIndex(startIndex)
+  handleSequenceEnd(timeoutRef, setIsPlaying, setPlayingIndex, duration)
+}
+
 function useAudioContext() {
   const ctxRef = useRef<AudioContext | null>(null)
   return useCallback((): AudioContext => {
@@ -305,19 +481,32 @@ function useAudioCallbacks(getContext: () => AudioContext, instrument: Instrumen
   return { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound }
 }
 
-export function useAudio(): UseAudioReturn {
+function useAudioState() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const noteTimeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([])
   const [isPlaying, setIsPlaying] = useState(false)
   const [playingIndex, setPlayingIndex] = useState<number | null>(null)
-  const instrument = useGameStore((state) => state.config.instrument)
-  const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
-  const metronomeSubdivision = useSettingsStore((state) => state.metronomeSubdivision)
+  return { timeoutRef, noteTimeoutRefs, isPlaying, setIsPlaying, playingIndex, setPlayingIndex }
+}
+
+function useAudioCallbacksAndSettings(instrument: InstrumentType) {
   const getContext = useAudioContext()
   const { playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound } =
     useAudioCallbacks(getContext, instrument)
+  return { getContext, playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound }
+}
 
-  const playSequence = useCallback(
+function usePlaySequenceCallback(
+  getContext: () => AudioContext,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+) {
+  return useCallback(
     (notes: NoteDefinition[], bpm = DEFAULT_BPM, startIndex = 0) =>
       playSequenceImpl(
         getContext(),
@@ -332,7 +521,136 @@ export function useAudio(): UseAudioReturn {
         metronomeEnabled,
         metronomeSubdivision
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [getContext, instrument, metronomeEnabled, metronomeSubdivision]
+  )
+}
+
+function usePlayChordSequenceCallback(
+  getContext: () => AudioContext,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+) {
+  return useCallback(
+    (chordGroups: NoteDefinition[][], bpm = DEFAULT_BPM, startIndex = 0) =>
+      playChordSequenceImpl(
+        getContext(),
+        chordGroups,
+        bpm,
+        startIndex,
+        instrument,
+        noteTimeoutRefs,
+        timeoutRef,
+        setPlayingIndex,
+        setIsPlaying,
+        metronomeEnabled,
+        metronomeSubdivision
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getContext, instrument, metronomeEnabled, metronomeSubdivision]
+  )
+}
+
+function usePlayTimedSequenceCallback(
+  getContext: () => AudioContext,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+) {
+  return useCallback(
+    (timedGroups: TimedNote[][], bpm = DEFAULT_BPM, startIndex = 0, beatsPerMeasure = 4) =>
+      playTimedSequenceImpl(
+        getContext(),
+        timedGroups,
+        bpm,
+        startIndex,
+        instrument,
+        noteTimeoutRefs,
+        timeoutRef,
+        setPlayingIndex,
+        setIsPlaying,
+        metronomeEnabled,
+        metronomeSubdivision,
+        beatsPerMeasure
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getContext, instrument, metronomeEnabled, metronomeSubdivision]
+  )
+}
+
+function useAudioSequenceCallbacks(
+  getContext: () => AudioContext,
+  instrument: InstrumentType,
+  noteTimeoutRefs: React.MutableRefObject<ReturnType<typeof setTimeout>[]>,
+  timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  setPlayingIndex: (index: number | null) => void,
+  setIsPlaying: (playing: boolean) => void,
+  metronomeEnabled: boolean,
+  metronomeSubdivision: MetronomeSubdivision
+) {
+  const playSequence = usePlaySequenceCallback(
+    getContext,
+    instrument,
+    noteTimeoutRefs,
+    timeoutRef,
+    setPlayingIndex,
+    setIsPlaying,
+    metronomeEnabled,
+    metronomeSubdivision
+  )
+
+  const playChordSequence = usePlayChordSequenceCallback(
+    getContext,
+    instrument,
+    noteTimeoutRefs,
+    timeoutRef,
+    setPlayingIndex,
+    setIsPlaying,
+    metronomeEnabled,
+    metronomeSubdivision
+  )
+
+  const playTimedSequence = usePlayTimedSequenceCallback(
+    getContext,
+    instrument,
+    noteTimeoutRefs,
+    timeoutRef,
+    setPlayingIndex,
+    setIsPlaying,
+    metronomeEnabled,
+    metronomeSubdivision
+  )
+
+  return { playSequence, playChordSequence, playTimedSequence }
+}
+
+export function useAudio(): UseAudioReturn {
+  const { timeoutRef, noteTimeoutRefs, isPlaying, setIsPlaying, playingIndex, setPlayingIndex } =
+    useAudioState()
+  const instrument = useSettingsStore((state) => state.instrument)
+  const metronomeEnabled = useSettingsStore((state) => state.metronomeEnabled)
+  const metronomeSubdivision = useSettingsStore((state) => state.metronomeSubdivision)
+  const { getContext, playNote, playNoteAtTime, getCurrentTime, playErrorSound, playSuccessSound } =
+    useAudioCallbacksAndSettings(instrument)
+
+  const { playSequence, playChordSequence, playTimedSequence } = useAudioSequenceCallbacks(
+    getContext,
+    instrument,
+    noteTimeoutRefs,
+    timeoutRef,
+    setPlayingIndex,
+    setIsPlaying,
+    metronomeEnabled,
+    metronomeSubdivision
   )
 
   return {
@@ -340,6 +658,8 @@ export function useAudio(): UseAudioReturn {
     playNoteAtTime,
     getCurrentTime,
     playSequence,
+    playChordSequence,
+    playTimedSequence,
     playErrorSound,
     playSuccessSound,
     isPlaying,

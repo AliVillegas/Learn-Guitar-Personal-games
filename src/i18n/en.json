@@ -1,6 +1,8 @@
 {
   "app": {
-    "title": "Guitar Sight Reading - First Position"
+    "backToHome": "Back to Lessons",
+    "homeTitle": "Learning Solfege",
+    "title": "Learning Solfege"
   },
   "config": {
     "generate": "Generate",
@@ -12,7 +14,8 @@
     },
     "measures": "Measures",
     "minStringNotesWarning": "Select at least one note from any string",
-    "selectStringNotes": "Select notes for each string"
+    "selectStringNotes": "Select notes for each string",
+    "stackedNotes": "Allow stacked notes on beats 2 and 3"
   },
   "debug": {
     "allNotesDisplay": "All Notes Combined",
@@ -45,6 +48,18 @@
     "subdivisionEighth": "♪",
     "subdivisionQuarter": "♩",
     "subdivisionSixteenth": "♬"
+  },
+  "home": {
+    "lesson1": {
+      "description": "Learn to read single notes in 4/4 time",
+      "title": "Lesson 1: First Position Notes"
+    },
+    "lesson2": {
+      "description": "Practice reading two voices in 3/4 time",
+      "title": "Lesson 2: Multi-Voice Reading"
+    },
+    "startLesson": "Start Lesson",
+    "title": "Choose a Lesson"
   },
   "language": {
     "label": "Language",

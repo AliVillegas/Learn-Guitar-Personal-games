@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { VexFlowStaff } from './VexFlowStaff'
 import { createNoteDefinition } from '../../utils/notes'
-import type { GameNote, MeasureCount } from '../../types/music'
+import type {
+  GameNote,
+  MeasureCount,
+  MultiVoiceGameNote,
+  MultiVoiceMeasureCount,
+} from '../../types/music'
 
 function createTestNotes(count: number): GameNote[] {
   const notes: GameNote[] = []
@@ -96,5 +101,71 @@ describe('VexFlowStaff', () => {
     ]
     const { container } = render(<VexFlowStaff notes={notes} measureCount={1} currentIndex={3} />)
     expect(container).toBeTruthy()
+  })
+
+  describe('MultiVoiceMeasureCount (5-8 measures)', () => {
+    function createTestMultiVoiceNotes(count: number): MultiVoiceGameNote[] {
+      const notes: MultiVoiceGameNote[] = []
+      for (let i = 0; i < count; i++) {
+        notes.push({
+          id: `note-${i}`,
+          bassVoice: [{ note: createNoteDefinition('mi', 3), duration: 'h.' }],
+          melodyVoice: [
+            { note: null, duration: 'qr' },
+            { note: createNoteDefinition('sol', 4), duration: 'q' },
+            { note: createNoteDefinition('la', 4), duration: 'q' },
+          ],
+          status: i === 0 ? 'active' : 'pending',
+        })
+      }
+      return notes
+    }
+
+    it('renders without crashing with 5 measures (multi-row)', () => {
+      const notes = createTestMultiVoiceNotes(5)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={5} currentIndex={0} />)
+      expect(container).toBeTruthy()
+    })
+
+    it('renders without crashing with 6 measures (multi-row)', () => {
+      const notes = createTestMultiVoiceNotes(6)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={6} currentIndex={0} />)
+      expect(container).toBeTruthy()
+    })
+
+    it('renders without crashing with 7 measures (multi-row)', () => {
+      const notes = createTestMultiVoiceNotes(7)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={7} currentIndex={0} />)
+      expect(container).toBeTruthy()
+    })
+
+    it('renders without crashing with 8 measures (multi-row)', () => {
+      const notes = createTestMultiVoiceNotes(8)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={8} currentIndex={0} />)
+      expect(container).toBeTruthy()
+    })
+
+    it('renders with all MultiVoiceMeasureCount values', () => {
+      const measureCounts: MultiVoiceMeasureCount[] = [4, 5, 6, 7, 8]
+      measureCounts.forEach((measureCount) => {
+        const notes = createTestMultiVoiceNotes(measureCount)
+        const { container } = render(
+          <VexFlowStaff notes={notes} measureCount={measureCount} currentIndex={0} />
+        )
+        expect(container).toBeTruthy()
+      })
+    })
+
+    it('handles currentIndex in second row with 6 measures', () => {
+      const notes = createTestMultiVoiceNotes(6)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={6} currentIndex={5} />)
+      expect(container).toBeTruthy()
+    })
+
+    it('handles currentIndex at boundary between rows with 5 measures', () => {
+      const notes = createTestMultiVoiceNotes(5)
+      const { container } = render(<VexFlowStaff notes={notes} measureCount={5} currentIndex={4} />)
+      expect(container).toBeTruthy()
+    })
   })
 })

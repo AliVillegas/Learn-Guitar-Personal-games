@@ -1,6 +1,8 @@
 {
   "app": {
-    "title": "Lectura a Primera Vista - Primera Posición"
+    "backToHome": "Volver a Lecciones",
+    "homeTitle": "Aprendiendo Solfeo",
+    "title": "Aprendiendo Solfeo"
   },
   "config": {
     "generate": "Generar",
@@ -12,7 +14,8 @@
     },
     "measures": "Compases",
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
-    "selectStringNotes": "Selecciona las notas para cada cuerda"
+    "selectStringNotes": "Selecciona las notas para cada cuerda",
+    "stackedNotes": "Permitir notas apiladas en tiempos 2 y 3"
   },
   "debug": {
     "allNotesDisplay": "Todas las Notas Combinadas",
@@ -45,6 +48,18 @@
     "subdivisionEighth": "♪",
     "subdivisionQuarter": "♩",
     "subdivisionSixteenth": "♬"
+  },
+  "home": {
+    "lesson1": {
+      "description": "Aprende a leer notas individuales en compás de 4/4",
+      "title": "Lección 1: Notas de Primera Posición"
+    },
+    "lesson2": {
+      "description": "Practica leyendo dos voces en compás de 3/4",
+      "title": "Lección 2: Lectura Multi-Voz"
+    },
+    "startLesson": "Comenzar Lección",
+    "title": "Elige una Lección"
   },
   "language": {
     "label": "Idioma",

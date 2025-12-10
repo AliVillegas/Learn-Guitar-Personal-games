@@ -62,15 +62,15 @@ function createMidiEnvelope(ctx: AudioContext, duration: number): GainNode {
 }
 
 const midiEngine: AudioEngine = {
-  playNote: (note, startTime, ctx) => {
+  playNote: (note, startTime, ctx, duration = QUARTER_NOTE_DURATION) => {
     const osc = createMidiOscillator(ctx, note.frequency)
-    const gain = createMidiEnvelope(ctx, QUARTER_NOTE_DURATION)
+    const gain = createMidiEnvelope(ctx, duration)
 
     osc.connect(gain)
     gain.connect(ctx.destination)
 
     osc.start(startTime)
-    osc.stop(startTime + QUARTER_NOTE_DURATION)
+    osc.stop(startTime + duration)
   },
   createEnvelope: createMidiEnvelope,
 }
@@ -163,7 +163,8 @@ async function releaseAllGuitarSynthNotes(): Promise<void> {
 async function playGuitarSynthNote(
   note: { noteName?: string; frequency: number },
   startTime: number,
-  ctx: AudioContext
+  ctx: AudioContext,
+  duration: number = QUARTER_NOTE_DURATION
 ): Promise<void> {
   if (!note.noteName) {
     console.warn('No note name provided:', note)
@@ -183,9 +184,9 @@ async function playGuitarSynthNote(
 
   if (delay > 0) {
     const toneTime = Tone.now() + delay
-    guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION, toneTime)
+    guitarSynth.triggerAttackRelease(note.noteName, duration, toneTime)
   } else {
-    guitarSynth.triggerAttackRelease(note.noteName, QUARTER_NOTE_DURATION)
+    guitarSynth.triggerAttackRelease(note.noteName, duration)
   }
 }
 
@@ -215,35 +216,74 @@ function findClosestNote(noteName: string): string {
   return noteName
 }
 
-function triggerNoteWithDelay(sampler: Tone.Sampler, noteName: string, delay: number): void {
+function triggerNoteWithDelay(
+  sampler: Tone.Sampler,
+  noteName: string,
+  delay: number,
+  duration: number = QUARTER_NOTE_DURATION
+): void {
   if (delay > 0) {
     const toneTime = Tone.now() + delay
-    sampler.triggerAttackRelease(noteName, QUARTER_NOTE_DURATION, toneTime)
+    sampler.triggerAttackRelease(noteName, duration, toneTime)
   } else {
-    sampler.triggerAttackRelease(noteName, QUARTER_NOTE_DURATION)
+    sampler.triggerAttackRelease(noteName, duration)
   }
 }
 
-function playFallbackNote(sampler: Tone.Sampler, originalNote: string, delay: number): void {
+function playFallbackNote(
+  sampler: Tone.Sampler,
+  originalNote: string,
+  delay: number,
+  duration: number = QUARTER_NOTE_DURATION
+): void {
   const fallbackNote = findClosestNote(originalNote)
   console.warn(`Note ${originalNote} not available, using fallback ${fallbackNote}`)
-  triggerNoteWithDelay(sampler, fallbackNote, delay)
+  triggerNoteWithDelay(sampler, fallbackNote, delay, duration)
+}
+
+function validateNoteAndSampler(note: { noteName?: string; frequency: number }): boolean {
+  if (!note.noteName) {
+    console.warn('No note name provided:', note)
+    return false
+  }
+  if (!guitarClassicalSampler) {
+    console.warn('Classical guitar sampler not ready after initialization')
+    return false
+  }
+  return true
+}
+
+function playNoteWithFallback(
+  sampler: Tone.Sampler,
+  noteToPlay: string,
+  delay: number,
+  duration: number
+) {
+  try {
+    triggerNoteWithDelay(sampler, noteToPlay, delay, duration)
+  } catch (error) {
+    const fallbackNote = findClosestNote(noteToPlay)
+    if (fallbackNote !== noteToPlay) {
+      playFallbackNote(sampler, noteToPlay, delay, duration)
+    } else {
+      throw error
+    }
+  }
 }
 
 async function playGuitarClassicalNote(
   note: { noteName?: string; frequency: number },
   startTime: number,
-  ctx: AudioContext
+  ctx: AudioContext,
+  duration: number = QUARTER_NOTE_DURATION
 ): Promise<void> {
-  if (!note.noteName) {
-    console.warn('No note name provided:', note)
+  if (!validateNoteAndSampler(note)) {
     return
   }
 
   await initializeGuitarClassicalSampler()
 
   if (!guitarClassicalSampler) {
-    console.warn('Classical guitar sampler not ready after initialization')
     return
   }
 
@@ -251,23 +291,17 @@ async function playGuitarClassicalNote(
 
   const delay = Math.max(0, startTime - ctx.currentTime)
   const noteToPlay = note.noteName
-
-  try {
-    triggerNoteWithDelay(guitarClassicalSampler, noteToPlay, delay)
-  } catch (error) {
-    const fallbackNote = findClosestNote(noteToPlay)
-    if (fallbackNote !== noteToPlay) {
-      playFallbackNote(guitarClassicalSampler, noteToPlay, delay)
-    } else {
-      throw error
-    }
+  if (!noteToPlay) {
+    return
   }
+
+  playNoteWithFallback(guitarClassicalSampler, noteToPlay, delay, duration)
 }
 
 const guitarSynthEngine: AudioEngine = {
-  playNote: async (note, startTime, ctx) => {
+  playNote: async (note, startTime, ctx, duration) => {
     try {
-      await playGuitarSynthNote(note, startTime, ctx)
+      await playGuitarSynthNote(note, startTime, ctx, duration)
     } catch (error) {
       console.error('Error playing guitar synth note:', error, {
         noteName: note.noteName,
@@ -279,9 +313,9 @@ const guitarSynthEngine: AudioEngine = {
 }
 
 const guitarClassicalEngine: AudioEngine = {
-  playNote: async (note, startTime, ctx) => {
+  playNote: async (note, startTime, ctx, duration) => {
     try {
-      await playGuitarClassicalNote(note, startTime, ctx)
+      await playGuitarClassicalNote(note, startTime, ctx, duration)
     } catch (error) {
       console.error('Error playing classical guitar note:', error, {
         noteName: note.noteName,

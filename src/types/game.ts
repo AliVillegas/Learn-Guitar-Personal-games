@@ -1,4 +1,13 @@
-import type { SolfegeNote, MeasureCount, GameNote, GuitarString } from './music'
+import type {
+  SolfegeNote,
+  MeasureCount,
+  GameNote,
+  GuitarString,
+  LessonType,
+  MultiVoiceGameNote,
+  MultiVoiceMeasureCount,
+  MelodyStringSelection,
+} from './music'
 
 export type GamePhase = 'config' | 'playing' | 'complete'
 
@@ -9,17 +18,30 @@ export interface StringNoteConfig {
 
 import type { InstrumentType } from './audio'
 
-export interface GameConfig {
+export interface SingleNotesConfig {
   selectedNotes: SolfegeNote[]
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
   instrument: InstrumentType
 }
 
+export interface MultiVoiceConfig {
+  stringNotes: StringNoteConfig[]
+  measureCount: MultiVoiceMeasureCount
+  melodyStrings: MelodyStringSelection
+  instrument: InstrumentType
+}
+
+export interface GameConfig {
+  lessonType: LessonType
+  singleNotes: SingleNotesConfig
+  multiVoice: MultiVoiceConfig
+}
+
 export interface GameState {
   phase: GamePhase
   config: GameConfig
-  sequence: GameNote[]
+  sequence: GameNote[] | MultiVoiceGameNote[]
   currentIndex: number
   score: { correct: number; incorrect: number }
 }

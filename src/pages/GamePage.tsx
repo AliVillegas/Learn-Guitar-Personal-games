@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Staff } from '../components/Staff/Staff'
 import { PlaybackControls } from '../components/PlaybackControls/PlaybackControls'
 import { AnswerSection } from '../components/PlayPanel/AnswerSection'
@@ -11,7 +11,9 @@ import { Button } from '../components/ui/button'
 import { useGameStore } from '../store/gameStore'
 import { useAppHandlers } from '../hooks/useAppHandlers'
 import { preloadGuitarSampler } from '../utils/audioEngines'
-import type { MeasureCount, NoteDefinition } from '../types/music'
+import { getNoteDefinitionsFromSequence, getCurrentNoteDefinition } from '../utils/sequenceHelpers'
+import { getCurrentMeasureCount } from '../store/gameStore'
+import type { MeasureCount, MultiVoiceMeasureCount, NoteDefinition } from '../types/music'
 
 function calculateCorrectCount(notes: ReturnType<typeof useGameStore>['sequence']): number {
   return notes.filter((n) => n.status === 'correct').length
@@ -21,7 +23,9 @@ function getCurrentNote(
   notes: ReturnType<typeof useGameStore>['sequence'],
   currentIndex: number
 ): NoteDefinition | null {
-  return notes[currentIndex]?.note || null
+  const current = notes[currentIndex]
+  if (!current) return null
+  return getCurrentNoteDefinition(current)
 }
 
 function getHighlightIndex(
@@ -48,24 +52,28 @@ function renderAnswerSection(handlers: Handlers) {
 function renderPlaybackSection(
   game: GameState,
   handlers: Handlers,
-  noteDefinitions: NoteDefinition[]
+  noteDefinitions: NoteDefinition[],
+  measureCount: MeasureCount | MultiVoiceMeasureCount
 ) {
+  const isMultiVoice = game.config.lessonType === 'multi-voice'
+
   return (
     <PlaybackControls
       notes={noteDefinitions}
       currentNote={getCurrentNote(game.sequence, game.currentIndex)}
-      measureCount={game.config.measureCount}
+      measureCount={measureCount}
       onPlayAll={handlers.handlePlayAll}
       onPlayCurrentNote={handlers.handlePlayCurrentNote}
       onPlayMeasure={handlers.handlePlayMeasure}
       isPlaying={handlers.audio.isPlaying}
+      showPlayCurrentNote={!isMultiVoice}
     />
   )
 }
 
 function renderStaffSection(
   notes: ReturnType<typeof useGameStore>['sequence'],
-  measureCount: MeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount,
   highlightIndex: number,
   isPlaying: boolean
 ) {
@@ -86,14 +94,15 @@ function renderCompletePhase(
   score: ReturnType<typeof useGameStore>['score'],
   sequenceLength: number,
   onPlayAgain: () => void,
-  onGoToConfig: () => void
+  onGoToHome: () => void
 ) {
   return (
     <ResultPanel
       correct={score.correct}
       total={sequenceLength}
       onPlayAgain={onPlayAgain}
-      onGoToConfig={onGoToConfig}
+      onGoToConfig={onPlayAgain}
+      onGoToHome={onGoToHome}
     />
   )
 }
@@ -106,8 +115,8 @@ function renderGameButtons(
 ) {
   return (
     <div className="flex justify-between items-center">
-      <Button onClick={() => navigate('/config')} variant="ghost" disabled={isPlaying}>
-        {t('game.backToConfig')}
+      <Button onClick={() => navigate('/')} variant="ghost" disabled={isPlaying}>
+        {t('app.backToHome')}
       </Button>
       <Button onClick={onRegenerate} variant="secondary" disabled={isPlaying}>
         {t('game.regenerate')}
@@ -120,19 +129,17 @@ function renderGameContent(
   game: GameState,
   handlers: Handlers,
   highlightIndex: number,
-  noteDefinitions: NoteDefinition[]
+  noteDefinitions: NoteDefinition[],
+  measureCount: MeasureCount | MultiVoiceMeasureCount
 ) {
+  const isMultiVoice = game.config.lessonType === 'multi-voice'
+
   return (
     <>
-      {renderStaffSection(
-        game.sequence,
-        game.config.measureCount,
-        highlightIndex,
-        handlers.audio.isPlaying
-      )}
-      {renderPlaybackSection(game, handlers, noteDefinitions)}
-      {renderAnswerSection(handlers)}
-      {renderScoreSection(game.sequence)}
+      {renderStaffSection(game.sequence, measureCount, highlightIndex, handlers.audio.isPlaying)}
+      {renderPlaybackSection(game, handlers, noteDefinitions, measureCount)}
+      {!isMultiVoice && renderAnswerSection(handlers)}
+      {!isMultiVoice && renderScoreSection(game.sequence)}
     </>
   )
 }
@@ -143,7 +150,8 @@ function renderPlayingPhase(
   navigate: (path: string) => void,
   t: (key: string) => string
 ) {
-  const noteDefinitions = game.sequence.map((gn) => gn.note)
+  const noteDefinitions = getNoteDefinitionsFromSequence(game.sequence)
+  const measureCount = getCurrentMeasureCount(game.config)
   const highlightIndex = getHighlightIndex(
     handlers.audio.isPlaying,
     handlers.audio.playingIndex,
@@ -158,7 +166,7 @@ function renderPlayingPhase(
   return (
     <div className="space-y-6">
       {renderGameButtons(navigate, handleRegenerate, t, handlers.audio.isPlaying)}
-      {renderGameContent(game, handlers, highlightIndex, noteDefinitions)}
+      {renderGameContent(game, handlers, highlightIndex, noteDefinitions, measureCount)}
     </div>
   )
 }
@@ -176,32 +184,62 @@ function usePreloadAudioOnGameStart(gamePhase: string) {
   }, [gamePhase])
 }
 
-export function GamePage() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const game = useGameStore()
-  const handlers = useAppHandlers()
+function getLessonTypeFromPath(pathname: string): 'single-notes' | 'multi-voice' | null {
+  if (pathname.includes('/lesson1')) return 'single-notes'
+  if (pathname.includes('/lesson2')) return 'multi-voice'
+  return null
+}
 
+function useLessonTypeSync(
+  lessonType: 'single-notes' | 'multi-voice' | null,
+  game: ReturnType<typeof useGameStore>
+) {
+  useEffect(() => {
+    if (lessonType && game.config.lessonType !== lessonType) {
+      game.setConfig({ ...game.config, lessonType })
+    }
+  }, [lessonType, game.config.lessonType])
+}
+
+function useAutoGenerateSequence(game: ReturnType<typeof useGameStore>) {
+  useEffect(() => {
+    if (game.phase === 'config') {
+      game.generateSequence()
+    }
+  }, [game.phase])
+}
+
+function createGamePageHandlers(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>
+) {
   const handlePlayAgain = () => {
     handlers.feedback.reset()
     game.generateSequence()
   }
 
-  const handleGoToConfig = () => {
+  const handleGoToHome = () => {
     handlers.handlePlayAgain()
-    navigate('/config')
   }
 
-  useEffect(() => {
-    if (game.phase !== 'playing' && game.phase !== 'complete') {
-      navigate('/config')
-    }
-  }, [game.phase, navigate])
+  return { handlePlayAgain, handleGoToHome }
+}
 
-  usePreloadAudioOnGameStart(game.phase)
-
+function renderGamePagePhase(
+  game: ReturnType<typeof useGameStore>,
+  handlers: ReturnType<typeof useAppHandlers>,
+  navigate: (path: string) => void,
+  t: (key: string) => string,
+  handlePlayAgain: () => void,
+  handleGoToHomeWithNavigate: () => void
+) {
   if (game.phase === 'complete') {
-    return renderCompletePhase(game.score, game.sequence.length, handlePlayAgain, handleGoToConfig)
+    return renderCompletePhase(
+      game.score,
+      game.sequence.length,
+      handlePlayAgain,
+      handleGoToHomeWithNavigate
+    )
   }
 
   if (game.phase !== 'playing') {
@@ -209,4 +247,39 @@ export function GamePage() {
   }
 
   return renderPlayingPhase(game, handlers, navigate, t)
+}
+
+export function GamePage() {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const game = useGameStore()
+  const handlers = useAppHandlers()
+
+  const lessonType = getLessonTypeFromPath(location.pathname)
+
+  useLessonTypeSync(lessonType, game)
+  useAutoGenerateSequence(game)
+  usePreloadAudioOnGameStart(game.phase)
+
+  const { handlePlayAgain, handleGoToHome } = createGamePageHandlers(game, handlers)
+
+  const handleGoToHomeWithNavigate = () => {
+    handleGoToHome()
+    navigate('/')
+  }
+
+  if (!lessonType) {
+    navigate('/')
+    return null
+  }
+
+  return renderGamePagePhase(
+    game,
+    handlers,
+    navigate,
+    t,
+    handlePlayAgain,
+    handleGoToHomeWithNavigate
+  )
 }

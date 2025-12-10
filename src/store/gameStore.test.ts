@@ -7,17 +7,33 @@ describe('useGameStore', () => {
     useGameStore.setState({
       phase: 'config',
       config: {
-        selectedNotes: ['do', 're', 'mi'],
-        stringNotes: [
-          { string: 6, notes: ['mi'] },
-          { string: 5, notes: ['la'] },
-          { string: 4, notes: ['re'] },
-          { string: 3, notes: ['sol'] },
-          { string: 2, notes: ['si'] },
-          { string: 1, notes: ['mi'] },
-        ],
-        measureCount: 1,
-        instrument: 'guitar-classical',
+        lessonType: 'single-notes',
+        singleNotes: {
+          selectedNotes: ['do', 're', 'mi'],
+          stringNotes: [
+            { string: 6, notes: ['mi'] },
+            { string: 5, notes: ['la'] },
+            { string: 4, notes: ['re'] },
+            { string: 3, notes: ['sol'] },
+            { string: 2, notes: ['si'] },
+            { string: 1, notes: ['mi'] },
+          ],
+          measureCount: 1,
+          instrument: 'guitar-classical',
+        },
+        multiVoice: {
+          stringNotes: [
+            { string: 6, notes: ['mi'] },
+            { string: 5, notes: ['la'] },
+            { string: 4, notes: ['re'] },
+            { string: 3, notes: ['sol'] },
+            { string: 2, notes: ['si'] },
+            { string: 1, notes: ['mi'] },
+          ],
+          measureCount: 4,
+          melodyStrings: 'both',
+          instrument: 'guitar-classical',
+        },
       },
       sequence: [],
       currentIndex: 0,
@@ -27,16 +43,28 @@ describe('useGameStore', () => {
 
   describe('setConfig', () => {
     it('updates config with partial values', () => {
-      useGameStore.getState().setConfig({ measureCount: 2 })
+      useGameStore.getState().setConfig({
+        singleNotes: {
+          ...useGameStore.getState().config.singleNotes,
+          measureCount: 2,
+        },
+      })
 
-      expect(useGameStore.getState().config.measureCount).toBe(2)
-      expect(useGameStore.getState().config.selectedNotes).toEqual(['do', 're', 'mi'])
+      const state = useGameStore.getState()
+      expect(state.config.singleNotes.measureCount).toBe(2)
+      expect(state.config.singleNotes.selectedNotes).toEqual(['do', 're', 'mi'])
     })
 
     it('updates instrument', () => {
-      useGameStore.getState().setConfig({ instrument: 'midi' })
+      useGameStore.getState().setConfig({
+        singleNotes: {
+          ...useGameStore.getState().config.singleNotes,
+          instrument: 'midi',
+        },
+      })
 
-      expect(useGameStore.getState().config.instrument).toBe('midi')
+      const state = useGameStore.getState()
+      expect(state.config.singleNotes.instrument).toBe('midi')
     })
 
     it('updates stringNotes', () => {
@@ -44,9 +72,15 @@ describe('useGameStore', () => {
         { string: 6, notes: ['mi', 'fa'] },
         { string: 5, notes: ['la'] },
       ]
-      useGameStore.getState().setConfig({ stringNotes: newStringNotes })
+      useGameStore.getState().setConfig({
+        singleNotes: {
+          ...useGameStore.getState().config.singleNotes,
+          stringNotes: newStringNotes,
+        },
+      })
 
-      expect(useGameStore.getState().config.stringNotes).toEqual(newStringNotes)
+      const state = useGameStore.getState()
+      expect(state.config.singleNotes.stringNotes).toEqual(newStringNotes)
     })
   })
 
@@ -69,7 +103,12 @@ describe('useGameStore', () => {
     })
 
     it('creates sequence for multiple measures', () => {
-      useGameStore.getState().setConfig({ measureCount: 2 })
+      useGameStore.getState().setConfig({
+        singleNotes: {
+          ...useGameStore.getState().config.singleNotes,
+          measureCount: 2,
+        },
+      })
       useGameStore.getState().generateSequence()
 
       const state = useGameStore.getState()
@@ -78,10 +117,13 @@ describe('useGameStore', () => {
 
     it('returns empty sequence when no notes available', () => {
       useGameStore.getState().setConfig({
-        stringNotes: [
-          { string: 6, notes: [] },
-          { string: 5, notes: [] },
-        ],
+        singleNotes: {
+          ...useGameStore.getState().config.singleNotes,
+          stringNotes: [
+            { string: 6, notes: [] },
+            { string: 5, notes: [] },
+          ],
+        },
       })
       useGameStore.getState().generateSequence()
 

@@ -7,11 +7,9 @@ interface ConfigSectionProps {
   stringNotes: StringNoteConfig[]
   measureCount: MeasureCount
   instrument: InstrumentType
-  autoPlayOnGenerate: boolean
   onToggleStringNote: (guitarString: GuitarString, note: SolfegeNote) => void
   onChangeMeasure: (count: MeasureCount) => void
   onChangeInstrument: (instrument: InstrumentType) => void
-  onChangeAutoPlay: (autoPlay: boolean) => void
   onGenerate: () => void
 }
 
@@ -19,11 +17,9 @@ export function ConfigSection({
   stringNotes,
   measureCount,
   instrument,
-  autoPlayOnGenerate,
   onToggleStringNote,
   onChangeMeasure,
   onChangeInstrument,
-  onChangeAutoPlay,
   onGenerate,
 }: ConfigSectionProps) {
   return (
@@ -31,11 +27,9 @@ export function ConfigSection({
       stringNotes={stringNotes}
       measureCount={measureCount}
       instrument={instrument}
-      autoPlayOnGenerate={autoPlayOnGenerate}
       onToggleStringNote={onToggleStringNote}
       onChangeMeasure={onChangeMeasure}
       onChangeInstrument={onChangeInstrument}
-      onChangeAutoPlay={onChangeAutoPlay}
       onGenerate={onGenerate}
     />
   )

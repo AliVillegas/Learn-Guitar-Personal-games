@@ -9,7 +9,7 @@ import {
   getGuitarSoundingFrequency,
 } from '../utils/notes'
 import { getAudioEngine, preloadGuitarSampler } from '../utils/audioEngines'
-import { useGameStore } from '../store/gameStore'
+import { useSettingsStore } from '../store/settingsStore'
 import type { GameNote, GuitarString } from '../types/music'
 import type { InstrumentType } from '../types/audio'
 
@@ -263,7 +263,7 @@ function OctaveDisplaySection({ notes, instrument }: { notes: GameNote[]; instru
 export function DebugPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const config = useGameStore((state) => state.config)
+  const instrument = useSettingsStore((state) => state.instrument)
   const allNotes = generateAllNotes()
   const allStrings = getAllGuitarStrings()
 
@@ -276,18 +276,13 @@ export function DebugPage() {
         <Staff notes={allNotes} measureCount={4} currentIndex={-1} />
       </div>
 
-      <OctaveDisplaySection notes={allNotes} instrument={config.instrument} />
+      <OctaveDisplaySection notes={allNotes} instrument={instrument} />
 
       <div className="space-y-6">
         <h3 className="text-xl font-semibold">{t('debug.noteTesting')}</h3>
 
         {allStrings.map((string) => (
-          <StringSection
-            key={string}
-            string={string}
-            notes={allNotes}
-            instrument={config.instrument}
-          />
+          <StringSection key={string} string={string} notes={allNotes} instrument={instrument} />
         ))}
       </div>
     </div>

@@ -43,17 +43,33 @@ describe('GamePage', () => {
     useGameStore.setState({
       phase: 'playing',
       config: {
-        selectedNotes: ['do', 're', 'mi'],
-        stringNotes: [
-          { string: 1, notes: ['mi'] },
-          { string: 2, notes: ['si'] },
-          { string: 3, notes: ['sol'] },
-          { string: 4, notes: ['re'] },
-          { string: 5, notes: ['la'] },
-          { string: 6, notes: ['mi'] },
-        ],
-        measureCount: 1,
-        instrument: 'guitar-classical',
+        lessonType: 'single-notes',
+        singleNotes: {
+          selectedNotes: ['do', 're', 'mi'],
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 1,
+          instrument: 'guitar-classical',
+        },
+        multiVoice: {
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 4,
+          melodyStrings: 'both',
+          instrument: 'guitar-classical',
+        },
       },
       sequence: [
         {
@@ -84,7 +100,7 @@ describe('GamePage', () => {
 
   it('renders game panel when phase is playing', () => {
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -94,7 +110,7 @@ describe('GamePage', () => {
 
   it('renders regenerate button', () => {
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -102,20 +118,20 @@ describe('GamePage', () => {
     expect(screen.getByRole('button', { name: /regenerate/i })).toBeInTheDocument()
   })
 
-  it('renders back to config button', () => {
+  it('renders back to home button', () => {
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
 
-    expect(screen.getByRole('button', { name: /back to config/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /back to lessons/i })).toBeInTheDocument()
   })
 
   it('calls navigate when regenerate button is clicked', async () => {
     const user = userEvent.setup()
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -133,7 +149,7 @@ describe('GamePage', () => {
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -141,33 +157,62 @@ describe('GamePage', () => {
     expect(screen.getByText(/round complete/i)).toBeInTheDocument()
   })
 
-  it('navigates to config when back button is clicked', async () => {
+  it('navigates to home when back button is clicked', async () => {
     const user = userEvent.setup()
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
 
-    const backButton = screen.getByRole('button', { name: /back to config/i })
+    const backButton = screen.getByRole('button', { name: /back to lessons/i })
     await user.click(backButton)
 
-    expect(mockNavigate).toHaveBeenCalledWith('/config')
+    expect(mockNavigate).toHaveBeenCalledWith('/')
   })
 
-  it('navigates to config when phase is config', () => {
+  it('auto-generates sequence when phase is config', () => {
     useGameStore.setState({
       ...useGameStore.getState(),
       phase: 'config',
+      config: {
+        lessonType: 'single-notes',
+        singleNotes: {
+          selectedNotes: ['do', 're', 'mi'],
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 1,
+          instrument: 'guitar-classical',
+        },
+        multiVoice: {
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 4,
+          melodyStrings: 'both',
+          instrument: 'guitar-classical',
+        },
+      },
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
 
-    expect(mockNavigate).toHaveBeenCalledWith('/config')
+    expect(useGameStore.getState().phase).toBe('playing')
   })
 
   it('regenerates sequence when play again is clicked', async () => {
@@ -179,7 +224,7 @@ describe('GamePage', () => {
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -192,7 +237,7 @@ describe('GamePage', () => {
     generateSequenceSpy.mockRestore()
   })
 
-  it('navigates to config when go to config is clicked', async () => {
+  it('navigates to home when go to home is clicked', async () => {
     const user = userEvent.setup()
     useGameStore.setState({
       ...useGameStore.getState(),
@@ -200,30 +245,60 @@ describe('GamePage', () => {
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
 
-    const goToConfigButton = screen.getByRole('button', { name: /go to config/i })
-    await user.click(goToConfigButton)
+    const goToHomeButton = screen.getByRole('button', { name: /back to lessons/i })
+    await user.click(goToHomeButton)
 
-    expect(mockNavigate).toHaveBeenCalledWith('/config')
+    expect(mockNavigate).toHaveBeenCalledWith('/')
   })
 
-  it('returns null when phase is not playing or complete', () => {
+  it('auto-generates sequence when phase is config and renders playing phase', () => {
     useGameStore.setState({
       ...useGameStore.getState(),
       phase: 'config',
+      config: {
+        lessonType: 'single-notes',
+        singleNotes: {
+          selectedNotes: ['do', 're', 'mi'],
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 1,
+          instrument: 'guitar-classical',
+        },
+        multiVoice: {
+          stringNotes: [
+            { string: 1, notes: ['mi'] },
+            { string: 2, notes: ['si'] },
+            { string: 3, notes: ['sol'] },
+            { string: 4, notes: ['re'] },
+            { string: 5, notes: ['la'] },
+            { string: 6, notes: ['mi'] },
+          ],
+          measureCount: 4,
+          melodyStrings: 'both',
+          instrument: 'guitar-classical',
+        },
+      },
     })
 
     const { container } = render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
 
-    expect(container.firstChild).toBeNull()
+    expect(useGameStore.getState().phase).toBe('playing')
+    expect(container.firstChild).not.toBeNull()
   })
 
   it('handles null current note', () => {
@@ -234,7 +309,7 @@ describe('GamePage', () => {
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )
@@ -256,7 +331,7 @@ describe('GamePage', () => {
     })
 
     render(
-      <RouterWrapper>
+      <RouterWrapper initialEntries={['/game/lesson1']}>
         <GamePage />
       </RouterWrapper>
     )

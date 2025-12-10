@@ -1,8 +1,14 @@
 import { ConfigSection } from '../ConfigSection/ConfigSection'
 import { PlayPanel } from '../PlayPanel/PlayPanel'
 import { ResultPanel } from '../ResultPanel/ResultPanel'
-import { useGameStore } from '../../store/gameStore'
+import {
+  useGameStore,
+  getCurrentStringNotes,
+  getCurrentMeasureCount,
+  getCurrentInstrument,
+} from '../../store/gameStore'
 import { useAppHandlers } from '../../hooks/useAppHandlers'
+import { getNoteDefinitionsFromSequence } from '../../utils/sequenceHelpers'
 
 function renderConfig(
   config: ReturnType<typeof useGameStore>['config'],
@@ -10,9 +16,9 @@ function renderConfig(
 ) {
   return (
     <ConfigSection
-      stringNotes={config.stringNotes}
-      measureCount={config.measureCount}
-      instrument={config.instrument}
+      stringNotes={getCurrentStringNotes(config)}
+      measureCount={getCurrentMeasureCount(config)}
+      instrument={getCurrentInstrument(config)}
       onToggleStringNote={handlers.handleToggleStringNote}
       onChangeMeasure={handlers.handleChangeMeasure}
       onChangeInstrument={handlers.handleChangeInstrument}
@@ -39,11 +45,11 @@ function renderPlaying(
   game: ReturnType<typeof useGameStore>,
   handlers: ReturnType<typeof useAppHandlers>
 ) {
-  const noteDefinitions = game.sequence.map((gn) => gn.note)
+  const noteDefinitions = getNoteDefinitionsFromSequence(game.sequence)
   return (
     <PlayPanel
       notes={game.sequence}
-      measureCount={game.config.measureCount}
+      measureCount={getCurrentMeasureCount(game.config)}
       currentIndex={game.currentIndex}
       noteDefinitions={noteDefinitions}
       isComplete={false}
