@@ -191,11 +191,14 @@ async function scheduleTimedSequence(
     timeoutIds.push(timeoutId)
 
     if (metronomeEnabled) {
-      for (let beat = 0; beat < beatsPerMeasure; beat++) {
-        const beatTime = measureStartTime + beat * beatDuration
-        const isAccent = beat === 0
-        scheduleMetronomeClick(ctx, beatTime, isAccent)
-      }
+      scheduleMeasureMetronome(
+        ctx,
+        measureStartTime,
+        beatDuration,
+        beatsPerMeasure,
+        metronomeSubdivision,
+        instrument
+      )
     }
 
     timedNotes.forEach((timedNote) => {
@@ -272,6 +275,30 @@ function scheduleSubdividedClicks(
     const clickTime = noteStartTime + i * subdivisionDuration + GUITAR_ATTACK_COMPENSATION
     const isAccent = i === 0
     scheduleMetronomeClick(ctx, clickTime, isAccent)
+  }
+}
+
+function scheduleMeasureMetronome(
+  ctx: AudioContext,
+  measureStartTime: number,
+  beatDuration: number,
+  beatsPerMeasure: number,
+  metronomeSubdivision: MetronomeSubdivision,
+  instrument: InstrumentType
+): void {
+  const useCompensation = isGuitarInstrument(instrument)
+  if (metronomeSubdivision === 1) {
+    for (let beat = 0; beat < beatsPerMeasure; beat++) {
+      const beatTime = measureStartTime + beat * beatDuration
+      const compensatedTime = useCompensation ? beatTime + GUITAR_ATTACK_COMPENSATION : beatTime
+      const isAccent = beat === 0
+      scheduleMetronomeClick(ctx, compensatedTime, isAccent)
+    }
+  } else {
+    for (let beat = 0; beat < beatsPerMeasure; beat++) {
+      const beatStartTime = measureStartTime + beat * beatDuration
+      scheduleSubdividedClicks(ctx, beatStartTime, beatDuration, metronomeSubdivision)
+    }
   }
 }
 
