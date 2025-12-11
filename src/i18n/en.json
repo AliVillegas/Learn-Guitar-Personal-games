@@ -14,8 +14,13 @@
     },
     "measures": "Measures",
     "minStringNotesWarning": "Select at least one note from any string",
-    "selectStringNotes": "Select notes for each string",
-    "stackedNotes": "Allow stacked notes on beats 2 and 3"
+    "noteMode": "Note Mode",
+    "noteModes": {
+      "mixed": "Mixed",
+      "single": "Single",
+      "stacked": "Stacked"
+    },
+    "selectStringNotes": "Select notes for each string"
   },
   "debug": {
     "allNotesDisplay": "All Notes Combined",

@@ -57,7 +57,6 @@ function createGenerateHandler(feedback: ReturnType<typeof useAnswerFeedback>) {
 
 function createChangeInstrumentHandler() {
   return (instrument: InstrumentType) => {
-    useLesson2Store.getState().setConfig({ instrument })
     useSettingsStore.getState().setInstrument(instrument)
     if (instrument === 'guitar-synth' || instrument === 'guitar-classical') {
       preloadGuitarSampler()

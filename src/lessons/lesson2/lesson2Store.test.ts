@@ -21,17 +21,8 @@ describe('useLesson2Store', () => {
     useLesson2Store.setState({
       phase: 'config',
       config: {
-        stringNotes: [
-          { string: 6, notes: ['mi'] },
-          { string: 5, notes: ['la'] },
-          { string: 4, notes: ['re'] },
-          { string: 3, notes: ['sol'] },
-          { string: 2, notes: ['si'] },
-          { string: 1, notes: ['mi'] },
-        ],
         measureCount: 4,
-        melodyStrings: 'both',
-        instrument: 'guitar-classical',
+        noteMode: 'single',
       },
       sequence: [],
       currentIndex: 0,
@@ -44,19 +35,19 @@ describe('useLesson2Store', () => {
       useLesson2Store.getState().setConfig({ measureCount: 5 })
 
       expect(useLesson2Store.getState().config.measureCount).toBe(5)
-      expect(useLesson2Store.getState().config.instrument).toBe('guitar-classical')
+      expect(useLesson2Store.getState().config.noteMode).toBe('single')
     })
 
-    it('updates instrument', () => {
-      useLesson2Store.getState().setConfig({ instrument: 'midi' })
+    it('updates noteMode', () => {
+      useLesson2Store.getState().setConfig({ noteMode: 'stacked' })
 
-      expect(useLesson2Store.getState().config.instrument).toBe('midi')
+      expect(useLesson2Store.getState().config.noteMode).toBe('stacked')
     })
 
-    it('updates melodyStrings', () => {
-      useLesson2Store.getState().setConfig({ melodyStrings: 2 })
+    it('updates noteMode to mixed', () => {
+      useLesson2Store.getState().setConfig({ noteMode: 'mixed' })
 
-      expect(useLesson2Store.getState().config.melodyStrings).toBe(2)
+      expect(useLesson2Store.getState().config.noteMode).toBe('mixed')
     })
   })
 
@@ -65,7 +56,7 @@ describe('useLesson2Store', () => {
       useLesson2Store.setState({
         config: {
           measureCount: 4,
-          allowStackedNotes: false,
+          noteMode: 'single',
         },
       })
     })
@@ -89,20 +80,51 @@ describe('useLesson2Store', () => {
       }
     })
 
-    it('does not create seconds when allowStackedNotes is true', () => {
+    it('generates single note mode correctly', () => {
       useLesson2Store.setState({
         config: {
           measureCount: 4,
-          allowStackedNotes: true,
+          noteMode: 'single',
         },
       })
 
       useLesson2Store.getState().generateSequence()
 
       const state = useLesson2Store.getState()
-      state.sequence.forEach((measure) => {
-        checkNoSecondsInMeasure(measure)
+      state.sequence.forEach(checkSingleNoteMeasure)
+    })
+
+    it('generates stacked note mode correctly', () => {
+      useLesson2Store.setState({
+        config: {
+          measureCount: 4,
+          noteMode: 'stacked',
+        },
       })
+
+      useLesson2Store.getState().generateSequence()
+
+      const state = useLesson2Store.getState()
+      state.sequence.forEach(checkStackedNoteMeasure)
+    })
+
+    it('generates mixed mode with varying patterns', () => {
+      useLesson2Store.setState({
+        config: {
+          measureCount: 8,
+          noteMode: 'mixed',
+        },
+      })
+
+      useLesson2Store.getState().generateSequence()
+
+      const state = useLesson2Store.getState()
+      const stackedCount = state.sequence.filter((measure) => measure.allowStacked === true).length
+      const singleCount = state.sequence.filter((measure) => measure.allowStacked === false).length
+
+      expect(stackedCount + singleCount).toBe(state.sequence.length)
+      expect(stackedCount).toBeGreaterThan(0)
+      expect(singleCount).toBeGreaterThan(0)
     })
   })
 
@@ -219,4 +241,15 @@ function checkNoSecondsInMeasure(measure: MultiVoiceGameNote): void {
     const pos2 = note2.staffPosition
     expect(Math.abs(pos1 - pos2)).not.toBe(1)
   }
+}
+
+function checkSingleNoteMeasure(measure: MultiVoiceGameNote): void {
+  const melodyNotes = measure.melodyVoice.filter((vn) => vn.note !== null)
+  expect(melodyNotes.length).toBeLessThanOrEqual(2)
+}
+
+function checkStackedNoteMeasure(measure: MultiVoiceGameNote): void {
+  checkNoSecondsInMeasure(measure)
+  const melodyNotes = measure.melodyVoice.filter((vn) => vn.note !== null)
+  expect(melodyNotes.length).toBeGreaterThanOrEqual(2)
 }

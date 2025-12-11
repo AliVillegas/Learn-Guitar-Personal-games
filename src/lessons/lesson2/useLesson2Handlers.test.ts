@@ -42,10 +42,8 @@ describe('useLesson2Handlers', () => {
       currentIndex: 0,
       score: { correct: 0, incorrect: 0 },
       config: {
-        stringNotes: [],
         measureCount: 4,
-        allowStackedNotes: true,
-        instrument: 'guitar-classical',
+        noteMode: 'single',
       },
     })
     useSettingsStore.setState({
@@ -102,13 +100,12 @@ describe('useLesson2Handlers', () => {
     expect(generateSequenceSpy).toHaveBeenCalled()
   })
 
-  it('handleChangeInstrument updates stores and preloads guitar sampler', async () => {
+  it('handleChangeInstrument updates settings store and preloads guitar sampler', async () => {
     const { result } = renderHook(() => useLesson2Handlers())
     const { preloadGuitarSampler } = await import('../../utils/audioEngines')
 
     result.current.handleChangeInstrument('guitar-synth')
 
-    expect(useLesson2Store.getState().config.instrument).toBe('guitar-synth')
     expect(useSettingsStore.getState().instrument).toBe('guitar-synth')
     expect(preloadGuitarSampler).toHaveBeenCalled()
   })

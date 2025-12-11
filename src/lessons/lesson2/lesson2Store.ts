@@ -10,9 +10,11 @@ import { createNoteDefinition, getNotesForString, getStaffPosition } from '../..
 import { useSettingsStore } from '../../store/settingsStore'
 import type { LessonPhase, LessonScore } from '../common/types'
 
+type NoteMode = 'single' | 'stacked' | 'mixed'
+
 interface Lesson2Config {
   measureCount: MultiVoiceMeasureCount
-  allowStackedNotes: boolean
+  noteMode: NoteMode
 }
 
 interface Lesson2State {
@@ -144,10 +146,14 @@ function pickMelodyNotes(
   return { note1: melodyNote1Def, note2: melodyNote2Def }
 }
 
+function shouldUseStackedNotes(noteMode: NoteMode): boolean {
+  return noteMode === 'stacked' || (noteMode === 'mixed' && Math.random() > 0.5)
+}
+
 function generateMultiVoiceMeasure(
   stringNotes: StringNoteConfig[],
   measureIndex: number,
-  allowStacked: boolean
+  noteMode: NoteMode
 ): MultiVoiceGameNote | null {
   const bassStrings: number[] = [4, 5, 6]
   const bassString = pickRandomNote(bassStrings)
@@ -160,29 +166,31 @@ function generateMultiVoiceMeasure(
   const melodyStrings: number[] = [2, 3].filter((s) => s < bassString)
   if (melodyStrings.length === 0) return null
 
-  const melodyNotes = pickMelodyNotes(melodyStrings, stringNotes, allowStacked)
+  const shouldUseStacked = shouldUseStackedNotes(noteMode)
+
+  const melodyNotes = pickMelodyNotes(melodyStrings, stringNotes, shouldUseStacked)
   if (!melodyNotes) return null
 
-  const melodyVoice = createMelodyVoice(melodyNotes.note1, melodyNotes.note2, allowStacked)
+  const melodyVoice = createMelodyVoice(melodyNotes.note1, melodyNotes.note2, shouldUseStacked)
 
   return {
     id: generateId(),
     bassVoice,
     melodyVoice,
     status: measureIndex === 0 ? 'active' : 'pending',
-    allowStacked,
+    allowStacked: shouldUseStacked,
   }
 }
 
 function generateMultiVoiceSequence(
   stringNotes: StringNoteConfig[],
   measureCount: MultiVoiceMeasureCount,
-  allowStacked: boolean
+  noteMode: NoteMode
 ): MultiVoiceGameNote[] {
   const sequence: MultiVoiceGameNote[] = []
 
   for (let measureIndex = 0; measureIndex < measureCount; measureIndex++) {
-    const measure = generateMultiVoiceMeasure(stringNotes, measureIndex, allowStacked)
+    const measure = generateMultiVoiceMeasure(stringNotes, measureIndex, noteMode)
     if (measure) {
       sequence.push(measure)
     }
@@ -287,7 +295,7 @@ function processAnswer(state: Lesson2State, answer: SolfegeNote): Partial<Lesson
 function loadConfigFromSettings(): Lesson2Config {
   return {
     measureCount: 4,
-    allowStackedNotes: false,
+    noteMode: 'mixed',
   }
 }
 
@@ -318,7 +326,7 @@ function createGenerateSequenceHandler(
       const sequence = generateMultiVoiceSequence(
         settings.stringNotes,
         state.config.measureCount,
-        state.config.allowStackedNotes
+        state.config.noteMode
       )
       return {
         phase: 'playing' as const,

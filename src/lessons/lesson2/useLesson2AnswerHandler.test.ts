@@ -45,10 +45,8 @@ describe('createLesson2AnswerHandler', () => {
       currentIndex: 0,
       score: { correct: 0, incorrect: 0 },
       config: {
-        stringNotes: [],
         measureCount: 4,
-        allowStackedNotes: true,
-        instrument: 'guitar-classical',
+        noteMode: 'single',
       },
     })
   })

@@ -14,8 +14,13 @@
     },
     "measures": "Compases",
     "minStringNotesWarning": "Selecciona al menos una nota de cualquier cuerda",
-    "selectStringNotes": "Selecciona las notas para cada cuerda",
-    "stackedNotes": "Permitir notas apiladas en tiempos 2 y 3"
+    "noteMode": "Modo de Notas",
+    "noteModes": {
+      "mixed": "Mixto",
+      "single": "Individual",
+      "stacked": "Apilado"
+    },
+    "selectStringNotes": "Selecciona las notas para cada cuerda"
   },
   "debug": {
     "allNotesDisplay": "Todas las Notas Combinadas",

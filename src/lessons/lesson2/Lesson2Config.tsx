@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { Select } from '../../components/ui/select'
-import { Checkbox } from '../../components/ui/checkbox'
 import { useLesson2Store } from './lesson2Store'
 import type { MultiVoiceMeasureCount } from '../../types/music'
+
+type NoteMode = 'single' | 'stacked' | 'mixed'
 
 function BackToHomeButton() {
   const { t } = useTranslation()
@@ -21,9 +22,9 @@ function handleChangeMeasure(count: MultiVoiceMeasureCount) {
   lessonStore.setConfig({ measureCount: count })
 }
 
-function handleChangeStackedNotes(allowStacked: boolean) {
+function handleChangeNoteMode(noteMode: NoteMode) {
   const lessonStore = useLesson2Store.getState()
-  lessonStore.setConfig({ allowStackedNotes: allowStacked })
+  lessonStore.setConfig({ noteMode })
 }
 
 function renderMeasureSelector(
@@ -45,17 +46,19 @@ function renderMeasureSelector(
   )
 }
 
-function renderStackedNotesOption(
+function renderNoteModeSelector(
   t: (key: string) => string,
-  allowStacked: boolean,
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  noteMode: NoteMode,
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 ) {
   return (
     <div className="flex items-center gap-3">
-      <Checkbox id="stacked-notes" checked={allowStacked} onChange={onChange} />
-      <label htmlFor="stacked-notes" className="text-sm font-medium text-foreground cursor-pointer">
-        {t('config.stackedNotes')}
-      </label>
+      <label className="text-sm font-medium text-foreground">{t('config.noteMode')}:</label>
+      <Select value={noteMode} onChange={onChange} className="w-32">
+        <option value="single">{t('config.noteModes.single')}</option>
+        <option value="stacked">{t('config.noteModes.stacked')}</option>
+        <option value="mixed">{t('config.noteModes.mixed')}</option>
+      </Select>
     </div>
   )
 }
@@ -69,8 +72,9 @@ export function Lesson2Config() {
     handleChangeMeasure(value)
   }
 
-  const handleStackedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChangeStackedNotes(e.target.checked)
+  const handleNoteModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as NoteMode
+    handleChangeNoteMode(value)
   }
 
   const handleGenerate = () => {
@@ -82,7 +86,7 @@ export function Lesson2Config() {
       <BackToHomeButton />
       <div className="bg-card border border-border rounded-lg p-6 space-y-6">
         {renderMeasureSelector(t, game.config.measureCount, handleMeasureChange)}
-        {renderStackedNotesOption(t, game.config.allowStackedNotes, handleStackedChange)}
+        {renderNoteModeSelector(t, game.config.noteMode, handleNoteModeChange)}
         <Button onClick={handleGenerate} className="w-full" size="lg">
           {t('config.generate')}
         </Button>
