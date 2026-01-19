@@ -169,7 +169,7 @@ function createSoloMelodyVoiceWithEighthNotes(
 
 function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGameNote[] {
   const sequence: MultiVoiceGameNote[] = []
-  const fixedMeasures = 60
+  const fixedMeasures = 36
 
   const availableStrings = stringNotes.filter((sn) => sn.notes.length > 0).map((sn) => sn.string)
 
@@ -329,23 +329,23 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     melody4?: SolfegeNote
     rhythmType?: 'standard' | 'cheerful' | 'complex' | 'fast'
   } | null {
-    if (measureIndex < 10) {
+    if (measureIndex < 8) {
       return introProgressions[measureIndex]
+    } else if (measureIndex < 16) {
+      return developmentProgressions[measureIndex - 8]
     } else if (measureIndex < 20) {
-      return developmentProgressions[measureIndex - 10]
+      return buildUpProgressions[measureIndex - 16]
     } else if (measureIndex < 30) {
-      return buildUpProgressions[measureIndex - 20]
-    } else if (measureIndex < 40) {
       return null
-    } else if (measureIndex < 50) {
-      return resolutionProgressions[measureIndex - 40]
+    } else if (measureIndex < 34) {
+      return resolutionProgressions[measureIndex - 30]
     } else {
-      return outroProgressions[measureIndex - 50]
+      return outroProgressions[measureIndex - 34]
     }
   }
 
   for (let measureIndex = 0; measureIndex < fixedMeasures; measureIndex++) {
-    const isSoloSection = measureIndex >= 30 && measureIndex < 40
+    const isSoloSection = measureIndex >= 20 && measureIndex < 30
 
     if (isSoloSection) {
       if (allMelodyNotes.length === 0) continue

@@ -57,7 +57,7 @@ export function Lesson6Config() {
       <BackToHomeButton />
       <ConfigSection
         stringNotes={game.config.stringNotes}
-        measureCount={60}
+        measureCount={36}
         instrument={game.config.instrument}
         onToggleStringNote={handleToggleStringNote}
         onChangeMeasure={() => {}}
