@@ -37,7 +37,6 @@ function handleToggleStringNote(guitarString: GuitarString, note: SolfegeNote) {
   settingsStore.setStringNotes(updatedStringNotes)
 }
 
-
 function handleChangeInstrument(instrument: InstrumentType) {
   const lessonStore = useLesson4Store.getState()
   const settingsStore = useSettingsStore.getState()
@@ -56,16 +55,16 @@ export function Lesson4Config() {
   return (
     <div className="space-y-4">
       <BackToHomeButton />
-        <ConfigSection
-          stringNotes={game.config.stringNotes}
-          measureCount={4}
-          instrument={game.config.instrument}
-          onToggleStringNote={handleToggleStringNote}
-          onChangeMeasure={() => {}}
-          onChangeInstrument={handleChangeInstrument}
-          onGenerate={handleGenerate}
-          hideMeasureSelector={true}
-        />
+      <ConfigSection
+        stringNotes={game.config.stringNotes}
+        measureCount={4}
+        instrument={game.config.instrument}
+        onToggleStringNote={handleToggleStringNote}
+        onChangeMeasure={() => {}}
+        onChangeInstrument={handleChangeInstrument}
+        onGenerate={handleGenerate}
+        hideMeasureSelector={true}
+      />
     </div>
   )
 }

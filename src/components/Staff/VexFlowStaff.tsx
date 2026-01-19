@@ -352,7 +352,14 @@ function renderMultiVoiceMeasure(
   beatsPerMeasure: number = 3
 ): void {
   const timeSignature = beatsPerMeasure === 4 ? '4/4' : '3/4'
-  const stave = createStaveForMeasure(measureIndex, staveWidth, context, yPosition, isFirstInRow, timeSignature)
+  const stave = createStaveForMeasure(
+    measureIndex,
+    staveWidth,
+    context,
+    yPosition,
+    isFirstInRow,
+    timeSignature
+  )
   const { bassVoice, melodyVoice } = createMultiVoiceStaveNotes(multiVoiceNote, isActive)
   const { bassVoiceObj, melodyVoiceObj } = createVoiceObjects(
     bassVoice,

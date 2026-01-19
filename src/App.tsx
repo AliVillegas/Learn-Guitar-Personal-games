@@ -16,10 +16,14 @@ function AppFooter() {
   const { t } = useTranslation()
 
   return (
-    <footer className="border-t border-border bg-background mt-auto">
-      <div className="container mx-auto px-4 py-2 flex justify-center items-center gap-4">
+    <footer className="border-t border-border/50 bg-background/50 backdrop-blur-sm mt-auto">
+      <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-center items-center gap-4">
         <span className="text-xs text-muted-foreground">v{VERSION}</span>
-        <Link to="/debug" className="text-xs text-muted-foreground hover:text-foreground underline">
+        <span className="hidden md:inline text-muted-foreground">•</span>
+        <Link
+          to="/debug"
+          className="text-xs text-muted-foreground hover:text-primary transition-colors duration-200"
+        >
           {t('debug.title')}
         </Link>
       </div>
@@ -33,14 +37,16 @@ function AppHeader() {
   const isHomePage = location.pathname === '/'
 
   return (
-    <header className="border-b border-border bg-background sticky top-0 z-50">
+    <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50 shadow-soft">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         {isHomePage ? (
-          <h1 className="text-2xl font-semibold text-foreground">{t('app.homeTitle')}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+            {t('app.homeTitle')}
+          </h1>
         ) : (
           <Link
             to="/"
-            className="text-2xl font-semibold text-foreground hover:text-primary transition-colors"
+            className="text-2xl md:text-3xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-105"
           >
             {t('app.title')}
           </Link>
@@ -56,7 +62,7 @@ function App() {
     <div className="min-h-screen bg-background flex flex-col">
       <AppHeader />
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main className="flex-1 container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/game/lesson1" element={<Lesson1Page />} />

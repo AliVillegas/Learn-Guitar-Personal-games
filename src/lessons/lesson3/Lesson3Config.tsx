@@ -38,7 +38,6 @@ function handleToggleStringNote(guitarString: GuitarString, note: SolfegeNote) {
   settingsStore.setStringNotes(updatedStringNotes)
 }
 
-
 function handleChangeInstrument(instrument: InstrumentType) {
   const lessonStore = useLesson3Store.getState()
   const settingsStore = useSettingsStore.getState()

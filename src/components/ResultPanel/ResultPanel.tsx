@@ -9,6 +9,60 @@ interface ResultPanelProps {
   onGoToHome?: () => void
 }
 
+function getResultEmoji(percentage: number): string {
+  if (percentage >= 90) return '🎉'
+  if (percentage >= 70) return '✨'
+  return '🎯'
+}
+
+function ResultContent({ correct, total }: { correct: number; total: number }) {
+  const { t } = useTranslation()
+  const percentage = Math.round((correct / total) * 100)
+
+  return (
+    <div className="space-y-4">
+      <div className="text-6xl mb-4">{getResultEmoji(percentage)}</div>
+      <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+        {t('result.complete')}
+      </h2>
+      <p className="text-xl md:text-2xl text-muted-foreground font-medium">
+        {t('result.finalScore', { correct, total })}
+      </p>
+      <div className="inline-block px-6 py-2 bg-primary/10 rounded-full">
+        <span className="text-2xl font-bold text-primary">{percentage}%</span>
+      </div>
+    </div>
+  )
+}
+
+function ResultActions({
+  onPlayAgain,
+  onGoToConfig,
+  onGoToHome,
+}: {
+  onPlayAgain: () => void
+  onGoToConfig: () => void
+  onGoToHome?: () => void
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex flex-wrap gap-4 justify-center">
+      {onGoToHome && (
+        <Button onClick={onGoToHome} size="lg" variant="outline">
+          {t('app.backToHome')}
+        </Button>
+      )}
+      <Button onClick={onGoToConfig} size="lg" variant="outline">
+        {t('result.goToConfig')}
+      </Button>
+      <Button onClick={onPlayAgain} size="lg" variant="default">
+        {t('result.playAgain')}
+      </Button>
+    </div>
+  )
+}
+
 export function ResultPanel({
   correct,
   total,
@@ -16,25 +70,14 @@ export function ResultPanel({
   onGoToConfig,
   onGoToHome,
 }: ResultPanelProps) {
-  const { t } = useTranslation()
-
   return (
-    <div className="bg-card border border-border rounded-lg p-8 space-y-6 text-center">
-      <h2 className="text-3xl font-semibold text-[#0d6efd]">{t('result.complete')}</h2>
-      <p className="text-lg text-muted-foreground">{t('result.finalScore', { correct, total })}</p>
-      <div className="flex gap-4 justify-center">
-        {onGoToHome && (
-          <Button onClick={onGoToHome} size="lg" variant="outline">
-            {t('app.backToHome')}
-          </Button>
-        )}
-        <Button onClick={onGoToConfig} size="lg" variant="outline">
-          {t('result.goToConfig')}
-        </Button>
-        <Button onClick={onPlayAgain} size="lg" variant="default">
-          {t('result.playAgain')}
-        </Button>
-      </div>
+    <div className="bg-card border-2 border-border rounded-xl p-8 md:p-12 space-y-8 text-center shadow-large animate-scale-in">
+      <ResultContent correct={correct} total={total} />
+      <ResultActions
+        onPlayAgain={onPlayAgain}
+        onGoToConfig={onGoToConfig}
+        onGoToHome={onGoToHome}
+      />
     </div>
   )
 }

@@ -36,14 +36,16 @@ export function ConfigPanel({
   const canGenerate = hasAtLeastOneNote(stringNotes)
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+    <div className="bg-card border-2 border-border rounded-xl p-6 md:p-8 space-y-6 shadow-medium">
       <InstrumentSelector instrument={instrument} onChange={onChangeInstrument} />
       <StringSelector stringNotes={stringNotes} onToggleNote={onToggleStringNote} />
       {!hideMeasureSelector && (
         <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
       )}
       {!canGenerate && (
-        <p className="text-sm text-destructive">{t('config.minStringNotesWarning')}</p>
+        <p className="text-sm text-destructive font-medium bg-destructive/10 p-3 rounded-lg border border-destructive/20">
+          {t('config.minStringNotesWarning')}
+        </p>
       )}
       <Button onClick={onGenerate} disabled={!canGenerate} className="w-full" size="lg">
         {t('config.generate')}

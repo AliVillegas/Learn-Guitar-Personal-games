@@ -40,17 +40,12 @@ function getScaleNotes(scaleType: ScaleType, startNote: SolfegeNote): SolfegeNot
   return [...scale.slice(startIndex), ...scale.slice(0, startIndex)]
 }
 
-function generateScaleSequence(
-  stringNotes: StringNoteConfig[],
-  scaleType: ScaleType
-): GameNote[] {
+function generateScaleSequence(stringNotes: StringNoteConfig[], scaleType: ScaleType): GameNote[] {
   const sequence: GameNote[] = []
   const fixedMeasures = 4
   const totalNotes = fixedMeasures * 4
 
-  const availableStrings = stringNotes
-    .filter((sn) => sn.notes.length > 0)
-    .map((sn) => sn.string)
+  const availableStrings = stringNotes.filter((sn) => sn.notes.length > 0).map((sn) => sn.string)
 
   if (availableStrings.length === 0) return sequence
 

@@ -62,6 +62,14 @@
     "subdivisionSixteenth": "♬"
   },
   "home": {
+    "heroTitle": "Master Music Through Interactive Learning",
+    "heroSubtitle": "Experience professional-grade guitar sight reading lessons designed to transform your musical journey",
+    "feature1": "Interactive Lessons",
+    "feature2": "Real-time Feedback",
+    "feature3": "Bilingual Support",
+    "title": "Interactive Lessons",
+    "lessonsDescription": "Explore our comprehensive curriculum designed to take you from beginner to advanced sight reading",
+    "lesson": "Lesson",
     "lesson1": {
       "description": "Learn to read single notes in 4/4 time",
       "title": "Lesson 1: First Position Notes"
@@ -87,7 +95,12 @@
       "title": "Waltz Showcase"
     },
     "startLesson": "Start Lesson",
-    "title": "Choose a Lesson"
+    "ctaTitle": "Ready to Master Music?",
+    "ctaSubtitle": "Take your guitar skills to the next level with personalized instruction",
+    "ctaStat1": "Comprehensive Lessons",
+    "ctaStat2": "Interactive",
+    "ctaStat3": "Available",
+    "ctaFooter": "Click to start a conversation on WhatsApp"
   },
   "language": {
     "label": "Language",

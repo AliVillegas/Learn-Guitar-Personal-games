@@ -6,11 +6,7 @@ import type {
   VoiceNote,
 } from '../../types/music'
 import type { InstrumentType } from '../../types/audio'
-import {
-  createNoteDefinition,
-  getNotesForString,
-  getStaffPosition,
-} from '../../utils/notes'
+import { createNoteDefinition, getNotesForString, getStaffPosition } from '../../utils/notes'
 import { useSettingsStore } from '../../store/settingsStore'
 import type { LessonPhase, LessonScore } from '../common/types'
 
@@ -175,9 +171,7 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
   const sequence: MultiVoiceGameNote[] = []
   const fixedMeasures = 60
 
-  const availableStrings = stringNotes
-    .filter((sn) => sn.notes.length > 0)
-    .map((sn) => sn.string)
+  const availableStrings = stringNotes.filter((sn) => sn.notes.length > 0).map((sn) => sn.string)
 
   if (availableStrings.length === 0) return sequence
 
@@ -207,7 +201,14 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     { bass: 'mi', melody1: 'sol', melody2: 'si', rhythmType: 'standard' },
     { bass: 'mi', melody1: 'sol', melody2: 'si', rhythmType: 'standard' },
     { bass: 'fa', melody1: 'la', melody2: 'do', rhythmType: 'standard' },
-    { bass: 'fa', melody1: 'la', melody2: 'do', melody3: 're', melody4: 'mi', rhythmType: 'complex' },
+    {
+      bass: 'fa',
+      melody1: 'la',
+      melody2: 'do',
+      melody3: 're',
+      melody4: 'mi',
+      rhythmType: 'complex',
+    },
     { bass: 'sol', melody1: 'si', melody2: 're', rhythmType: 'standard' },
     { bass: 'sol', melody1: 'si', melody2: 're', rhythmType: 'standard' },
   ]
@@ -223,7 +224,14 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 're', melody1: 'fa', melody2: 'la', rhythmType: 'standard' },
     { bass: 'mi', melody1: 'sol', melody2: 'si', rhythmType: 'standard' },
-    { bass: 'fa', melody1: 'la', melody2: 'do', melody3: 're', melody4: 'mi', rhythmType: 'complex' },
+    {
+      bass: 'fa',
+      melody1: 'la',
+      melody2: 'do',
+      melody3: 're',
+      melody4: 'mi',
+      rhythmType: 'complex',
+    },
     { bass: 'sol', melody1: 'si', melody2: 're', rhythmType: 'standard' },
     { bass: 'la', melody1: 'do', melody2: 'mi', rhythmType: 'standard' },
     { bass: 'si', melody1: 're', melody2: 'fa', rhythmType: 'standard' },
@@ -246,7 +254,14 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     { bass: 'fa', melody1: 'la', melody2: 'do', rhythmType: 'standard' },
     { bass: 'sol', melody1: 'si', melody2: 're', rhythmType: 'standard' },
     { bass: 'la', melody1: 'do', melody2: 'mi', rhythmType: 'standard' },
-    { bass: 'si', melody1: 're', melody2: 'fa', melody3: 'sol', melody4: 'la', rhythmType: 'complex' },
+    {
+      bass: 'si',
+      melody1: 're',
+      melody2: 'fa',
+      melody3: 'sol',
+      melody4: 'la',
+      rhythmType: 'complex',
+    },
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 're', melody1: 'fa', melody2: 'la', rhythmType: 'standard' },
     { bass: 'mi', melody1: 'sol', melody2: 'si', rhythmType: 'standard' },
@@ -263,7 +278,14 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     { bass: 'fa', melody1: 'la', melody2: 'do', rhythmType: 'standard' },
     { bass: 'mi', melody1: 'sol', melody2: 'si', rhythmType: 'standard' },
     { bass: 're', melody1: 'fa', melody2: 'la', rhythmType: 'standard' },
-    { bass: 'do', melody1: 'mi', melody2: 'sol', melody3: 'la', melody4: 'si', rhythmType: 'complex' },
+    {
+      bass: 'do',
+      melody1: 'mi',
+      melody2: 'sol',
+      melody3: 'la',
+      melody4: 'si',
+      rhythmType: 'complex',
+    },
     { bass: 'si', melody1: 're', melody2: 'fa', rhythmType: 'standard' },
     { bass: 'la', melody1: 'do', melody2: 'mi', rhythmType: 'standard' },
     { bass: 'sol', melody1: 'si', melody2: 're', rhythmType: 'standard' },
@@ -283,7 +305,14 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
-    { bass: 'do', melody1: 'mi', melody2: 'sol', melody3: 'la', melody4: 'si', rhythmType: 'complex' },
+    {
+      bass: 'do',
+      melody1: 'mi',
+      melody2: 'sol',
+      melody3: 'la',
+      melody4: 'si',
+      rhythmType: 'complex',
+    },
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 'do', melody1: 'mi', melody2: 'sol', rhythmType: 'standard' },
     { bass: 'do', melody1: 'mi', melody2: 'sol', melody3: 'la', rhythmType: 'cheerful' },
@@ -423,16 +452,15 @@ function generateConcertoSequence(stringNotes: StringNoteConfig[]): MultiVoiceGa
     if (rhythmType === 'cheerful' && progression.melody3) {
       const note3Candidates = measureMelodyNotes.filter((n) => n.solfege === progression.melody3)
       const preferredNote3 = note3Candidates.find((n) => n.octave >= 4) || note3Candidates[0]
-      const melodyNote3Def = preferredNote3 || pickRandomNote(measureMelodyNotes.filter((n) => n.octave >= 4)) || pickRandomNote(measureMelodyNotes)
+      const melodyNote3Def =
+        preferredNote3 ||
+        pickRandomNote(measureMelodyNotes.filter((n) => n.octave >= 4)) ||
+        pickRandomNote(measureMelodyNotes)
       melodyVoice = createCheerfulMelodyVoice(melodyNote1Def, melodyNote2Def, melodyNote3Def)
     } else if (rhythmType === 'complex' && progression.melody3) {
       const note3Candidates = measureMelodyNotes.filter((n) => n.solfege === progression.melody3)
       const melodyNote3Def = note3Candidates[0] || pickRandomNote(measureMelodyNotes)
-      melodyVoice = createComplexRhythmMelodyVoice(
-        melodyNote1Def,
-        melodyNote2Def,
-        melodyNote3Def
-      )
+      melodyVoice = createComplexRhythmMelodyVoice(melodyNote1Def, melodyNote2Def, melodyNote3Def)
     } else {
       melodyVoice = createMelodyVoiceWithChords(melodyNote1Def, melodyNote2Def)
     }

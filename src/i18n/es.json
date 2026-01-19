@@ -62,6 +62,14 @@
     "subdivisionSixteenth": "♬"
   },
   "home": {
+    "heroTitle": "Domina la Música con Aprendizaje Interactivo",
+    "heroSubtitle": "Experimenta lecciones profesionales de lectura a primera vista diseñadas para transformar tu viaje musical",
+    "feature1": "Lecciones Interactivas",
+    "feature2": "Retroalimentación en Tiempo Real",
+    "feature3": "Soporte Bilingüe",
+    "title": "Lecciones Interactivas",
+    "lessonsDescription": "Explora nuestro plan de estudios completo diseñado para llevarte de principiante a lectura avanzada",
+    "lesson": "Lección",
     "lesson1": {
       "description": "Aprende a leer notas individuales en compás de 4/4",
       "title": "Lección 1: Notas de Primera Posición"
@@ -87,7 +95,12 @@
       "title": "Muestra de Vals"
     },
     "startLesson": "Comenzar Lección",
-    "title": "Elige una Lección"
+    "ctaTitle": "¿Listo para Dominar la Música?",
+    "ctaSubtitle": "Lleva tus habilidades con la guitarra al siguiente nivel con instrucción personalizada",
+    "ctaStat1": "Lecciones Completas",
+    "ctaStat2": "Interactivo",
+    "ctaStat3": "Disponible",
+    "ctaFooter": "Haz clic para iniciar una conversación en WhatsApp"
   },
   "language": {
     "label": "Idioma",
