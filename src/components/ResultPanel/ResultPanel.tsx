@@ -9,19 +9,12 @@ interface ResultPanelProps {
   onGoToHome?: () => void
 }
 
-function getResultEmoji(percentage: number): string {
-  if (percentage >= 90) return '🎉'
-  if (percentage >= 70) return '✨'
-  return '🎯'
-}
-
 function ResultContent({ correct, total }: { correct: number; total: number }) {
   const { t } = useTranslation()
   const percentage = Math.round((correct / total) * 100)
 
   return (
     <div className="space-y-4">
-      <div className="text-6xl mb-4">{getResultEmoji(percentage)}</div>
       <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
         {t('result.complete')}
       </h2>
@@ -71,7 +64,7 @@ export function ResultPanel({
   onGoToHome,
 }: ResultPanelProps) {
   return (
-    <div className="bg-card border-2 border-border rounded-xl p-8 md:p-12 space-y-8 text-center shadow-large animate-scale-in">
+    <div className="bg-card border-2 border-border rounded-xl p-8 md:p-12 space-y-8 text-center shadow-large">
       <ResultContent correct={correct} total={total} />
       <ResultActions
         onPlayAgain={onPlayAgain}

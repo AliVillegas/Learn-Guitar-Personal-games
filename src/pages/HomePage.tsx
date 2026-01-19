@@ -22,27 +22,18 @@ function HeroFeatures() {
   const featuresRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    animateElement(featuresRef.current, 400)
+    animateElement(featuresRef.current, 200)
   }, [])
 
   return (
     <div
       ref={featuresRef}
-      className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground"
+      className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground"
       style={{ opacity: 0 }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">🎸</span>
-        <span>{t('home.feature1')}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">🎯</span>
-        <span>{t('home.feature2')}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">🌐</span>
-        <span>{t('home.feature3')}</span>
-      </div>
+      <span>{t('home.feature1')}</span>
+      <span>{t('home.feature2')}</span>
+      <span>{t('home.feature3')}</span>
     </div>
   )
 }
@@ -59,9 +50,6 @@ function HeroSection() {
     <div className="relative w-full overflow-hidden mb-16">
       <div className="absolute inset-0 bg-gradient-musical opacity-5"></div>
       <div className="relative max-w-4xl mx-auto px-4 py-20 text-center">
-        <div className="inline-block mb-6 animate-float">
-          <div className="text-6xl mb-4">🎵</div>
-        </div>
         <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 animate-fade-in-up">
           {t('home.heroTitle')}
         </h1>
@@ -117,9 +105,11 @@ function LessonCardHeader({ title, lessonNumber }: { title: string; lessonNumber
   const { t } = useTranslation()
 
   return (
-    <div className="flex items-center justify-between mb-3">
-      <h3 className="text-xl font-bold text-card-foreground">{title}</h3>
-      <span className="text-xs font-semibold px-2 py-1 bg-primary/10 text-primary rounded-full">
+    <div className="mb-3">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="text-xl font-bold text-card-foreground flex-1">{title}</h3>
+      </div>
+      <span className="inline-block text-xs font-semibold px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap">
         {t('home.lesson')} {lessonNumber}
       </span>
     </div>
@@ -143,12 +133,7 @@ function LessonCardContent({
     <div className="relative z-10">
       <LessonCardHeader title={title} lessonNumber={lessonNumber} />
       <p className="text-muted-foreground mb-6 flex-grow leading-relaxed">{description}</p>
-      <Button
-        onClick={() => onSelect(lessonNumber)}
-        className="w-full group-hover:shadow-glow"
-        size="lg"
-        variant="default"
-      >
+      <Button onClick={() => onSelect(lessonNumber)} className="w-full" size="lg" variant="default">
         {t('home.startLesson')}
       </Button>
     </div>
@@ -173,10 +158,9 @@ function LessonCard({
   return (
     <div
       ref={cardRef}
-      className="bg-card border-2 border-border rounded-xl p-6 hover:shadow-large hover:-translate-y-2 transition-all duration-300 flex flex-col h-full group relative overflow-hidden"
+      className="bg-card border-2 border-border rounded-xl p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-200 flex flex-col h-full group relative"
       style={{ opacity: 0 }}
     >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <LessonCardContent
         title={title}
         description={description}
@@ -207,7 +191,7 @@ function LessonCards({ onSelect }: { onSelect: (lessonNumber: number) => void })
       <p className="text-muted-foreground text-center mb-12 text-lg max-w-2xl mx-auto">
         {t('home.lessonsDescription')}
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         {LESSON_DATA.map((lesson) => (
           <LessonCard
             key={lesson.key}
@@ -254,7 +238,7 @@ function WhatsAppButton() {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-glow-lg hover:shadow-glow-lg hover:-translate-y-1 transition-all duration-300 animate-pulse-glow"
+      className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#20BA5A] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-medium hover:shadow-large hover:-translate-y-0.5 transition-all duration-200"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -274,9 +258,6 @@ function CTAContent() {
 
   return (
     <div className="text-center space-y-6">
-      <div className="inline-block animate-pulse-glow">
-        <div className="text-5xl mb-4">🎸</div>
-      </div>
       <h2 className="text-3xl md:text-4xl font-bold text-foreground">{t('home.ctaTitle')}</h2>
       <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
         {t('home.ctaSubtitle')}

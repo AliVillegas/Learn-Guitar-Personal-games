@@ -46,7 +46,7 @@ function AppHeader() {
         ) : (
           <Link
             to="/"
-            className="text-2xl md:text-3xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-105"
+            className="text-2xl md:text-3xl font-bold text-foreground hover:text-primary transition-colors duration-200"
           >
             {t('app.title')}
           </Link>
