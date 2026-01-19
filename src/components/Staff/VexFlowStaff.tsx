@@ -11,7 +11,7 @@ import type {
 
 interface VexFlowStaffProps {
   notes: GameNote[] | MultiVoiceGameNote[]
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
   currentIndex: number
 }
 
@@ -91,14 +91,31 @@ function addRestsToVoice(voice: Voice, restsNeeded: number): void {
   }
 }
 
+function calculateBeatsFromNotes(notes: StaveNote[]): number {
+  let totalBeats = 0
+  notes.forEach((note) => {
+    const duration = note.getDuration()
+    if (duration === '16') {
+      totalBeats += 0.25
+    } else if (duration === 'q') {
+      totalBeats += 1
+    } else if (duration === 'h' || duration === 'h.') {
+      totalBeats += 2
+    } else if (duration === 'qr') {
+      totalBeats += 1
+    }
+  })
+  return totalBeats
+}
+
 function createVoiceWithNotes(measureNotes: StaveNote[]): Voice {
   const requiredBeats = 4
   const voice = new Voice({ num_beats: requiredBeats, beat_value: 4 })
   voice.addTickables(measureNotes)
 
-  const actualBeats = measureNotes.length
+  const actualBeats = calculateBeatsFromNotes(measureNotes)
   if (actualBeats < requiredBeats) {
-    const restsNeeded = requiredBeats - actualBeats
+    const restsNeeded = Math.ceil(requiredBeats - actualBeats)
     addRestsToVoice(voice, restsNeeded)
   }
 
@@ -133,10 +150,18 @@ function createMelodyStaveNote(
   }
 
   const melodyVexNote = getVexFlowNoteFromDefinition(voiceNote.note)
+  let duration = 'q'
+  if (voiceNote.duration === 's') {
+    duration = '16'
+  } else if (voiceNote.duration === 'e') {
+    duration = '8'
+  } else if (voiceNote.duration === 'q') {
+    duration = 'q'
+  }
   const melodyStaveNote = new StaveNote({
     clef: 'treble',
     keys: [melodyVexNote],
-    duration: 'q',
+    duration,
     stem_direction: Stem.UP,
   })
   melodyStaveNote.setStyle({ fillStyle: color, strokeStyle: color })
@@ -160,9 +185,19 @@ function createStackedMelodyStaveNote(
   return stackedStaveNote
 }
 
+function getDurationInBeatsForStacking(duration: string): number {
+  if (duration === 's') return 0.25
+  if (duration === 'e') return 0.5
+  if (duration === 'q' || duration === 'qr') return 1
+  if (duration === 'h.' || duration === 'h') return 2
+  return 1
+}
+
 function canStackMelodyNotes(voiceNote: VoiceNote, nextNote: VoiceNote): boolean {
   if (!voiceNote.note || !nextNote.note) return false
-  return voiceNote.duration === 'q' && nextNote.duration === 'q'
+  const duration1 = getDurationInBeatsForStacking(voiceNote.duration)
+  const duration2 = getDurationInBeatsForStacking(nextNote.duration)
+  return duration1 === 1 && duration2 === 1
 }
 
 function shouldStackMelodyNotes(
@@ -229,7 +264,8 @@ function createStaveForMeasure(
   staveWidth: number,
   context: ReturnType<Renderer['getContext']>,
   yPosition: number,
-  isFirstInRow: boolean
+  isFirstInRow: boolean,
+  timeSignature: '3/4' | '4/4' = '3/4'
 ) {
   const xPosition = 50 + (measureIndex % 4) * staveWidth
   const staveActualWidth = staveWidth - 20
@@ -237,19 +273,46 @@ function createStaveForMeasure(
 
   if (isFirstInRow) {
     stave.addClef('treble')
-    stave.addTimeSignature('3/4')
+    stave.addTimeSignature(timeSignature)
   }
 
   stave.setContext(context).draw()
   return stave
 }
 
-function createVoiceObjects(bassVoice: StaveNote, melodyVoice: StaveNote[]) {
-  const bassVoiceObj = new Voice({ num_beats: 3, beat_value: 4 })
+function calculateBeatsFromVoiceNotes(voiceNotes: VoiceNote[]): number {
+  let totalBeats = 0
+  voiceNotes.forEach((voiceNote) => {
+    if (voiceNote.duration === 's') {
+      totalBeats += 0.25
+    } else if (voiceNote.duration === 'e') {
+      totalBeats += 0.5
+    } else if (voiceNote.duration === 'q') {
+      totalBeats += 1
+    } else if (voiceNote.duration === 'h.' || voiceNote.duration === 'h') {
+      totalBeats += 2
+    } else if (voiceNote.duration === 'qr') {
+      totalBeats += 1
+    }
+  })
+  return totalBeats
+}
+
+function createVoiceObjects(
+  bassVoice: StaveNote,
+  melodyVoice: StaveNote[],
+  melodyVoiceNotes: VoiceNote[],
+  beatsPerMeasure: number = 3
+) {
+  const bassVoiceObj = new Voice({ num_beats: beatsPerMeasure, beat_value: 4 })
   bassVoiceObj.setMode(Voice.Mode.SOFT)
   bassVoiceObj.addTickable(bassVoice)
 
-  const melodyVoiceObj = new Voice({ num_beats: 3, beat_value: 4 })
+  const melodyBeats = calculateBeatsFromVoiceNotes(melodyVoiceNotes)
+  const melodyVoiceObj = new Voice({
+    num_beats: Math.max(beatsPerMeasure, Math.ceil(melodyBeats)),
+    beat_value: 4,
+  })
   melodyVoiceObj.setMode(Voice.Mode.SOFT)
   melodyVoiceObj.addTickables(melodyVoice)
 
@@ -285,11 +348,18 @@ function renderMultiVoiceMeasure(
   staveWidth: number,
   isActive: boolean,
   yPosition: number,
-  isFirstInRow: boolean
+  isFirstInRow: boolean,
+  beatsPerMeasure: number = 3
 ): void {
-  const stave = createStaveForMeasure(measureIndex, staveWidth, context, yPosition, isFirstInRow)
+  const timeSignature = beatsPerMeasure === 4 ? '4/4' : '3/4'
+  const stave = createStaveForMeasure(measureIndex, staveWidth, context, yPosition, isFirstInRow, timeSignature)
   const { bassVoice, melodyVoice } = createMultiVoiceStaveNotes(multiVoiceNote, isActive)
-  const { bassVoiceObj, melodyVoiceObj } = createVoiceObjects(bassVoice, melodyVoice)
+  const { bassVoiceObj, melodyVoiceObj } = createVoiceObjects(
+    bassVoice,
+    melodyVoice,
+    multiVoiceNote.melodyVoice,
+    beatsPerMeasure
+  )
   formatAndDrawVoices(bassVoiceObj, melodyVoiceObj, stave, bassVoice, melodyVoice, context)
 }
 
@@ -337,9 +407,10 @@ function calculateMeasurePosition(measureIndex: number) {
 function renderMultiVoiceMeasures(
   context: ReturnType<Renderer['getContext']>,
   multiVoiceNotes: MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   currentIndex: number,
-  staveWidth: number
+  staveWidth: number,
+  beatsPerMeasure: number = 3
 ): void {
   for (
     let measureIndex = 0;
@@ -356,7 +427,8 @@ function renderMultiVoiceMeasures(
       staveWidth,
       isActive,
       yPosition,
-      isFirstInRow
+      isFirstInRow,
+      beatsPerMeasure
     )
   }
 }
@@ -364,7 +436,7 @@ function renderMultiVoiceMeasures(
 function renderSingleNoteMeasures(
   context: ReturnType<Renderer['getContext']>,
   singleNotes: GameNote[],
-  measureCount: MeasureCount,
+  measureCount: MeasureCount | number,
   currentIndex: number,
   staveWidth: number
 ): void {
@@ -385,7 +457,7 @@ function renderSingleNoteMeasures(
 
 function setupRenderer(
   container: HTMLDivElement,
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
 ): ReturnType<Renderer['getContext']> {
   container.innerHTML = ''
 
@@ -412,11 +484,12 @@ function setupRenderer(
 function renderStaff(
   container: HTMLDivElement,
   notes: GameNote[] | MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   currentIndex: number
 ): void {
   const context = setupRenderer(container, measureCount)
   const staveWidth = 200
+  const beatsPerMeasure = 3
 
   if (notes.length === 0) return
 
@@ -426,7 +499,8 @@ function renderStaff(
       notes as MultiVoiceGameNote[],
       measureCount,
       currentIndex,
-      staveWidth
+      staveWidth,
+      beatsPerMeasure
     )
   } else {
     renderSingleNoteMeasures(context, notes as GameNote[], measureCount, currentIndex, staveWidth)

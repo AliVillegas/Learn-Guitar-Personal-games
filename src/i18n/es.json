@@ -1,8 +1,10 @@
 {
   "app": {
     "backToHome": "Volver a Lecciones",
-    "homeTitle": "Aprendiendo Solfeo",
-    "title": "Aprendiendo Solfeo"
+    "homeTitle": "Solfeo Solfeo",
+    "title": "Solfeo Solfeo",
+    "wantToLearnMore": "¿Quieres aprender más?",
+    "contactUs": "Contáctanos"
   },
   "config": {
     "generate": "Generar",
@@ -19,6 +21,11 @@
       "mixed": "Mixto",
       "single": "Individual",
       "stacked": "Apilado"
+    },
+    "scaleType": "Tipo de Escala",
+    "scaleTypes": {
+      "major": "Mayor",
+      "minor": "Menor"
     },
     "selectStringNotes": "Selecciona las notas para cada cuerda"
   },
@@ -62,6 +69,22 @@
     "lesson2": {
       "description": "Practica leyendo dos voces en compás de 3/4",
       "title": "Lección 2: Lectura Multi-Voz"
+    },
+    "lesson3": {
+      "description": "Aprende escalas e intervalos con patrones progresivos",
+      "title": "Lección 3: Escalas e Intervalos"
+    },
+    "lesson4": {
+      "description": "Domina progresiones de acordes y patrones armónicos",
+      "title": "Lección 4: Acordes y Armonía"
+    },
+    "lesson5": {
+      "description": "Patrones rítmicos avanzados y compases complejos",
+      "title": "Lección 5: Ritmo Avanzado"
+    },
+    "lesson6": {
+      "description": "Muestra de vals con 60 compases en compás de 3/4",
+      "title": "Muestra de Vals"
     },
     "startLesson": "Comenzar Lección",
     "title": "Elige una Lección"

@@ -33,6 +33,10 @@ function getDurationInBeats(duration: NoteDuration): number {
       return 1
     case 'qr':
       return 1
+    case 'e':
+      return 0.5
+    case 's':
+      return 0.25
     default:
       return 1
   }
@@ -147,7 +151,8 @@ export function extractTimedNotesFromMultiVoice(multiVoiceNote: MultiVoiceGameNo
   const allowStacked = multiVoiceNote.allowStacked !== false
   const bassNotes = extractTimedNotesFromVoice(multiVoiceNote.bassVoice, true)
   const melodyNotes = extractTimedNotesFromVoice(multiVoiceNote.melodyVoice, allowStacked)
-  return [...bassNotes, ...melodyNotes]
+  const allNotes = [...bassNotes, ...melodyNotes]
+  return allNotes.sort((a, b) => a.beatOffset - b.beatOffset)
 }
 
 export function extractAllNotesFromMultiVoice(

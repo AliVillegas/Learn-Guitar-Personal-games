@@ -1,8 +1,10 @@
 {
   "app": {
     "backToHome": "Back to Lessons",
-    "homeTitle": "Learning Solfege",
-    "title": "Learning Solfege"
+    "homeTitle": "Solfeo Solfeo",
+    "title": "Solfeo Solfeo",
+    "wantToLearnMore": "Want to learn more?",
+    "contactUs": "Contact Us"
   },
   "config": {
     "generate": "Generate",
@@ -19,6 +21,11 @@
       "mixed": "Mixed",
       "single": "Single",
       "stacked": "Stacked"
+    },
+    "scaleType": "Scale Type",
+    "scaleTypes": {
+      "major": "Major",
+      "minor": "Minor"
     },
     "selectStringNotes": "Select notes for each string"
   },
@@ -62,6 +69,22 @@
     "lesson2": {
       "description": "Practice reading two voices in 3/4 time",
       "title": "Lesson 2: Multi-Voice Reading"
+    },
+    "lesson3": {
+      "description": "Learn scales and intervals with progressive patterns",
+      "title": "Lesson 3: Scales and Intervals"
+    },
+    "lesson4": {
+      "description": "Master chord progressions and harmonic patterns",
+      "title": "Lesson 4: Chords and Harmony"
+    },
+    "lesson5": {
+      "description": "Advanced rhythm patterns and complex time signatures",
+      "title": "Lesson 5: Advanced Rhythm"
+    },
+    "lesson6": {
+      "description": "Waltz showcase featuring 60 measures in 3/4 time",
+      "title": "Waltz Showcase"
     },
     "startLesson": "Start Lesson",
     "title": "Choose a Lesson"
