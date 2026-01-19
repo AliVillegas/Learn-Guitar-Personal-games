@@ -5,7 +5,7 @@ import type { NoteDefinition, MeasureCount, MultiVoiceMeasureCount } from '../..
 interface PlaybackControlsProps {
   notes: NoteDefinition[]
   currentNote: NoteDefinition | null
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
   onPlayAll: (notes: NoteDefinition[]) => void
   onPlayCurrentNote: () => void
   onPlayMeasure: (measureIndex: number) => void
@@ -92,11 +92,11 @@ function createPlayMeasureHandler(
 
 function renderMeasureButtons(
   t: (key: string) => string,
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   isPlaying: boolean,
   onPlayMeasure: (measureIndex: number) => void
 ) {
-  if (measureCount <= 1) {
+  if (measureCount <= 1 || measureCount === 60) {
     return null
   }
 

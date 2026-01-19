@@ -22,7 +22,7 @@ export type BeatsPerMeasure = 3 | 4
 
 export type LessonType = 'single-notes' | 'multi-voice'
 
-export type NoteDuration = 'q' | 'h.' | 'qr'
+export type NoteDuration = 'q' | 'h.' | 'qr' | 's' | 'e'
 
 export interface VoiceNote {
   note: NoteDefinition | null

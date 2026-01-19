@@ -18,7 +18,7 @@ import { getCurrentNoteDefinition, calculateCorrectCount } from './lessonHelpers
 
 interface LessonRendererProps {
   sequence: GameNote[] | MultiVoiceGameNote[]
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
   currentIndex: number
   highlightIndex: number
   isPlaying: boolean
@@ -61,7 +61,7 @@ function renderNavigationButtons(
 
 function renderStaffSection(
   sequence: GameNote[] | MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   highlightIndex: number,
   isPlaying: boolean
 ) {
@@ -100,7 +100,7 @@ function renderAnswerAndScore(
 function renderPlaybackSection(
   noteDefinitions: NoteDefinition[],
   currentNoteDefinition: NoteDefinition | null,
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   onPlayAll: (notes: NoteDefinition[]) => void,
   onPlayCurrentNote: () => void,
   onPlayMeasure: (measureIndex: number) => void,
@@ -131,7 +131,7 @@ function getCurrentNoteDefinitionFromSequence(
 
 function renderStaffAndPlaybackContent(
   sequence: GameNote[] | MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   highlightIndex: number,
   isPlaying: boolean,
   noteDefinitions: NoteDefinition[],
@@ -160,7 +160,7 @@ function renderStaffAndPlaybackContent(
 
 function renderStaffAndPlaybackSection(
   sequence: GameNote[] | MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   highlightIndex: number,
   isPlaying: boolean,
   noteDefinitions: NoteDefinition[],
@@ -204,7 +204,7 @@ function renderAnswerAndScoreSection(
 
 function buildStaffAndPlaybackSection(
   sequence: GameNote[] | MultiVoiceGameNote[],
-  measureCount: MeasureCount | MultiVoiceMeasureCount,
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number,
   highlightIndex: number,
   isPlaying: boolean,
   noteDefinitions: NoteDefinition[],
@@ -248,7 +248,7 @@ function buildAnswerAndScoreSection(
 
 function buildStaffSection(props: {
   sequence: GameNote[] | MultiVoiceGameNote[]
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
   highlightIndex: number
   isPlaying: boolean
   noteDefinitions: NoteDefinition[]

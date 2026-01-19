@@ -15,6 +15,7 @@ interface ConfigPanelProps {
   onChangeMeasure: (count: MeasureCount) => void
   onChangeInstrument: (instrument: InstrumentType) => void
   onGenerate: () => void
+  hideMeasureSelector?: boolean
 }
 
 function hasAtLeastOneNote(stringNotes: StringNoteConfig[]): boolean {
@@ -29,6 +30,7 @@ export function ConfigPanel({
   onChangeMeasure,
   onChangeInstrument,
   onGenerate,
+  hideMeasureSelector = false,
 }: ConfigPanelProps) {
   const { t } = useTranslation()
   const canGenerate = hasAtLeastOneNote(stringNotes)
@@ -37,7 +39,9 @@ export function ConfigPanel({
     <div className="bg-card border border-border rounded-lg p-6 space-y-6">
       <InstrumentSelector instrument={instrument} onChange={onChangeInstrument} />
       <StringSelector stringNotes={stringNotes} onToggleNote={onToggleStringNote} />
-      <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
+      {!hideMeasureSelector && (
+        <MeasureSelector measureCount={measureCount} onChange={onChangeMeasure} />
+      )}
       {!canGenerate && (
         <p className="text-sm text-destructive">{t('config.minStringNotesWarning')}</p>
       )}

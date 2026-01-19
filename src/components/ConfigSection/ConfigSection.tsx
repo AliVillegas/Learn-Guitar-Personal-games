@@ -11,6 +11,7 @@ interface ConfigSectionProps {
   onChangeMeasure: (count: MeasureCount) => void
   onChangeInstrument: (instrument: InstrumentType) => void
   onGenerate: () => void
+  hideMeasureSelector?: boolean
 }
 
 export function ConfigSection({
@@ -21,6 +22,7 @@ export function ConfigSection({
   onChangeMeasure,
   onChangeInstrument,
   onGenerate,
+  hideMeasureSelector = false,
 }: ConfigSectionProps) {
   return (
     <ConfigPanel
@@ -31,6 +33,7 @@ export function ConfigSection({
       onChangeMeasure={onChangeMeasure}
       onChangeInstrument={onChangeInstrument}
       onGenerate={onGenerate}
+      hideMeasureSelector={hideMeasureSelector}
     />
   )
 }

@@ -8,7 +8,7 @@ import { VexFlowStaff } from './VexFlowStaff'
 
 interface StaffProps {
   notes: GameNote[] | MultiVoiceGameNote[]
-  measureCount: MeasureCount | MultiVoiceMeasureCount
+  measureCount: MeasureCount | MultiVoiceMeasureCount | number
   currentIndex: number
 }
 

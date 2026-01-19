@@ -4,6 +4,10 @@ import { LanguageSwitcher } from './components/LanguageSwitcher/LanguageSwitcher
 import { HomePage } from './pages/HomePage'
 import { Lesson1Page } from './lessons/lesson1/Lesson1Page'
 import { Lesson2Page } from './lessons/lesson2/Lesson2Page'
+import { Lesson3Page } from './lessons/lesson3/Lesson3Page'
+import { Lesson4Page } from './lessons/lesson4/Lesson4Page'
+import { Lesson5Page } from './lessons/lesson5/Lesson5Page'
+import { Lesson6Page } from './lessons/lesson6/Lesson6Page'
 import { DebugPage } from './pages/DebugPage'
 import { VERSION } from './version'
 import './App.css'
@@ -57,6 +61,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/game/lesson1" element={<Lesson1Page />} />
           <Route path="/game/lesson2" element={<Lesson2Page />} />
+          <Route path="/game/lesson3" element={<Lesson3Page />} />
+          <Route path="/game/lesson4" element={<Lesson4Page />} />
+          <Route path="/game/lesson5" element={<Lesson5Page />} />
+          <Route path="/game/lesson6" element={<Lesson6Page />} />
           <Route path="/debug" element={<DebugPage />} />
         </Routes>
       </main>
