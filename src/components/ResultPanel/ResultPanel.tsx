@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
 
 interface ResultPanelProps {
@@ -64,13 +65,18 @@ export function ResultPanel({
   onGoToHome,
 }: ResultPanelProps) {
   return (
-    <div className="bg-card border-2 border-border rounded-xl p-8 md:p-12 space-y-8 text-center shadow-large">
+    <motion.div
+      className="bg-card border-2 border-border rounded-xl p-8 md:p-12 space-y-8 text-center shadow-large"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
       <ResultContent correct={correct} total={total} />
       <ResultActions
         onPlayAgain={onPlayAgain}
         onGoToConfig={onGoToConfig}
         onGoToHome={onGoToHome}
       />
-    </div>
+    </motion.div>
   )
 }
